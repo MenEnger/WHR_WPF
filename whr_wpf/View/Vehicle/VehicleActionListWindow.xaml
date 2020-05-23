@@ -1,0 +1,20 @@
+﻿<Window x:Class="whr_wpf.View.Vehicle.VehicleActionListWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:whr_wpf.View.Vehicle"
+        mc:Ignorable="d"
+        Title="車両メニュー" Height="450" Width="200" Background="#006699" WindowStyle="ToolWindow" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <StackPanel>
+            <Label Content="車両" Foreground="White" FontSize="24" HorizontalContentAlignment="Center"/>
+
+            <Button Content="編成情報/売買" Command="{Binding CompositionManage}" Margin="2"/>
+            <Button Content="編成作成" Command="{Binding CompositionMake}" Margin="2"/>
+
+            <Button Content="車両情報" Command="{Binding VehicleInfo}" Margin="2"/>
+            <Button Content="車両開発" Command="{Binding VehicleDevelop}" Margin="2"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,21 @@
+﻿<Window x:Class="whr_wpf.View.Line.TaihisenChangeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:whr_wpf.View.Line"
+        mc:Ignorable="d"
+        Title="待避線変更"  Width="200" Height="100" Background="#006699" ResizeMode="NoResize" WindowStartupLocation="CenterOwner"
+        >
+    
+    <Grid>
+        <StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <ComboBox x:Name="Taihi"  Width="100" SelectedItem="{Binding Taihisen}" ItemsSource="{Binding TaihiList}" DisplayMemberPath="Caption" ToolTip="待避線の間隔を選びます。間隔が短いほど、多くの列車を走らせることができます。"/>
+                <Button x:Name="Kettei" Content="決定" Command="{Binding Kettei}" Margin="0,0,0,0"></Button>
+                <Button x:Name="Cancel" Content="キャンセル" Command="{Binding Cancel}"></Button>
+            </StackPanel>
+            <Label Height="30" Content="{Binding EstimatedCost}" Foreground="White" FontSize="12"></Label>
+        </StackPanel>
+    </Grid>
+</Window>

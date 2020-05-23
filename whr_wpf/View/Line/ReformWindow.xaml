@@ -1,0 +1,22 @@
+﻿<Window x:Class="whr_wpf.View.Line.ReformWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:whr_wpf.View.Line"
+        mc:Ignorable="d"
+        Title="路線改造"  Width="200" MaxHeight="500" Background="#006699" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+    <Grid>
+        <StackPanel >
+            <Button x:Name="SpeedUpButton" Content="スピードアップ" TabIndex="1" Command="{Binding SpeedUp}" Height="30" ToolTip="路線最高速度を引き上げます"/>
+            <Button x:Name="HidenkaButton" Content="非電化工事" TabIndex="2" Command="{Binding Hidenka}" Height="30" ToolTip="電化設備を撤去します。電車が使えなくなりなす"/>
+            <Button x:Name="DenkaButton" Content="電化工事" TabIndex="3" Command="{Binding Denka}" Height="30" ToolTip="路線を電化します。電車が使えるようになります"/>
+            <Button x:Name="ShrinkButton" Content="軌道縮小" TabIndex="4" Command="{Binding Narrow}" Height="30" ToolTip="レール幅を、標準軌から狭軌に変えます"/>
+            <Button x:Name="ExpanseButton" Content="軌道拡大" TabIndex="5" Command="{Binding Expanse}" Height="30" ToolTip="レール幅を、狭軌から標準軌に変えます"/>
+            <Button x:Name="AdditionButton" Content="路線増設" TabIndex="6" Command="{Binding Addition}" Height="30" ToolTip="路線を増設します。運行可能本数が増えます"/>
+            <Button x:Name="RemoveButton" Content="路線撤去" TabIndex="7" Command="{Binding Remove}" Height="30" ToolTip="路線を減らします。運行可能本数が減ります。単線の場合は廃止になります"/>
+            <Button x:Name="TaihiButton" Content="待避線変更" TabIndex="8" Command="{Binding Taihisen}" Height="30" ToolTip="待避線の設定を変更します。運行本数が増減します"/>
+            <Button x:Name="CancelButton" Content="閉じる" TabIndex="9" Command="{Binding Cancel}" Height="30" ToolTip="路線設定･情報表示画面に戻ります"/>
+        </StackPanel>
+    </Grid>
+</Window>

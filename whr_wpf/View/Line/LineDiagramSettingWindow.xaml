@@ -1,0 +1,39 @@
+﻿<Window x:Class="whr_wpf.View.Line.LineDiagramSettingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:whr_wpf.View.Line"
+        mc:Ignorable="d"
+        Title="路線運行設定"  Width="200" Height="600" Background="#006699" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+    <Grid>
+        <StackPanel>
+            <Label Content="運行編成" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Foreground="White" FontSize="16"/>
+            <ComboBox x:Name="CompositionList" Margin="0,0,0,0" FontSize="16" DisplayMemberPath="Name" ItemsSource="{Binding CompositionList, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding Composition}"/>
+            <Label Content="運行本数" HorizontalAlignment="Left" Margin="0,10,0,0" VerticalAlignment="Top" Foreground="White" FontSize="16"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBox x:Name="RunningPerDayTextBox" Text="{Binding RunningPerDay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" InputMethod.IsInputMethodEnabled="False" Width="50" HorizontalAlignment="Left" ToolTip="路線の最高速度を設定します。設定速度以上の速度が、この路線では出せません"/>
+                <Button x:Name="DownButton" Content="▼" Width="24" Command="{Binding Down}"/>
+                <Button x:Name="UpButton" Content="▲" Width="24" Command="{Binding Up}"/>
+            </StackPanel>
+
+            <Label  Content="{Binding ErrorMsg}" HorizontalContentAlignment="Left" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" FontSize="16" Foreground="Red" Padding="10,0,10,0"/>
+            <Label  Content="{Binding BestSpeed}" HorizontalContentAlignment="Left" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" FontSize="16" Foreground="White" Padding="10,0,10,0"/>
+            <Label  Content="{Binding Gauge}" HorizontalContentAlignment="Left" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" FontSize="16" Foreground="White" Padding="10,0,10,0"/>
+            <Label  Content="{Binding PowerSource}" HorizontalContentAlignment="Left" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" FontSize="16" Foreground="White" Padding="10,0,10,0"/>
+            <Label  Content="{Binding CarNum}" HorizontalContentAlignment="Left" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" FontSize="16" Foreground="White" Padding="10,0,10,0"/>
+            <Label  Content="{Binding HeldUnits}" HorizontalContentAlignment="Left" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" FontSize="16" Foreground="White" Padding="10,0,10,0"/>
+            <Label  Content="{Binding Price}" HorizontalContentAlignment="Left" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" FontSize="16" Foreground="White" Padding="10,0,10,0"/>
+            <Label  Content="{Binding UseCompositionNum}" HorizontalContentAlignment="Left" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" FontSize="16" Foreground="White" Padding="10,0,10,0"/>
+            <Label  Content="{Binding RequiredMinutes}" HorizontalContentAlignment="Left" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" FontSize="16" Foreground="White" Padding="10,0,10,0"/>
+            <Label  Content="{Binding Josharitsu}" HorizontalContentAlignment="Left" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" FontSize="16" Foreground="White" Padding="10,0,10,0"/>
+            <Label  Content="{Binding DiagramNum}" HorizontalContentAlignment="Left" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" FontSize="16" Foreground="White" Padding="10,0,10,0"/>
+            <Label  Content="{Binding DiagramType}" HorizontalContentAlignment="Left" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" FontSize="16" Foreground="White" Padding="10,0,10,0"/>
+            
+            <Button x:Name="KetteiBtn" Content="決定" Command="{Binding Kettei}" Height="30"/>
+            <Button x:Name="SpeedUpBtn" Content="速度を上げる" Command="{Binding SpeedUp}" Height="30" ToolTip="路線のスピードをアップし、所要時間を短縮します"/>
+            <Button x:Name="CapacityUpBtn" Content="輸送力の増強" Command="{Binding CapacityUp}" Height="30" ToolTip="未実装"/>
+            <Button x:Name="CloseBtn" Content="閉じる" Command="{Binding Close}" Height="30"/>
+        </StackPanel>
+    </Grid>
+</Window>

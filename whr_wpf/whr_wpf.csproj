@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Version>0.01</Version>
+    <Company />
+    <Copyright>Copyright (c) 2020 MarEnger.</Copyright>
+    <Description>鉄道経営シミュレーションゲームです。</Description>
+    <AssemblyName>世界鉄道網</AssemblyName>
+    <Product>世界鉄道網 (.NET WPF版)</Product>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="View\map.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="View\map.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="MainMenuPage - コピー.xaml.cs">
+      <SubType>Code</SubType>
+      <DependentUpon>MainMenuPage - コピー.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="View\Keito\DiagramInfoPage.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="View\Keito\KeitoDiagramSettingWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="View\Keito\DiagramInfoPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="View\Keito\KeitoDiagramSettingWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
+</Project>

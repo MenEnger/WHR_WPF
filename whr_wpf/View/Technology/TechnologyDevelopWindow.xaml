@@ -1,0 +1,69 @@
+﻿<Window x:Class="whr_wpf.View.Technology.TechnologyDevelopWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:whr_wpf.View.Technology"
+        mc:Ignorable="d"
+        Title="技術開発" Height="280" Width="300" Background="#006699" ResizeMode="NoResize" WindowStartupLocation="Manual">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+    </Window.Resources>
+    <Grid>
+        <StackPanel >
+            <Label Content="週次の投資額を選択してください" Foreground="White" />
+            <Grid >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <Label Content="部門" Foreground="White" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center"/>
+                <Label Content="週次投資額" Foreground="White" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center"/>
+                <Label Content="累計投資額" Foreground="White" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center"/>
+                <Border BorderBrush="Azure" BorderThickness="0 0 0 1" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" />
+
+                <Label Content="蒸気機関" Foreground="White" Grid.Row="1" Grid.Column="0"/>
+                <Label Content="(投資不可)" Foreground="White" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center"/>
+                <ComboBox Grid.Row="1" Grid.Column="1" Margin="2" HorizontalContentAlignment="Right" IsEnabled="{Binding CanSteamDevelop}"
+                          ItemsSource="{Binding InvestAmountList}" Visibility="{Binding CanSteamInvest, Converter={StaticResource BoolToVisibility}}" SelectedValuePath="Key" DisplayMemberPath="Value" SelectedValue="{Binding SteamInvest}"/>
+                <Label Content="{Binding SteamAccumuInvestment}" Foreground="White" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right"/>
+
+                <Label Content="電気モーター" Foreground="White" Grid.Row="2" Grid.Column="0"/>
+                <Label Content="(投資不可)" Foreground="White" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center"/>
+                <ComboBox Grid.Row="2" Grid.Column="1" Margin="2" HorizontalContentAlignment="Right"  IsEnabled="{Binding CanElectricInvest}"
+                          ItemsSource="{Binding InvestAmountList}" Visibility="{Binding CanElectricInvest, Converter={StaticResource BoolToVisibility}}" SelectedValuePath="Key" DisplayMemberPath="Value" SelectedValue="{Binding ElectricInvest}"/>
+                <Label Content="{Binding ElectricAccumuInvestment}" Foreground="White" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Right"/>
+                
+                <Label Content="ディーゼル機関" Foreground="White" Grid.Row="3" Grid.Column="0"/>
+                <Label Content="(投資不可)" Foreground="White" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Center"/>
+                <ComboBox Grid.Row="3" Grid.Column="1" Margin="2" HorizontalContentAlignment="Right" IsEnabled="{Binding CanDieselInvest}"
+                          ItemsSource="{Binding InvestAmountList}" Visibility="{Binding CanDieselInvest, Converter={StaticResource BoolToVisibility}}" SelectedValuePath="Key" DisplayMemberPath="Value" SelectedValue="{Binding DieselInvest}"/>
+                <Label Content="{Binding DieselAccumuInvestment}" Foreground="White" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Right"/>
+                
+                <Label Content="リニアモーター" Foreground="White" Grid.Row="4" Grid.Column="0"/>
+                <Label Content="(投資不可)" Foreground="White" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Center"/>
+                <ComboBox Grid.Row="4" Grid.Column="1" Margin="2" HorizontalContentAlignment="Right" IsEnabled="{Binding CanLinearInvest}"
+                          ItemsSource="{Binding InvestAmountLinearList}" Visibility="{Binding CanLinearInvest, Converter={StaticResource BoolToVisibility}}" SelectedValuePath="Key" DisplayMemberPath="Value" SelectedValue="{Binding LinearInvest}"/>
+                <Label Content="{Binding LinearAccumuInvestment}" Foreground="White" Grid.Row="4" Grid.Column="2" HorizontalAlignment="Right"/>
+
+                <Label Content="新企画" Foreground="White" Grid.Row="5" Grid.Column="0"/>
+                <Label Content="(投資不可)" Foreground="White" Grid.Row="5" Grid.Column="1" HorizontalAlignment="Center"/>
+                <ComboBox Grid.Row="5" Grid.Column="1" Margin="2" HorizontalContentAlignment="Right" IsEnabled="{Binding CanNewPlanInvest}"
+                          ItemsSource="{Binding InvestAmountList}" Visibility="{Binding CanNewPlanInvest, Converter={StaticResource BoolToVisibility}}" SelectedValuePath="Key" DisplayMemberPath="Value" SelectedValue="{Binding NewPlanInvest}"/>
+                <Label Content="{Binding NewPlanAccumuInvestment}" Foreground="White" Grid.Row="5" Grid.Column="2" HorizontalAlignment="Right"/>
+            </Grid>
+            
+            <Button Content="閉じる" Height="20" Command="{Binding Cancel}"/>
+        </StackPanel>
+    </Grid>
+</Window>

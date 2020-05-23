@@ -1,0 +1,35 @@
+﻿<Page x:Class="whr_wpf.DifficultyLevelSelectPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:whr_wpf"
+      mc:Ignorable="d" 
+      d:DesignHeight="730" d:DesignWidth="980"
+      Title="DifficultyLevelSelectPage">
+
+    <Grid Width="980" HorizontalAlignment="Left" VerticalAlignment="Top">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Image x:Name="image" HorizontalAlignment="Left" Height="684" VerticalAlignment="Top" Width="980" Source="/View/map.png" Stretch="Fill" Margin="0,30,0,0"/>
+        <ToolBarTray HorizontalAlignment="Left" Height="28" VerticalAlignment="Top" Width="980" Grid.ColumnSpan="2" IsLocked="True">
+            <ToolBar x:Name="menu" HorizontalAlignment="Center" Height="28" VerticalAlignment="Center" Width="980" >
+                <Button x:Name="MenuExit" Content="終了" Click="MenuExit_Click"/>
+            </ToolBar>
+        </ToolBarTray>
+
+        <StackPanel HorizontalAlignment="Center" Height="355" Margin="0,100,0,0" VerticalAlignment="Top" Width="315" >
+            <Button x:Name="VeryEasy" Content="超簡単" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" Click="VeryEasy_Click"/>
+            <Button x:Name="Easy" Content="簡単" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" Click="Easy_Click"/>
+            <Button x:Name="Medium" Content="普通" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" Click="Medium_Click"/>
+            <Button x:Name="Hard" Content="難しい" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" Click="Hard_Click"/>
+            <Button x:Name="VeryHard" Content="激むず" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" Click="VeryHard_Click"/>
+            <Button x:Name="Back" Content="戻る" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" RenderTransformOrigin="0.5,0.5" Click="Back_Click" />
+        </StackPanel>
+
+    </Grid>
+</Page>

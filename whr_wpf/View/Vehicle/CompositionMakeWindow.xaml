@@ -1,0 +1,28 @@
+﻿<Window x:Class="whr_wpf.View.Vehicle.CompositionMakeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:whr_wpf.View.Vehicle"
+        mc:Ignorable="d"
+        Title="編成作成"  Height="450" Width="200" WindowStartupLocation="CenterScreen" WindowStyle="ToolWindow" ResizeMode="NoResize" Background="#006699">
+    <Grid>
+        <StackPanel>
+            <Label Content="編成名称" Foreground="White" FontSize="14"/>
+            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
+            <Label Content="構成車両" Foreground="White" FontSize="14"/>
+            <ComboBox ItemsSource="{Binding VehicleNums}" SelectedValue="{Binding Vehicle}" DisplayMemberPath="Key.Name" SelectedValuePath="Key" ToolTip="編成に組み込みたい車両を選びます"/>
+            <Label Content="構成両数" Foreground="White" FontSize="14"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBox Text="{Binding Quantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" InputMethod.IsInputMethodEnabled="False" Width="50" HorizontalAlignment="Left" ToolTip="上記車両を何両組み込むかを設定します"/>
+                <Button Content="▼" Width="24" Command="{Binding QuantDown}"/>
+                <Button Content="▲" Width="24" Command="{Binding QuantUp}"/>
+            </StackPanel>
+            
+            <Border Height="20" />
+            <Button Content="作成" Command="{Binding Make}"/>
+            <TextBlock Text="{Binding Description}" Foreground="White"/>
+            <TextBlock Text="{Binding ErrorMsg}" Foreground="Red"/>
+        </StackPanel>
+    </Grid>
+</Window>

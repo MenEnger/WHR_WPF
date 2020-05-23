@@ -1,0 +1,30 @@
+﻿<Page x:Class="whr_wpf.DiagramInfoPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:whr_wpf"
+      mc:Ignorable="d" 
+      d:DesignHeight="600" d:DesignWidth="250"
+      Title="DiagramInfoPage">
+
+    
+
+    <Grid>
+        
+        <StackPanel x:Name="LineInfoPanel" HorizontalAlignment="Center" VerticalAlignment="Top">
+            <ComboBox x:Name="DiagramList" Margin="0,30,0,0" FontSize="16" DisplayMemberPath="Caption" DropDownClosed="DiagramList_DropDownClosed" TabIndex="1" ToolTip="表示や設定を行いたい系統を変更できます"/>
+
+            <Label  Content="{Binding Section}" HorizontalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Top" Width="205" Height="20" FontSize="16" Foreground="White" Padding="5,0,5,0"/>
+            <Label  Content="{Binding DiagramSectionInfo}" Margin="0,16,0,0" HorizontalContentAlignment="Left" HorizontalAlignment="Center" VerticalAlignment="Top" Width="250" Height="50" FontSize="16" Foreground="White" Padding="10,0,10,0"/>
+
+            <Label  Content="{Binding UseComposition}" Margin="0,16,0,0" HorizontalContentAlignment="Left" HorizontalAlignment="Center" VerticalAlignment="Top" Width="250" Height="20" FontSize="16" Foreground="White" Padding="10,0,10,0"/>
+            <Label  Content="{Binding UseCompositionNum}" Margin="0,16,0,0" HorizontalContentAlignment="Left" HorizontalAlignment="Center" VerticalAlignment="Top" Width="250" Height="20" FontSize="16" Foreground="White" Padding="10,0,10,0"/>
+            <Label  Content="{Binding RunningPerDay}" Margin="0,16,0,0" HorizontalContentAlignment="Left" HorizontalAlignment="Center" VerticalAlignment="Top" Width="250" Height="20" FontSize="16" Foreground="White" Padding="10,0,10,0"/>
+
+            <Button x:Name="CloseBtn" Content="閉じる" Command="{Binding Close}" Height="30"/>
+            <Button Content="ダイヤ設定" Command="{Binding DiagramSetting}" Height="30" ToolTip="現在表示されている系統のダイヤを設定します"/>
+            <Button Content="各路線情報" Command="{Binding DiagramLineInfo}" Height="30" ToolTip="系統に含まれている各路線の情報を表示します"/>
+        </StackPanel>
+    </Grid>
+</Page>

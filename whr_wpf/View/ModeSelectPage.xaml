@@ -1,0 +1,36 @@
+﻿<Page x:Class="whr_wpf.ModeSelectPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:whr_wpf"
+      mc:Ignorable="d" 
+      d:DesignHeight="730" d:DesignWidth="980"
+      Title="ModeSelectPage">
+
+    <Grid Width="980" HorizontalAlignment="Left" VerticalAlignment="Top">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Image x:Name="image" HorizontalAlignment="Left" Height="684" VerticalAlignment="Top" Width="980" Source="/View/map.png" Stretch="Fill" Margin="0,30,0,0"/>
+        <ToolBarTray HorizontalAlignment="Left" Height="28" VerticalAlignment="Top" Width="980" Grid.ColumnSpan="2" IsLocked="True">
+            <ToolBar x:Name="menu" HorizontalAlignment="Center" Height="28" VerticalAlignment="Center" Width="980" >
+                <Button x:Name="MenuExit" Content="終了" Click="MenuExit_Click"/>
+            </ToolBar>
+        </ToolBarTray>
+
+        <StackPanel HorizontalAlignment="Center" Height="429" Margin="0,100,0,0" VerticalAlignment="Top" Width="316" >
+            <Button x:Name="Free" Content="フリーモード" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" Click="Free_Click"/>
+            <Button x:Name="Y1880" Content="1880年モード" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" IsEnabled="False"/>
+            <Button x:Name="Y1920" Content="1920年モード" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" IsEnabled="False"/>
+            <Button x:Name="Y1940F" Content="1940年フリー" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" IsEnabled="False"/>
+            <Button x:Name="Y2000" Content="2000年モード" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" IsEnabled="False"/>
+            <Button x:Name="Y2040" Content="2040年モード" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" IsEnabled="False"/>
+            <Button x:Name="Back" Content="戻る" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" RenderTransformOrigin="0.5,0.5" Click="Back_Click" />
+        </StackPanel>
+
+    </Grid>
+</Page>

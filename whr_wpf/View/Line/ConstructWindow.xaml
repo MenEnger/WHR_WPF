@@ -1,0 +1,28 @@
+﻿<Window x:Class="whr_wpf.ConstructWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:whr_wpf"
+        mc:Ignorable="d"
+        Title="路線建造" Height="450" Width="200" Background="#006699" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+    <Grid>
+        <StackPanel>
+            <Label Content="路線最高速度(km/h)" HorizontalAlignment="Left" Margin="0,10,0,0" VerticalAlignment="Top" Foreground="White" FontSize="16"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBox x:Name="BestSpeedTextBox" Text="{Binding BestSpeed, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" InputMethod.IsInputMethodEnabled="False" Width="50" HorizontalAlignment="Left" ToolTip="路線の最高速度を設定します。設定速度以上の速度が、この路線では出せません"/>
+                <Button x:Name="SpeedDownButton" Content="▼" Width="24" Command="{Binding SpeedDown}"/>
+                <Button x:Name="SpeedUpButton" Content="▲" Width="24" Command="{Binding SpeedUp}"/>
+            </StackPanel>
+            <Label Content="路線" HorizontalAlignment="Left" Margin="00,10,0,0" VerticalAlignment="Top" Foreground="White" FontSize="16"/>
+            <ComboBox x:Name="LaneSu" ItemsSource="{Binding LaneSuList}" SelectedValue="{Binding LaneSu}"  DisplayMemberPath="Caption" />
+            <ComboBox x:Name="RailType" ItemsSource="{Binding RailTypeList}" SelectedValue="{Binding RailType}" DisplayMemberPath="Caption"/>
+            <Label Content="待避線" HorizontalAlignment="Left" Margin="00,10,0,0" VerticalAlignment="Top" Foreground="White" FontSize="16"/>
+            <ComboBox x:Name="Taihi" ItemsSource="{Binding TaihiList}" SelectedValue="{Binding Taihisen}" DisplayMemberPath="Caption"/>
+            <Button x:Name="EnterBtn" Content="決定" Height="30" Command="{Binding Kettei}"/>
+            <Button x:Name="CancelBtn" Content="キャンセル" Command="{Binding Cancel}" Height="30"/>
+            <Label x:Name="EstimateLbl" Content="{Binding EstimatedCost}" Foreground="White" FontSize="12"/>
+        </StackPanel>
+
+    </Grid>
+</Window>
