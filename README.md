@@ -22,8 +22,9 @@
 
 1. Microsoft Visual Studio Community 2019をインストール  
     その際にワークロードの「.NET デスクトップ開発」を含めるようしてください。
+1. 「whr_wpf.sln」を開き、ビルドしてください。
 1. \whr_wpf\bin\Debug\netcoreapp3.1内に、 <http://hp.vector.co.jp/authors/VA037302/world/index.html> からダウンロード、解凍してできるフォルダのうち、jnrフォルダをコピーしてください。
-1. Visual Studioを起動し、開発をはじめられます。
+1. Debugで実行すると、アプリケーションが起動します。
 
 ### 実行環境セットアップ
 
