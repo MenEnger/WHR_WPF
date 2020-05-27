@@ -64,8 +64,6 @@ namespace whr_wpf.ViewModel
 			}
 		}
 
-
-
 		//プロパティ
 		public ICommand SpeedUp { get; set; }
 		public ICommand SpeedDown { get; set; }
@@ -159,8 +157,6 @@ namespace whr_wpf.ViewModel
 
 		public void Construct()
 		{
-			var cost = CalcCost();
-
 			Line.Construct(
 						BestSpeed,
 						RailType.RailType,
@@ -169,7 +165,6 @@ namespace whr_wpf.ViewModel
 						LaneSu.LaneSu,
 						Taihisen.Enum,
 						gameInfo);
-
 		}
 
 		//コンストラクタ
@@ -189,6 +184,9 @@ namespace whr_wpf.ViewModel
 			InvokeAllNotify();
 		}
 
+		/// <summary>
+		/// 路線数を表すモデル(Combobox用)
+		/// </summary>
 		public class LaneNumViewModel : IEquatable<LaneNumViewModel>
 		{
 			public string Caption { get; set; }
@@ -204,6 +202,9 @@ namespace whr_wpf.ViewModel
 			}
 		}
 
+		/// <summary>
+		/// 路線規格を表すモデル(Combobox用)
+		/// </summary>
 		public class RailTypeViewModel : IEquatable<RailTypeViewModel>
 		{
 			public string Caption { get; set; }
