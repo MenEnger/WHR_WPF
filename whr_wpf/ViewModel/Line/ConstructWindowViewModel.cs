@@ -228,28 +228,22 @@ namespace whr_wpf.ViewModel
 		/// <summary>
 		/// 路線速度増加時コマンド
 		/// </summary>
-		public class SpeedUpCommand : ICommand
+		public class SpeedUpCommand : CommandBase
 		{
 			private ConstructWindowViewModel vm;
-			private int increments = 10;
+			private const int increments = 10;
 
 			public SpeedUpCommand(ConstructWindowViewModel viewModel)
 			{
 				vm = viewModel;
 			}
 
-			public event EventHandler CanExecuteChanged
-			{
-				add { CommandManager.RequerySuggested += value; }
-				remove { CommandManager.RequerySuggested -= value; }
-			}
-
-			public bool CanExecute(object parameter)
+			override public bool CanExecute(object parameter)
 			{
 				return (vm.BestSpeed + increments) <= 990;
 			}
 
-			public void Execute(object parameter)
+			override public void Execute(object parameter)
 			{
 				vm.BestSpeed += increments;
 			}
@@ -258,35 +252,29 @@ namespace whr_wpf.ViewModel
 		/// <summary>
 		/// 路線速度減少時コマンド
 		/// </summary>
-		public class SpeedDownCommand : ICommand
+		public class SpeedDownCommand : CommandBase
 		{
 			private ConstructWindowViewModel vm;
-			private int diff = 10;
+			private const int diff = 10;
 
 			public SpeedDownCommand(ConstructWindowViewModel viewModel)
 			{
 				vm = viewModel;
 			}
 
-			public event EventHandler CanExecuteChanged
-			{
-				add { CommandManager.RequerySuggested += value; }
-				remove { CommandManager.RequerySuggested -= value; }
-			}
-
-			public bool CanExecute(object parameter)
+			override public bool CanExecute(object parameter)
 			{
 				return (vm.BestSpeed - diff) >= 0;
 			}
 
-			public void Execute(object parameter)
+			override public void Execute(object parameter)
 			{
 				vm.BestSpeed -= diff;
 			}
 		}
 
 		//決定時のコマンド
-		public class KetteiCommand : ICommand
+		public class KetteiCommand : CommandBase
 		{
 			private ConstructWindowViewModel vm;
 
@@ -295,18 +283,12 @@ namespace whr_wpf.ViewModel
 				vm = viewModel;
 			}
 
-			public event EventHandler CanExecuteChanged
-			{
-				add { CommandManager.RequerySuggested += value; }
-				remove { CommandManager.RequerySuggested -= value; }
-			}
-
-			public bool CanExecute(object parameter)
+			override public bool CanExecute(object parameter)
 			{
 				return vm.LaneSu != null && vm.RailType != null && vm.Taihisen != null;
 			}
 
-			public void Execute(object parameter)
+			override public void Execute(object parameter)
 			{
 				//確認
 				MessageBoxResult constructConfirm = MessageBox.Show($"{LogicUtil.AppendMoneyUnit(vm.CalcCost())}の資金が必要です。建造しますか？", "路線建造", MessageBoxButton.YesNo);
@@ -321,13 +303,12 @@ namespace whr_wpf.ViewModel
 						MessageBox.Show("お金が足りません");
 					}
 					vm.Window.Close();
-
 				}
 			}
 		}
 
 		//キャンセル
-		public class CancelCommand : ICommand
+		public class CancelCommand : CommandBase
 		{
 			private ConstructWindowViewModel vm;
 
@@ -336,23 +317,15 @@ namespace whr_wpf.ViewModel
 				vm = viewModel;
 			}
 
-			public event EventHandler CanExecuteChanged
-			{
-				add { CommandManager.RequerySuggested += value; }
-				remove { CommandManager.RequerySuggested -= value; }
-			}
-
-			public bool CanExecute(object parameter)
+			override public bool CanExecute(object parameter)
 			{
 				return true;
 			}
 
-			public void Execute(object parameter)
+			override public void Execute(object parameter)
 			{
 				vm.Window.Close();
 			}
 		}
 	}
-
-
 }
