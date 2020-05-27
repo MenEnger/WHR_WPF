@@ -1,7 +1,9 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using whr_wpf.Model;
+using whr_wpf.Util;
 
 namespace whr_wpf
 {
@@ -43,8 +45,19 @@ namespace whr_wpf
 
 		private void NewStart_Click(object sender, RoutedEventArgs e)
 		{
+			GameInfo gameInfo;
+			try
+			{
+				gameInfo = ScenerioLoadUtil.LoadFile("jnr");
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show(ex.Message, "シナリオ読み込みエラー", MessageBoxButton.OK, MessageBoxImage.Error);
+				return;
+			}
+
 			// Pageインスタンスを渡して遷移
-			var page = new DifficultyLevelSelectPage(new GameInfo());
+			var page = new DifficultyLevelSelectPage(gameInfo);
 			NavigationService.Navigate(page);
 		}
 

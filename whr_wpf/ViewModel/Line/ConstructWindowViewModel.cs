@@ -64,8 +64,6 @@ namespace whr_wpf.ViewModel
 			}
 		}
 
-
-
 		//プロパティ
 		public ICommand SpeedUp { get; set; }
 		public ICommand SpeedDown { get; set; }
@@ -85,19 +83,24 @@ namespace whr_wpf.ViewModel
 			get { return _bestSpeed; }
 			set
 			{
-				if (value < 40)
+				if (value < Line.MinSpeedOfLine)
 				{
-					MessageBox.Show("40km/h以上のスピードを指定してください");
+					MessageBox.Show($"{Line.MinSpeedOfLine}km/h以上のスピードを指定してください");
 					return;
 				}
-				if (railType.RailType == RailTypeEnum.Iron && railType.RailGauge == RailGaugeEnum.Narrow && value > 300)
+				if (railType.RailType == RailTypeEnum.Iron && railType.RailGauge == RailGaugeEnum.Narrow && value > Line.MaxSpeedNarrowGauge)
 				{
-					MessageBox.Show("狭軌で出せる速度は300km/h以内です");
+					MessageBox.Show($"狭軌で出せる速度は{Line.MaxSpeedNarrowGauge}km/h以内です");
 					return;
 				}
-				if (railType.RailType == RailTypeEnum.Iron && value > 360)
+				if (railType.RailType == RailTypeEnum.Iron && value > Line.MaxSpeedRegularGauge)
 				{
-					MessageBox.Show("軌道で出せる速度は360km/h以内です");
+					MessageBox.Show($"鉄軌道で出せる速度は{Line.MaxSpeedRegularGauge}km/h以内です");
+					return;
+				}
+				if (railType.RailType == RailTypeEnum.LinearMotor && value > Line.MaxSpeedLinear)
+				{
+					MessageBox.Show($"リニア軌道で出せる速度は{Line.MaxSpeedLinear}km/h以内です");
 					return;
 				}
 
@@ -159,8 +162,6 @@ namespace whr_wpf.ViewModel
 
 		public void Construct()
 		{
-			var cost = CalcCost();
-
 			Line.Construct(
 						BestSpeed,
 						RailType.RailType,
@@ -169,7 +170,6 @@ namespace whr_wpf.ViewModel
 						LaneSu.LaneSu,
 						Taihisen.Enum,
 						gameInfo);
-
 		}
 
 		//コンストラクタ
@@ -189,6 +189,9 @@ namespace whr_wpf.ViewModel
 			InvokeAllNotify();
 		}
 
+		/// <summary>
+		/// 路線数を表すモデル(Combobox用)
+		/// </summary>
 		public class LaneNumViewModel : IEquatable<LaneNumViewModel>
 		{
 			public string Caption { get; set; }
@@ -204,6 +207,9 @@ namespace whr_wpf.ViewModel
 			}
 		}
 
+		/// <summary>
+		/// 路線規格を表すモデル(Combobox用)
+		/// </summary>
 		public class RailTypeViewModel : IEquatable<RailTypeViewModel>
 		{
 			public string Caption { get; set; }
@@ -227,28 +233,22 @@ namespace whr_wpf.ViewModel
 		/// <summary>
 		/// 路線速度増加時コマンド
 		/// </summary>
-		public class SpeedUpCommand : ICommand
+		public class SpeedUpCommand : CommandBase
 		{
 			private ConstructWindowViewModel vm;
-			private int increments = 10;
+			private const int increments = 10;
 
 			public SpeedUpCommand(ConstructWindowViewModel viewModel)
 			{
 				vm = viewModel;
 			}
 
-			public event EventHandler CanExecuteChanged
-			{
-				add { CommandManager.RequerySuggested += value; }
-				remove { CommandManager.RequerySuggested -= value; }
-			}
-
-			public bool CanExecute(object parameter)
+			override public bool CanExecute(object parameter)
 			{
 				return (vm.BestSpeed + increments) <= 990;
 			}
 
-			public void Execute(object parameter)
+			override public void Execute(object parameter)
 			{
 				vm.BestSpeed += increments;
 			}
@@ -257,35 +257,29 @@ namespace whr_wpf.ViewModel
 		/// <summary>
 		/// 路線速度減少時コマンド
 		/// </summary>
-		public class SpeedDownCommand : ICommand
+		public class SpeedDownCommand : CommandBase
 		{
 			private ConstructWindowViewModel vm;
-			private int diff = 10;
+			private const int diff = 10;
 
 			public SpeedDownCommand(ConstructWindowViewModel viewModel)
 			{
 				vm = viewModel;
 			}
 
-			public event EventHandler CanExecuteChanged
-			{
-				add { CommandManager.RequerySuggested += value; }
-				remove { CommandManager.RequerySuggested -= value; }
-			}
-
-			public bool CanExecute(object parameter)
+			override public bool CanExecute(object parameter)
 			{
 				return (vm.BestSpeed - diff) >= 0;
 			}
 
-			public void Execute(object parameter)
+			override public void Execute(object parameter)
 			{
 				vm.BestSpeed -= diff;
 			}
 		}
 
 		//決定時のコマンド
-		public class KetteiCommand : ICommand
+		public class KetteiCommand : CommandBase
 		{
 			private ConstructWindowViewModel vm;
 
@@ -294,18 +288,18 @@ namespace whr_wpf.ViewModel
 				vm = viewModel;
 			}
 
-			public event EventHandler CanExecuteChanged
+			override public bool CanExecute(object parameter)
 			{
-				add { CommandManager.RequerySuggested += value; }
-				remove { CommandManager.RequerySuggested -= value; }
+				return vm.LaneSu != null && vm.RailType != null && vm.Taihisen != null 
+					&& vm.Line.CanConstruct(
+						vm.BestSpeed,
+						vm.RailType.RailType,
+						vm.RailType.IsElectrified,
+						vm.RailType.RailGauge,
+						vm.LaneSu.LaneSu);
 			}
 
-			public bool CanExecute(object parameter)
-			{
-				return vm.LaneSu != null && vm.RailType != null && vm.Taihisen != null;
-			}
-
-			public void Execute(object parameter)
+			override public void Execute(object parameter)
 			{
 				//確認
 				MessageBoxResult constructConfirm = MessageBox.Show($"{LogicUtil.AppendMoneyUnit(vm.CalcCost())}の資金が必要です。建造しますか？", "路線建造", MessageBoxButton.YesNo);
@@ -320,13 +314,12 @@ namespace whr_wpf.ViewModel
 						MessageBox.Show("お金が足りません");
 					}
 					vm.Window.Close();
-
 				}
 			}
 		}
 
 		//キャンセル
-		public class CancelCommand : ICommand
+		public class CancelCommand : CommandBase
 		{
 			private ConstructWindowViewModel vm;
 
@@ -335,23 +328,15 @@ namespace whr_wpf.ViewModel
 				vm = viewModel;
 			}
 
-			public event EventHandler CanExecuteChanged
-			{
-				add { CommandManager.RequerySuggested += value; }
-				remove { CommandManager.RequerySuggested -= value; }
-			}
-
-			public bool CanExecute(object parameter)
+			override public bool CanExecute(object parameter)
 			{
 				return true;
 			}
 
-			public void Execute(object parameter)
+			override public void Execute(object parameter)
 			{
 				vm.Window.Close();
 			}
 		}
 	}
-
-
 }

@@ -13,6 +13,11 @@ namespace whr_wpf.Model
 	[Serializable()]
 	public class Line : INotifyPropertyChanged
 	{
+		public const int MaxSpeedLinear = 990;
+		public const int MaxSpeedRegularGauge = 360;
+		public const int MaxSpeedNarrowGauge = 300;
+		public const int MinSpeedOfLine = 40;
+
 		/// <summary>
 		/// 路線名
 		/// </summary>
@@ -27,6 +32,7 @@ namespace whr_wpf.Model
 		/// 路線のタイプ
 		/// </summary>
 		public RailTypeEnum Type { get; set; }
+
 
 		/// <summary>
 		/// 軌間幅
@@ -329,6 +335,35 @@ namespace whr_wpf.Model
 		}
 
 		/// <summary>
+		/// 与えられたパラメータで路線建造可能か
+		/// </summary>
+		/// <param name="bestSpeed"></param>
+		/// <param name="railType"></param>
+		/// <param name="isElectrified"></param>
+		/// <param name="railGauge"></param>
+		/// <param name="laneSu"></param>
+		/// <returns></returns>
+		public bool CanConstruct(int bestSpeed, RailTypeEnum railType, bool? isElectrified, RailGaugeEnum? railGauge, int laneSu)
+		{
+			if (laneSu < 1) { return false; }
+
+			if (railType == RailTypeEnum.LinearMotor)
+			{
+				return MinSpeedOfLine <= bestSpeed && bestSpeed <= MaxSpeedLinear;
+			}
+			else if (railType == RailTypeEnum.Iron)
+			{
+				if (!isElectrified.HasValue) { return false; }
+
+				if (railGauge == RailGaugeEnum.Narrow && MinSpeedOfLine <= bestSpeed && bestSpeed <= MaxSpeedNarrowGauge) { return true; }
+				else if (railGauge == RailGaugeEnum.Regular && MinSpeedOfLine <= bestSpeed && bestSpeed <= MaxSpeedRegularGauge) { return true; }
+				return false;
+			}
+
+			return false;
+		}
+
+		/// <summary>
 		/// 路線建造
 		/// </summary>
 		/// <param name="bestSpeed"></param>
@@ -339,6 +374,8 @@ namespace whr_wpf.Model
 		/// <param name="taihisenEnum"></param>
 		public void Construct(int bestSpeed, RailTypeEnum railType, bool? isElectrified, RailGaugeEnum? railGauge, int laneSu, TaihisenEnum taihisenEnum, GameInfo gameInfo)
 		{
+			if (!CanConstruct(bestSpeed, railType, isElectrified, railGauge, laneSu)) { throw new InvalidOperationException("与えられた引数では路線を建造できません"); }
+
 			//お金チェックと消費
 			gameInfo.SpendMoney(CalcConstructCost(bestSpeed,
 									laneSu,
@@ -350,6 +387,7 @@ namespace whr_wpf.Model
 
 			this.IsExist = true;
 			this.bestSpeed = bestSpeed;
+			this.bestSpeedUpKaisu = 0;
 			this.Type = railType;
 			this.IsElectrified = isElectrified;
 			this.gauge = railGauge.HasValue ? (RailGaugeEnum)railGauge : RailGaugeEnum.Narrow;
@@ -357,7 +395,6 @@ namespace whr_wpf.Model
 			this.taihisen = taihisenEnum;
 			this.totalBalance -= CalcConstructCost(bestSpeed, laneSu, railType, railGauge, isElectrified, taihisen, gameInfo);
 
-			OnPropertyChanged(nameof(IsExist));
 			OnPropertyChanged("");
 		}
 
@@ -369,11 +406,11 @@ namespace whr_wpf.Model
 		{
 			if (!IsExist) { return false; }
 			if (bestSpeedUpKaisu == 5) { return false; }
-			if (bestSpeed >= 990) { return false; }
+			if (bestSpeed >= MaxSpeedLinear) { return false; }
 			if (Type == RailTypeEnum.Iron)
 			{
-				if (bestSpeed >= 360) { return false; }
-				if (gauge == RailGaugeEnum.Narrow && bestSpeed >= 300) { return false; }
+				if (bestSpeed >= MaxSpeedRegularGauge) { return false; }
+				if (gauge == RailGaugeEnum.Narrow && bestSpeed >= MaxSpeedNarrowGauge) { return false; }
 			}
 			return true;
 		}

@@ -157,9 +157,6 @@ namespace whr_wpf.ViewModel.Vehicle
 			};
 		}
 
-		private (bool CanCreateVehicle, string msg) CheckCreateVehicle() =>
-			gameInfo.CheckCreateVehicle(Name, BestSpeed, Power, Gauge, GetSeatWithDoubleDecker(), CarTilt);
-
 		public string Msg
 		{
 			get
@@ -176,6 +173,13 @@ namespace whr_wpf.ViewModel.Vehicle
 		public ICommand Kettei { get; set; }
 
 		/// <summary>
+		/// 車両を開発できるかチェック
+		/// </summary>
+		/// <returns></returns>
+		private (bool CanCreateVehicle, string msg) CheckCreateVehicle() =>
+			gameInfo.CheckCreateVehicle(Name, BestSpeed, Power, Gauge, GetSeatWithDoubleDecker(), CarTilt);
+
+		/// <summary>
 		/// 車両価格計算
 		/// </summary>
 		/// <returns></returns>
@@ -187,6 +191,9 @@ namespace whr_wpf.ViewModel.Vehicle
 		/// <returns></returns>
 		private int CalcDevelopVehiclePrice() => gameInfo.CalcDevelopVehicleCost(bestSpeed, power, gauge, GetSeatWithDoubleDecker(), CarTilt);
 
+		/// <summary>
+		/// 車両を開発
+		/// </summary>
 		private void ExecuteDevelop() => gameInfo.DevelopVehicle(Name, BestSpeed, Power, Gauge, GetSeatWithDoubleDecker(), CarTilt);
 
 		/// <summary>

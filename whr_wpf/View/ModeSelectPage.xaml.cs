@@ -26,18 +26,8 @@ namespace whr_wpf
 
 		private void Free_Click(object sender, RoutedEventArgs e)
 		{
-			//GameInfo.InstanceInReady.Mode = ModeEnum.Free;
 			gameInfo.Mode = ModeEnum.Free;
 
-
-			try
-			{
-				gameInfo.LoadFile();
-			}
-			catch (Exception ex)
-			{
-				MessageBox.Show(ex.Message, "読み込みエラー", MessageBoxButton.OK, MessageBoxImage.Error);
-			}
 			var page = new GamePage(gameInfo);
 			NavigationService.Navigate(page);
 		}

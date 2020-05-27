@@ -10,269 +10,6 @@ namespace whr_wpf.Model
 {
 	public partial class GameInfo : INotifyPropertyChanged
 	{
-		/// <summary>
-		/// ファイル読み込み
-		/// </summary>
-		public void LoadFile()
-		{
-			var basePath = @"jnr\";
-
-			//mod読み込み
-			List<string> modLines = ApplicationUtil.LoadFileLines(basePath + "index.mod");
-			ScenerioVersion = int.Parse(ExtractModProperty(modLines, "version"));
-			BasicYear = int.Parse(ExtractModProperty(modLines, "basicyear"));
-			Season = (SeasonEnum)int.Parse(ExtractModProperty(modLines, "season"));
-			SteamYear = int.Parse(ExtractModProperty(modLines, "steamyear"));
-			Kamotu = (KamotsuEnum)int.Parse(ExtractModProperty(modLines, "kamotu"));
-			FarePerKm = int.Parse(ExtractModProperty(modLines, "km"));
-			Rpm = int.Parse(ExtractModProperty(modLines, "rpm"));
-			LineMakeCost = int.Parse(ExtractModProperty(modLines, "linemc"));
-			TechCost = int.Parse(ExtractModProperty(modLines, "tecc"));
-			//mapは省略
-			InfoPosi = (InfoPosiEnum)int.Parse(ExtractModProperty(modLines, "infoh"));
-
-			var hojo = ExtractModProperty(modLines, "hojo").Split(",");
-			HojoStartYear = int.Parse(hojo[0]);
-			HojoEndYear = int.Parse(hojo[1]);
-			HojoAmount = int.Parse(hojo[2]);
-
-			warModeList = WarMode.CreateWarModeList(ExtractModProperties(modLines, "warmode"));
-
-			//バリデーションor値補正
-			if (ScenerioVersion < 1)
-			{
-				_ = MessageBox.Show("シナリオバージョンの数値が異常です");
-				ApplicationUtil.ForceExit();
-			}
-			if (BasicYear < 0)
-			{
-				_ = MessageBox.Show("基礎とする年の値が異常です");
-				ApplicationUtil.ForceExit();
-			}
-			//kamotuはenum定義なので一旦見送り。他のenumもチェックを一旦見送り
-			if (Rpm < 1)
-			{
-				Rpm = 100;
-			}
-			if (SteamYear < 1)
-			{
-				SteamYear = int.MaxValue;
-			}
-			if (LineMakeCost < 1)
-			{
-				LineMakeCost = 100;
-			}
-			if (TechCost < 1)
-			{
-				TechCost = 100;
-			}
-
-			//画像
-			var bgImage = new BitmapImage(new Uri(basePath + "map.bmp", UriKind.Relative));
-			map = bgImage;
-			//gamePage.setBgImage(bgImage);
-
-			//初期化
-
-
-			//駅
-			stations = CreateStationFromFile(basePath);
-
-			//路線
-			lines = CreateLineFromFile(basePath);
-			BindLinesToStations();
-
-			//乗り継ぎ
-			longwayList = CreateLongwayFromFile(basePath);
-
-			//運転系統
-			diagrams = CreateDiagramFromFile(basePath);
-			BindDiagramsToLines();
-
-			//モード読み込み
-			modes = LoadModes(modLines);
-			//FIXME 仮で最初のモードの車輌などを注入しているので、ここを動的に
-			compositions.AddRange(modes[0].DefautltCompositions);
-			Money = modes[0].Money;
-			Year = modes[0].Year;
-			MYear = modes[0].MYear;
-
-			Console.WriteLine("ファイル読み込み完了");
-		}
-
-		/// <summary>
-		/// index.modのモード部読み込み
-		/// </summary>
-		/// <param name="modLines"></param>
-		/// <returns></returns>
-		private List<Mode> LoadModes(List<string> modLines) => Model.Mode.CreateMode(modLines);
-
-		private string ExtractModProperty(List<string> modLines, string property) => ApplicationUtil.ExtractModProperty(modLines, property);
-
-		private List<string> ExtractModProperties(List<string> modLines, string property) => ApplicationUtil.ExtractModProperties(modLines, property);
-
-		//town.csv読み込み
-		private List<Station> CreateStationFromFile(string basePath)
-		{
-			string csvfile = basePath + "town.csv";
-			TextFieldParser parser = new TextFieldParser(csvfile);
-			parser.TextFieldType = FieldType.Delimited;
-			parser.SetDelimiters(","); // 区切り文字はコンマ
-
-			var stationList = new List<Station>();
-			while (!parser.EndOfData)
-			{
-				string[] cols = parser.ReadFields(); // 1行読み込み
-
-				var station = new Station
-				{
-					Name = cols[0],
-					Size = (StationSize)int.Parse(cols[2]),
-					X = int.Parse(cols[3]),
-					Y = int.Parse(cols[4]),
-					Population = int.Parse(cols[5]),
-					KamotsuKibo = int.Parse(cols[6]),
-				};
-				stationList.Add(station);
-			}
-			return stationList;
-		}
-
-		//line.csv読み込み
-		private List<Line> CreateLineFromFile(string basePath)
-		{
-			string csvfile = basePath + "line.csv";
-			TextFieldParser parser = new TextFieldParser(csvfile);
-			parser.TextFieldType = FieldType.Delimited;
-			parser.SetDelimiters(","); // 区切り文字はコンマ
-
-			var lineList = new List<Line>();
-
-			while (!parser.EndOfData)
-			{
-				string[] cols = parser.ReadFields(); // 1行読み込み
-
-				var line = new Line()
-				{
-					Name = cols[0],
-					Start = stations[int.Parse(cols[1])],
-					End = stations[int.Parse(cols[2])],
-					grade = (LineGrade)int.Parse(cols[3]),
-					Distance = int.Parse(cols[4]),
-					propertyType = (LinePropertyType)int.Parse(cols[5])
-				};
-				lineList.Add(line);
-
-			}
-			return lineList;
-		}
-
-		//路線を駅に紐付け
-		private void BindLinesToStations()
-		{
-			foreach (var line in lines)
-			{
-				line.Start.BelongingLines.Add(line);
-				line.End.BelongingLines.Add(line);
-			}
-		}
-
-		//longway.csv読み込み
-		private List<Longway> CreateLongwayFromFile(string basePath)
-		{
-			string csvfile = basePath + "longway.csv";
-			TextFieldParser parser = new TextFieldParser(csvfile)
-			{
-				TextFieldType = FieldType.Delimited
-			};
-			parser.SetDelimiters(","); // 区切り文字はコンマ
-
-			var longwayList = new List<Longway>();
-
-			while (!parser.EndOfData)
-			{
-				string[] cols = parser.ReadFields(); // 1行読み込み
-
-				var longway = new Longway()
-				{
-					route = new List<Line>(),
-					start = stations[int.Parse(cols[0])],
-					end = stations[int.Parse(cols[1])],
-					isKamotuOperated = true
-				};
-
-				for (int idx = 2; ; idx++) //経由地
-				{
-					var j = int.Parse(cols[idx]);
-					if (j == -1)
-					{
-						break;
-					}
-					else if (j == -2)
-					{
-						longway.isKamotuOperated = false;
-						break;
-					}
-					else
-					{
-						longway.route.Add(lines[j - 1]);
-					}
-				}
-				longwayList.Add(longway);
-			}
-			return longwayList;
-		}
-
-		//diagram.csv読み込み
-		private List<KeitoDiagram> CreateDiagramFromFile(string basePath)
-		{
-			string csvfile = basePath + "diagram.csv";
-			TextFieldParser parser = new TextFieldParser(csvfile)
-			{
-				TextFieldType = FieldType.Delimited
-			};
-			parser.SetDelimiters(","); // 区切り文字はコンマ
-
-			var diagramList = new List<KeitoDiagram>();
-			while (!parser.EndOfData)
-			{
-				string[] cols = parser.ReadFields(); // 1行読み込み
-
-				var diagram = new KeitoDiagram()
-				{
-					route = new List<Line>(),
-					Name = cols[0],
-					start = stations[int.Parse(cols[1])],
-					end = stations[int.Parse(cols[2])]
-				};
-
-				for (int idx = 3; ; idx++) //経由路線
-				{
-					var j = int.Parse(cols[idx]);
-					if (j == -1)
-					{
-						break;
-					}
-					else
-					{
-						diagram.route.Add(lines[j - 1]);
-					}
-				}
-				diagramList.Add(diagram);
-			}
-			return diagramList;
-		}
-
-		/// <summary>
-		/// ダイアを路線に紐付け
-		/// </summary>
-		private void BindDiagramsToLines()
-		{
-			foreach (var diagram in diagrams)
-			{
-				diagram.route.ForEach(line => { line.belongingKeitoDiagrams.Add(diagram); });
-			}
-		}
 
 		/// <summary>
 		/// 蒸気機関への投資が可能か
@@ -445,22 +182,22 @@ namespace whr_wpf.Model
 					continue;
 				}
 
-				int kari3 = 99999, kari4 = 999, kari5 = 0, kari7 = 0;
-				int kari6;
-				LinePropertyType? kari8 = null;
-				//kari3最低定着率 kari4最低本数 kari5時間 kari6乗り心地の一番低い値の乗客ボーナス kari7総距離 kari8路線属性タイプ
+				int worstRetentionRate = 99999, minimumNumOfTrips = int.MaxValue, totalRequiredMin = 0, totalDistance = 0;
+				int passengersBonusBySeat;
+				LinePropertyType? linePropertyType = null;
+				//worstRetentionRate最低定着率 minimumNumOfTrips最低本数 totalRequiredMin総所要時間 passengersBonusBySeat乗り心地の一番低い値の乗客ボーナス totalDistance総距離 linePropertyType路線属性タイプ
 
-				kari3 = longway.route.Select(line => line.retentionRate).Min();
-				kari4 = longway.route.Select(line => line.TotalNumberTrips(false)).Min();
-				kari5 = longway.route.Select(line => line.CalcAverageRequireMinutes()).Sum();
-				kari6 = longway.route
+				worstRetentionRate = longway.route.Select(line => line.retentionRate).Min();
+				minimumNumOfTrips = longway.route.Select(line => line.TotalNumberTrips(false)).Min();
+				totalRequiredMin = longway.route.Select(line => line.CalcAverageRequireMinutes()).Sum();
+				passengersBonusBySeat = longway.route
 					.Where(line => line.WorstComfortLevelSeat().HasValue)
 					.Select(line => line.WorstComfortLevelSeat().Value.ToPassengerNumBonus())
 					.Min();
-				kari7 = longway.route.Select(line => line.Distance).Sum();
+				totalDistance = longway.route.Select(line => line.Distance).Sum();
 
 				//路線タイプが1か2か8でないものがあれば、その乗り継ぎ区間では0扱い。優先順位は1,2,8以外>1>2>8の順
-				kari8 = longway.route.All(line => line.propertyType == LinePropertyType.Underground)
+				linePropertyType = longway.route.All(line => line.propertyType == LinePropertyType.Underground)
 					? (LinePropertyType?)LinePropertyType.Underground
 					: longway.route.All(line =>
 						line.propertyType == LinePropertyType.Underground || line.propertyType == LinePropertyType.Outskirts)
@@ -472,23 +209,23 @@ namespace whr_wpf.Model
 
 				int kari = 0;
 				//often 1 運行頻度スコア
-				kari = kari4 * (Year - (BasicYear - 80)) + (50 * (BasicYear + 120 - Year)) / 2;
+				kari = minimumNumOfTrips * (Year - (BasicYear - 80)) + (50 * (BasicYear + 120 - Year)) / 2;
 				kari = Math.Min(kari, 10000);
 
 				//speed 6 速達スコア
-				if (kari5 < 10) { kari += 40000; }
-				else if (10 <= kari5 && kari5 < 410) { kari += 40000 - ((kari5 - 10) * 100); }
-				if (kari5 < 60) { kari += 21000 - ((kari5 + 10) * 300); }
+				if (totalRequiredMin < 10) { kari += 40000; }
+				else if (10 <= totalRequiredMin && totalRequiredMin < 410) { kari += 40000 - ((totalRequiredMin - 10) * 100); }
+				if (totalRequiredMin < 60) { kari += 21000 - ((totalRequiredMin + 10) * 300); }
 				kari = Math.Max(0, kari);
 
 				//car 3 車両スコア 
-				kari += kari6;
+				kari += passengersBonusBySeat;
 
 				kari9[longway] = (int)Math.Pow((double)kari / 5000, 7.0);
 				if (kari9[longway] < 0) { throw new InvalidOperationException("エラー(No.20)が発生しました。作者まで報告ください"); }
 
-				kari = kari / 100 * kari3 / 10000 * longway.LinePopulation / 6000 * Rpm / 100;
-				switch (kari8)
+				kari = kari / 100 * worstRetentionRate / 10000 * longway.LinePopulation / 6000 * Rpm / 100;
+				switch (linePropertyType)
 				{
 					case LinePropertyType.Surburb:
 						kari *= 2;

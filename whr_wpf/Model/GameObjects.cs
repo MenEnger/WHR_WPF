@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using whr_wpf.Util;
 
 namespace whr_wpf.Model
 {
@@ -41,93 +40,7 @@ namespace whr_wpf.Model
 		/// </summary>
 		public List<DefautltComposition> DefautltCompositions { get; set; }
 
-		/// <summary>
-		/// モード設定の1ブロックの文字列から設定を抽出
-		/// </summary>
-		/// <param name="modeLines"></param>
-		private Mode(List<string> modeLines)
-		{
-			Name = ApplicationUtil.ExtractModProperty(modeLines, "#mode");
-			Year = int.Parse(ApplicationUtil.ExtractModProperty(modeLines, "year"));
-			Money = long.Parse(ApplicationUtil.ExtractModProperty(modeLines, "money"));
-			Message = ApplicationUtil.ExtractModProperty(modeLines, "message").Replace(',', '\n');
-			MYear = int.Parse(ApplicationUtil.ExtractModProperty(modeLines, "myear"));
-
-			DefautltCompositions = ApplicationUtil.ExtractModProperties(modeLines, "car").Select(value =>
-			{
-				string[] arr = value.Split(",");
-				int ck = int.Parse(arr[2]); //編成規格
-				bool isLinear = (ck & 32) > 0;
-				bool isDiesel = (ck & 16) > 0;
-				bool isElectric = (ck & 8) > 0;
-				bool isSteam = (ck & 4) > 0;
-				bool isNarrow = (ck & 1) > 0;
-				bool isRegular = (ck & 2) > 0;
-				bool isPendulum = (ck & 64) > 0;
-				bool isFreeGauge = (ck & 128) > 0;
-
-				RailTypeEnum railType = isLinear ? RailTypeEnum.LinearMotor : RailTypeEnum.Iron;
-
-				CarGaugeEnum? carGauge =
-				isLinear ? (CarGaugeEnum?)null :
-				isNarrow ? CarGaugeEnum.Narrow :
-				isRegular ? CarGaugeEnum.Regular :
-				isFreeGauge ? CarGaugeEnum.FreeGauge :
-				throw new ArgumentException("軌間が未定義です");
-
-				PowerEnum powerSource =
-				isLinear ? PowerEnum.LinearMotor :
-				isElectric ? PowerEnum.Electricity :
-				isDiesel ? PowerEnum.Diesel :
-				isSteam ? PowerEnum.Steam :
-				throw new ArgumentException("動力源が未指定です");
-
-				return new DefautltComposition
-				{
-					Name = arr[0],
-					BestSpeed = int.Parse(arr[1]),
-					CarCount = int.Parse(arr[3]),
-					HeldUnits = int.Parse(arr[4]),
-					Price = int.Parse(arr[5]),
-					seat = LogicUtil.ConvertSeatModToInternalId(int.Parse(arr[6])),
-					Gauge = carGauge,
-					Power = powerSource,
-					Tilt = isPendulum ? CarTiltEnum.Pendulum : CarTiltEnum.None,
-					Type = railType
-				};
-			}).ToList();
-		}
-
-		/// <summary>
-		/// モード設定をブロックごとに抽出してリストで返却
-		/// </summary>
-		/// <param name="modeLines"></param>
-		/// <returns></returns>
-		public static List<Mode> CreateMode(List<string> modeLines)
-		{
-			bool isInMode = false;
-
-			List<Mode> modeObjList = new List<Mode>();
-			List<string> modeList = new List<string>();
-
-			foreach (var line in modeLines)
-			{
-				if (!isInMode && line.StartsWith("#mode:"))
-				{
-					isInMode = true;
-					modeList.Add(line);
-					continue;
-				}
-				if (isInMode) { modeList.Add(line); }
-				if (line.EndsWith("#end"))
-				{
-					isInMode = false;
-					modeObjList.Add(new Mode(modeList));
-					modeList.Clear();
-				}
-			}
-			return modeObjList;
-		}
+		public Mode() { }
 	}
 
 	/// <summary>
@@ -500,7 +413,7 @@ namespace whr_wpf.Model
 
 	//乗り継ぎ
 	[Serializable()]
-	class Longway
+	public class Longway
 	{
 		/// <summary>
 		/// 経由ルート
