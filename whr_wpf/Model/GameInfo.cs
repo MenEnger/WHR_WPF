@@ -36,82 +36,82 @@ namespace whr_wpf.Model
 		/// <summary>
 		/// シナリオバージョン
 		/// </summary>
-		public int ScenerioVersion { get; private set; }
+		public int ScenerioVersion { get; set; }
 
 		/// <summary>
 		/// 基礎とする年
 		/// </summary>
-		public int BasicYear { get; private set; }
+		public int BasicYear { get; set; }
 
 		/// <summary>
 		/// 乗客数動態
 		/// </summary>
-		public SeasonEnum Season { get; private set; }
+		public SeasonEnum Season { get; set; }
 
 		/// <summary>
 		/// 蒸気機関車 使用制限開始年 styear
 		/// </summary>
-		public int SteamYear { get; private set; }
+		public int SteamYear { get; set; }
 
 		/// <summary>
 		/// 貨物動態
 		/// </summary>
-		public KamotsuEnum Kamotu { get; private set; }
+		public KamotsuEnum Kamotu { get; set; }
 
 		/// <summary>
 		/// kmあたりの運賃 km
 		/// </summary>
-		public int FarePerKm { get; private set; }
+		public int FarePerKm { get; set; }
 
 		/// <summary>
 		/// 乗車数　基準を100とする乗車数の倍率 rpm
 		/// </summary>
-		public int Rpm { get; private set; }
+		public int Rpm { get; set; }
 
 		/// <summary>
 		/// 路線作成費　基準を100とする路線作成費の倍率。維持費にも影響 linemc
 		/// </summary>
-		public int LineMakeCost { get; private set; }
+		public int LineMakeCost { get; set; }
 
 		/// <summary>
 		/// 技術開発費　基準を100とする技術開発費の倍率 tecc
 		/// </summary>
-		public int TechCost { get; private set; }
+		public int TechCost { get; set; }
 
 		/// <summary>
 		/// 人口上昇倍率 uppeo
 		/// </summary>
-		public int UpperPopulation { get; private set; }
+		public int UpperPopulation { get; set; }
 
 		/// <summary>
 		/// 上限人口 maxpp
 		/// </summary>
-		public int MaxPopulation { get; private set; }
+		public int MaxPopulation { get; set; }
 
 		/// <summary>
 		/// マップ数 最初は使わない
 		/// </summary>
-		public int Maps { get; private set; }
+		public int Maps { get; set; }
 
 		/// <summary>
 		/// 情報表示位置
 		/// </summary>
-		public InfoPosiEnum InfoPosi { get; private set; }
+		public InfoPosiEnum InfoPosi { get; set; }
 
 		/// <summary>
 		/// 政府補助金 開始年 hojo
 		/// </summary>
-		public int HojoStartYear { get; private set; }
+		public int HojoStartYear { get; set; }
 
 		/// <summary>
 		/// 政府補助金 終了年 hojo
 		/// </summary>
-		public int HojoEndYear { get; private set; }
+		public int HojoEndYear { get; set; }
 
 		/// <summary>
 		/// 政府補助金 金額(10万単位) hojo
 		/// </summary>
-		public int HojoAmount { get; private set; }
+		public int HojoAmount { get; set; }
 
 		/// <summary>
 		/// 戦時モード定義
@@ -123,7 +123,7 @@ namespace whr_wpf.Model
 		/// </summary>
 		public long Money
 		{
-			get => money; private set
+			get => money; set
 			{
 				money = value;
 				OnPropertyChanged(nameof(Money));
@@ -134,27 +134,27 @@ namespace whr_wpf.Model
 		/// <summary>
 		/// 年
 		/// </summary>
-		public int Year { get; private set; } = 1880;
+		public int Year { get; set; } = 1880;
 
 		/// <summary>
 		/// 月
 		/// </summary>
-		public int Month { get; private set; } = 1;
+		public int Month { get; set; } = 1;
 
 		/// <summary>
 		/// 週
 		/// </summary>
-		public int Week { get; private set; } = 1;
+		public int Week { get; set; } = 1;
 
 		/// <summary>
 		/// ゲームオーバー年
 		/// </summary>
-		public int MYear { get; private set; }
+		public int MYear { get; set; }
 
 		/// <summary>
 		/// 総人口
 		/// </summary>
-		public int Ap { get; private set; } = 0;
+		public int Ap { get; set; } = 0;
 
 		/// <summary>
 		/// モード
@@ -270,7 +270,7 @@ namespace whr_wpf.Model
 		/// <summary>
 		/// 乗り継ぎ
 		/// </summary>
-		List<Longway> longwayList;
+		public List<Longway> longwayList;
 
 		private static Random Rnd() => new Random();
 
@@ -383,24 +383,6 @@ namespace whr_wpf.Model
 			/// <returns></returns>
 			public int MultiplyKamotsu(int kamotsuAmount) => kamotsuAmount * kamotsuIndex / 100;
 
-			/// <summary>
-			/// 戦時モードのリストを生成
-			/// </summary>
-			/// <param name="warModeStringList">戦時モードの文字列リスト</param>
-			/// <returns></returns>
-			public static List<WarMode> CreateWarModeList(List<string> warModeStringList)
-			{
-				return warModeStringList.Select(warmodeStr =>
-				{
-					var arr = warmodeStr.Split(',');
-					return new WarMode
-					{
-						StartYear = int.Parse(arr[0]),
-						EndYear = int.Parse(arr[1]),
-						kamotsuIndex = int.Parse(arr[2]),
-					};
-				}).ToList();
-			}
 		}
 	}
 

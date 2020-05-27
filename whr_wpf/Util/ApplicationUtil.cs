@@ -65,30 +65,7 @@ namespace whr_wpf
 			}
 		}
 
-		/// <summary>
-		/// index.modから指定したプロパティの文字を抽出
-		/// </summary>
-		/// <param name="modLines"></param>
-		/// <param name="property"></param>
-		/// <returns></returns>
-		public static string ExtractModProperty(List<string> modLines, string property)
-		{
-			return modLines.Find(line => line.StartsWith(property)).Split(":")[1];
-		}
-
-		/// <summary>
-		/// index.modから指定したプロパティの文字を抽出し配列で返却
-		/// </summary>
-		/// <param name="modLines"></param>
-		/// <param name="property"></param>
-		/// <returns></returns>
-		public static List<string> ExtractModProperties(List<string> modLines, string property)
-		{
-			return modLines
-				.Where(line => line.StartsWith(property))
-				.Select(line => line.Split(":")[1])
-				.ToList();
-		}
+		
 
 		/// <summary>
 		/// オブジェクトの内容をファイルから読み込み復元する
