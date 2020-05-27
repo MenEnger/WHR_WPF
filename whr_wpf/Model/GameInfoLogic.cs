@@ -182,22 +182,22 @@ namespace whr_wpf.Model
 					continue;
 				}
 
-				int kari3 = 99999, kari4 = 999, kari5 = 0, kari7 = 0;
-				int kari6;
-				LinePropertyType? kari8 = null;
-				//kari3最低定着率 kari4最低本数 kari5時間 kari6乗り心地の一番低い値の乗客ボーナス kari7総距離 kari8路線属性タイプ
+				int worstRetentionRate = 99999, minimumNumOfTrips = int.MaxValue, totalRequiredMin = 0, totalDistance = 0;
+				int passengersBonusBySeat;
+				LinePropertyType? linePropertyType = null;
+				//worstRetentionRate最低定着率 minimumNumOfTrips最低本数 totalRequiredMin総所要時間 passengersBonusBySeat乗り心地の一番低い値の乗客ボーナス totalDistance総距離 linePropertyType路線属性タイプ
 
-				kari3 = longway.route.Select(line => line.retentionRate).Min();
-				kari4 = longway.route.Select(line => line.TotalNumberTrips(false)).Min();
-				kari5 = longway.route.Select(line => line.CalcAverageRequireMinutes()).Sum();
-				kari6 = longway.route
+				worstRetentionRate = longway.route.Select(line => line.retentionRate).Min();
+				minimumNumOfTrips = longway.route.Select(line => line.TotalNumberTrips(false)).Min();
+				totalRequiredMin = longway.route.Select(line => line.CalcAverageRequireMinutes()).Sum();
+				passengersBonusBySeat = longway.route
 					.Where(line => line.WorstComfortLevelSeat().HasValue)
 					.Select(line => line.WorstComfortLevelSeat().Value.ToPassengerNumBonus())
 					.Min();
-				kari7 = longway.route.Select(line => line.Distance).Sum();
+				totalDistance = longway.route.Select(line => line.Distance).Sum();
 
 				//路線タイプが1か2か8でないものがあれば、その乗り継ぎ区間では0扱い。優先順位は1,2,8以外>1>2>8の順
-				kari8 = longway.route.All(line => line.propertyType == LinePropertyType.Underground)
+				linePropertyType = longway.route.All(line => line.propertyType == LinePropertyType.Underground)
 					? (LinePropertyType?)LinePropertyType.Underground
 					: longway.route.All(line =>
 						line.propertyType == LinePropertyType.Underground || line.propertyType == LinePropertyType.Outskirts)
@@ -209,23 +209,23 @@ namespace whr_wpf.Model
 
 				int kari = 0;
 				//often 1 運行頻度スコア
-				kari = kari4 * (Year - (BasicYear - 80)) + (50 * (BasicYear + 120 - Year)) / 2;
+				kari = minimumNumOfTrips * (Year - (BasicYear - 80)) + (50 * (BasicYear + 120 - Year)) / 2;
 				kari = Math.Min(kari, 10000);
 
 				//speed 6 速達スコア
-				if (kari5 < 10) { kari += 40000; }
-				else if (10 <= kari5 && kari5 < 410) { kari += 40000 - ((kari5 - 10) * 100); }
-				if (kari5 < 60) { kari += 21000 - ((kari5 + 10) * 300); }
+				if (totalRequiredMin < 10) { kari += 40000; }
+				else if (10 <= totalRequiredMin && totalRequiredMin < 410) { kari += 40000 - ((totalRequiredMin - 10) * 100); }
+				if (totalRequiredMin < 60) { kari += 21000 - ((totalRequiredMin + 10) * 300); }
 				kari = Math.Max(0, kari);
 
 				//car 3 車両スコア 
-				kari += kari6;
+				kari += passengersBonusBySeat;
 
 				kari9[longway] = (int)Math.Pow((double)kari / 5000, 7.0);
 				if (kari9[longway] < 0) { throw new InvalidOperationException("エラー(No.20)が発生しました。作者まで報告ください"); }
 
-				kari = kari / 100 * kari3 / 10000 * longway.LinePopulation / 6000 * Rpm / 100;
-				switch (kari8)
+				kari = kari / 100 * worstRetentionRate / 10000 * longway.LinePopulation / 6000 * Rpm / 100;
+				switch (linePropertyType)
 				{
 					case LinePropertyType.Surburb:
 						kari *= 2;
