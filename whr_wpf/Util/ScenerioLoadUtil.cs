@@ -90,12 +90,7 @@ namespace whr_wpf.Util
 			BindDiagramsToLines(gameInfo);
 
 			//モード読み込み
-			gameInfo.modes = LoadModes(modLines);
-			//FIXME 仮で最初のモードの車輌などを注入しているので、ここを動的に
-			gameInfo.compositions.AddRange(gameInfo.modes[0].DefautltCompositions);
-			gameInfo.Money = gameInfo.modes[0].Money;
-			gameInfo.Year = gameInfo.modes[0].Year;
-			gameInfo.MYear = gameInfo.modes[0].MYear;
+			gameInfo.Modes = LoadModes(modLines);
 
 			Console.WriteLine("ファイル読み込み完了");
 			return gameInfo;

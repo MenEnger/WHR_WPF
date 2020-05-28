@@ -23,12 +23,12 @@
         </ToolBarTray>
 
         <StackPanel HorizontalAlignment="Center" Height="429" Margin="0,100,0,0" VerticalAlignment="Top" Width="316" >
-            <Button x:Name="Free" Content="フリーモード" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" Click="Free_Click"/>
-            <Button x:Name="Y1880" Content="1880年モード" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" IsEnabled="False"/>
-            <Button x:Name="Y1920" Content="1920年モード" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" IsEnabled="False"/>
-            <Button x:Name="Y1940F" Content="1940年フリー" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" IsEnabled="False"/>
-            <Button x:Name="Y2000" Content="2000年モード" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" IsEnabled="False"/>
-            <Button x:Name="Y2040" Content="2040年モード" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" IsEnabled="False"/>
+            <Button x:Name="mode0" Content="モード0" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" IsEnabled="False" Click="mode0_Click"/>
+            <Button x:Name="mode1" Content="モード1" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" IsEnabled="False" Click="mode1_Click"/>
+            <Button x:Name="mode2" Content="モード2" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" IsEnabled="False" Click="mode2_Click"/>
+            <Button x:Name="mode3" Content="モード3" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" IsEnabled="False" Click="mode3_Click"/>
+            <Button x:Name="mode4" Content="モード4" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" IsEnabled="False" Click="mode4_Click"/>
+            <Button x:Name="mode5" Content="モード5" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" IsEnabled="False" Click="mode5_Click"/>
             <Button x:Name="Back" Content="戻る" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Height="50" Width="212" FontSize="24" RenderTransformOrigin="0.5,0.5" Click="Back_Click" />
         </StackPanel>
 

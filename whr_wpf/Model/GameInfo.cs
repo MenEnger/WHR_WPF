@@ -29,9 +29,20 @@ namespace whr_wpf.Model
 		public DifficultyLevelEnum? Difficulty { get; set; } = null;
 
 		/// <summary>
-		/// モード
+		/// 選択されたモード
 		/// </summary>
-		public ModeEnum? Mode { get; set; } = null;
+		public Mode SelectedMode
+		{
+			get => _selectedMode; set
+			{
+				_selectedMode = value;
+				Year = value.Year;
+				Money = value.Money;
+				MYear = value.MYear;
+				compositions.AddRange(value.DefautltCompositions);
+			}
+		}
+		private Mode _selectedMode = null;
 
 		/// <summary>
 		/// シナリオバージョン
@@ -159,7 +170,7 @@ namespace whr_wpf.Model
 		/// <summary>
 		/// モード
 		/// </summary>
-		public List<Mode> modes = new List<Mode>();
+		public List<Mode> Modes { get; set; } = new List<Mode>();
 
 		/// <summary>
 		/// 編成
@@ -278,6 +289,7 @@ namespace whr_wpf.Model
 		/// 経済動向
 		/// </summary>
 		double[] economyTrends = { Rnd().Next(0, 360), Rnd().Next(0, 360), Rnd().Next(0, 360), Rnd().Next(0, 360) };
+		
 
 		/// <summary>
 		/// 経済動向指数計算

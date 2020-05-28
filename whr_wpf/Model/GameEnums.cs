@@ -108,15 +108,6 @@ namespace whr_wpf.Model
 	}
 
 	/// <summary>
-	/// モード
-	/// </summary>
-	public enum ModeEnum
-	{
-		Free,
-		Y1880
-	}
-
-	/// <summary>
 	/// 乗客数動態
 	/// </summary>
 	public enum SeasonEnum
