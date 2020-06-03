@@ -33,7 +33,6 @@ namespace whr_wpf.Model
 		/// </summary>
 		public RailTypeEnum Type { get; set; }
 
-
 		/// <summary>
 		/// 軌間幅
 		/// </summary>
@@ -216,7 +215,7 @@ namespace whr_wpf.Model
 		/// <param name="diagram"></param>
 		/// <param name="genkaiKyoyo"></param>
 		/// <returns></returns>
-		private int CalcGenkaiHonsuu(DiagramType diagram, int genkaiKyoyo)
+		public int CalcGenkaiHonsuu(DiagramType diagram, int genkaiKyoyo)
 		{
 			int honsu = 0;
 			bool isOddLanes = this.LaneNum % 2 == 1;

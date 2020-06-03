@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:whr_wpf.View.Info"
         mc:Ignorable="d"
-        Title="情報" Height="450" Width="200" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowStyle="ToolWindow"
+        Title="情報" Height="500" Width="200" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" WindowStyle="ToolWindow"
         Background="#006699">
     <Grid>
         <StackPanel>
