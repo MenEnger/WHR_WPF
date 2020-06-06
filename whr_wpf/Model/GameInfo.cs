@@ -55,7 +55,7 @@ namespace whr_wpf.Model
 			//TODO ここにゲーム設定、技術開発、技術開発状況に応じた限界許容本数の追加、路線、運行系統のダイヤ等、目標読み込み時の処理を追記
 
 			//技術開発
-			genkaiJoki = value.genkaiJoki;
+			genkaiJoki = Math.Min(value.genkaiJoki, 150);
 			genkaiDenki = value.genkaiDenki ?? genkaiDenki;
 			genkaiKidosha = value.genkaiKidosha ?? genkaiKidosha;
 			genkaiLinear = value.genkaiLinear ?? genkaiLinear;
@@ -101,6 +101,17 @@ namespace whr_wpf.Model
 				isDevelopedBlockingSignal = true;
 				genkaikyoyo += 5;
 			}
+
+			//累計投資額調整
+			//TODO 動力の技術開発の調整も実装する
+			AccumulatedInvest.steam = (long)Math.Pow(genkaiJoki - 35, 3) / 5 * TechCost / 4;
+			AccumulatedInvest.electricMotor = genkaiDenki <= 360
+				? (long)Math.Pow(genkaiDenki + 5, 3) / 10 * TechCost / 2
+				: ((50000 * (genkaiDenki - 10)) + 30377125) / 10 * TechCost / 2;
+			if (genkaiDenki < 60) { genkaiDenki = 0; }
+			if (genkaiDenki > 0 && genkaiJoki < 100) { genkaiJoki = 100; }
+			//todo ディーゼルとリニア
+			
 			if (isDevelopedDynamicSignal) { AccumulatedInvest.newPlan = 500000 * TechCost / 20; }
 			else if (isDevelopedFreeGauge) { AccumulatedInvest.newPlan = 300000 * TechCost / 20; }
 			else if (isDevelopedMachineTilt) { AccumulatedInvest.newPlan = 200000 * TechCost / 20; }
@@ -128,7 +139,8 @@ namespace whr_wpf.Model
 				});
 
 			//運行系統のデフォルト運行設定
-			diagrams.Zip(value.KeitoDefaultSettings, (keito, setting) => new { Keito = keito, Setting = setting }).ToList().ForEach(it =>
+			diagrams.Zip(value.KeitoDefaultSettings, (keito, setting) =>
+			(Keito: keito, Setting: setting)).ToList().ForEach(it =>
 				{
 					it.Keito.useComposition = it.Setting.useComposition;
 					it.Keito.runningPerDay = it.Setting.runningPerDay;

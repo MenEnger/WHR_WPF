@@ -63,11 +63,7 @@ namespace whr_wpf.Model
 	/// </summary>
 	public class GameConstants
 	{
-		/// <summary>
-		/// 背景色
-		/// </summary>
-		public Brush bgcolor = new SolidColorBrush(Color.FromRgb(0, 102, 153));
-
+		
 		/// <summary>
 		/// 1両あたり座席数
 		/// </summary>
@@ -607,5 +603,26 @@ namespace whr_wpf.Model
 		/// </summary>
 		[Display(Name = "500億円")]
 		OK500 = 500000,
+	}
+
+	/// <summary>
+	/// 路線作成目標
+	/// </summary>
+	public enum LineGoalTargetEnum
+	{
+		/// <summary>
+		/// 最重要幹線
+		/// </summary>
+		MostImportant = 1,
+
+		/// <summary>
+		/// 最重要幹線と幹線
+		/// </summary>
+		MostImportantAndMain = 2,
+
+		/// <summary>
+		/// 全線
+		/// </summary>
+		All = 3
 	}
 }

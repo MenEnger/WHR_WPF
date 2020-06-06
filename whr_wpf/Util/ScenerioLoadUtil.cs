@@ -479,7 +479,6 @@ namespace whr_wpf.Util
 			}).ToList();
 
 			//路線
-			//TODO index.modの書き方により、ltnの配列よりlkなどの配列が短くなる場合があるので、その問題を対策する
 			List<LineDefaultSetting> lineDefaultSettings = new List<LineDefaultSetting>();
 			bool[] ltn = ExtractModProperty(modeLines, "ltn")?.Split(",").Select(flg => int.Parse(flg) != 0).ToArray() ?? new bool[0];
 			int[] lk = ExtractModProperty(modeLines, "lk")?.Split(",").Select(value => int.Parse(value)).ToArray() ?? new int[ltn.Length];
@@ -547,8 +546,21 @@ namespace whr_wpf.Util
 			mode.KeitoDefaultSettings = keitoDefaultSettings;
 
 			//目標
-
-
+			mode.goalLineMake = (LineGoalTargetEnum?)ParseIntOrNull(ExtractModProperty(modeLines, "mmake"));
+			mode.goalTechDevelop = ExtractModProperties(modeLines, "mtec").ToDictionary(
+				value => (PowerEnum)(int.Parse(value.Split(",")[0]) + 1),
+				value => int.Parse(value.Split(",")[1]));
+			string[] mlbsValues = ExtractModProperty(modeLines, "mlbs").Split(",");
+			if (mlbsValues != null) {
+				mode.goalLineBestSpeed = ((LineGoalTargetEnum?)ParseIntOrNull(mlbsValues[0]), int.Parse(mlbsValues[1]));
+			}
+			string[] mmanegeValues = ExtractModProperty(modeLines, "mmanage").Split(",");
+			if (mmanegeValues != null)
+			{
+				mode.goalLineManage = (LineGoalTargetEnum?)ParseIntOrNull(mmanegeValues[0]);
+			}
+			mode.goalMoney = ParseIntOrNull(ExtractModProperty(modeLines, "mmoney"));
+			mode.gameoverYear = int.Parse(ExtractModProperty(modeLines, "myear"));
 
 			return mode;
 		}

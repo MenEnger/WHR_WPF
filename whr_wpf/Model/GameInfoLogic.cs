@@ -614,6 +614,9 @@ namespace whr_wpf.Model
 			economyTrends[2] += 360.0 / (4 * 12 * 20); //20年周期
 			economyTrends[3] += 360.0 / (4 * 12 * 60); //60年周期
 
+			//目標達成状況確認
+			CheckAchievement();
+
 			return resultMsgList;
 
 		}
@@ -682,6 +685,14 @@ namespace whr_wpf.Model
 				default:
 					return num;
 			}
+		}
+
+		/// <summary>
+		/// 目標達成状況のチェック
+		/// </summary>
+		private void CheckAchievement()
+		{
+			//todo 目標達成状況を確認するコードを実装
 		}
 
 		/// <summary>

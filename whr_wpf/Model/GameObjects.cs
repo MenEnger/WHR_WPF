@@ -72,7 +72,7 @@ namespace whr_wpf.Model
 		/// </summary>
 		public int? genkaiLinear;
 
-		//新企画技術開発 tecno
+		//新企画技術の開発状況 tecno
 		public bool isDevelopedCarTiltPendulum; //振り子式車体傾斜装置
 		public bool isDevelopedBlockingSignal; //閉塞信号
 		public bool isDevelopedFreeGauge; //フリーゲージ
@@ -93,6 +93,38 @@ namespace whr_wpf.Model
 		/// 人口係数の割る数 people[1]
 		/// </summary>
 		public int peopleDenom = 1;
+
+		/// <summary>
+		/// 路線作成目標 mmake
+		/// </summary>
+		public LineGoalTargetEnum? goalLineMake = null;
+
+		/// <summary>
+		/// 動力の技術開発目標 mtech
+		/// key:動力 value:速度(0なら開発すること)
+		/// </summary>
+		public Dictionary<PowerEnum, int> goalTechDevelop = new Dictionary<PowerEnum, int>();
+
+		/// <summary>
+		/// 路線の速度目標 mlbs
+		/// key:対象となる路線の格 value:速度目標
+		/// </summary>
+		public (LineGoalTargetEnum?, int) goalLineBestSpeed = (null, 0);
+
+		/// <summary>
+		/// 路線の収支黒字化目標 mmanage
+		/// </summary>
+		public LineGoalTargetEnum? goalLineManage = null;
+
+		/// <summary>
+		/// 目標とする所持金 10万円単位
+		/// </summary>
+		public long? goalMoney = null;
+
+		/// <summary>
+		/// 期限とする年 myear
+		/// </summary>
+		public int gameoverYear;
 
 		/// <summary>
 		/// 路線のデフォルト状態の設定
