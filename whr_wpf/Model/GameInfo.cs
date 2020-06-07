@@ -102,16 +102,25 @@ namespace whr_wpf.Model
 				genkaikyoyo += 5;
 			}
 
-			//累計投資額調整
-			//TODO 動力の技術開発の調整も実装する
+			//累計投資額、速度上限調整
 			AccumulatedInvest.steam = (long)Math.Pow(genkaiJoki - 35, 3) / 5 * TechCost / 4;
+
 			AccumulatedInvest.electricMotor = genkaiDenki <= 360
 				? (long)Math.Pow(genkaiDenki + 5, 3) / 10 * TechCost / 2
 				: ((50000 * (genkaiDenki - 10)) + 30377125) / 10 * TechCost / 2;
 			if (genkaiDenki < 60) { genkaiDenki = 0; }
 			if (genkaiDenki > 0 && genkaiJoki < 100) { genkaiJoki = 100; }
-			//todo ディーゼルとリニア
-			
+
+			AccumulatedInvest.diesel = genkaiKidosha <= 360
+				? (long)Math.Pow(genkaiKidosha + 25, 3) / 5 * TechCost / 2
+				: (82638000 + (100000 * (genkaiKidosha - 10))) / 10 * TechCost / 2;
+			if (genkaiKidosha < 40) { genkaiKidosha = 0; }
+			if (genkaiKidosha > 0 && genkaiDenki == 0) { genkaiDenki = 100; }
+
+			AccumulatedInvest.linearMotor = (long)Math.Pow(genkaiLinear - 110, 3) / 20 * TechCost;
+			if (genkaiLinear < 300) { genkaiLinear = 0; }
+			if (genkaiLinear > 0 && genkaiDenki < 200) { genkaiDenki = 200; }
+
 			if (isDevelopedDynamicSignal) { AccumulatedInvest.newPlan = 500000 * TechCost / 20; }
 			else if (isDevelopedFreeGauge) { AccumulatedInvest.newPlan = 300000 * TechCost / 20; }
 			else if (isDevelopedMachineTilt) { AccumulatedInvest.newPlan = 200000 * TechCost / 20; }
