@@ -1076,7 +1076,7 @@ namespace whr_wpf.Model
 		/// 評価速度を算出 ssp
 		/// </summary>
 		/// <returns></returns>
-		private int CalcHyokaSpeed()
+		public int CalcHyokaSpeed()
 		{
 			//路線と系統の速度の平均=評価速度
 

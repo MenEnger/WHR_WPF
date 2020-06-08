@@ -550,11 +550,11 @@ namespace whr_wpf.Util
 			mode.goalTechDevelop = ExtractModProperties(modeLines, "mtec").ToDictionary(
 				value => (PowerEnum)(int.Parse(value.Split(",")[0]) + 1),
 				value => int.Parse(value.Split(",")[1]));
-			string[] mlbsValues = ExtractModProperty(modeLines, "mlbs").Split(",");
+			string[] mlbsValues = ExtractModProperty(modeLines, "mlbs")?.Split(",") ?? null;
 			if (mlbsValues != null) {
 				mode.goalLineBestSpeed = ((LineGoalTargetEnum?)ParseIntOrNull(mlbsValues[0]), int.Parse(mlbsValues[1]));
 			}
-			string[] mmanegeValues = ExtractModProperty(modeLines, "mmanage").Split(",");
+			string[] mmanegeValues = ExtractModProperty(modeLines, "mmanage")?.Split(",") ?? null;
 			if (mmanegeValues != null)
 			{
 				mode.goalLineManage = (LineGoalTargetEnum?)ParseIntOrNull(mmanegeValues[0]);

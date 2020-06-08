@@ -1,10 +1,7 @@
-﻿using Microsoft.VisualBasic.FileIO;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows;
-using System.Windows.Media.Imaging;
 
 namespace whr_wpf.Model
 {
@@ -615,7 +612,18 @@ namespace whr_wpf.Model
 			economyTrends[3] += 360.0 / (4 * 12 * 60); //60年周期
 
 			//目標達成状況確認
-			CheckAchievement();
+			bool goalStatus = CheckAchievement();
+			if (goalStatus)
+			{
+				resultMsgList.Add("おめでとうございます！\n目標を達成しました。フリーモードに移行しました。");
+				//目標リセット
+				SelectedMode.goalLineMake = null;
+				SelectedMode.goalTechDevelop = new Dictionary<PowerEnum, int>();
+				SelectedMode.goalLineBestSpeed = (null, 0);
+				SelectedMode.goalLineManage = null;
+				SelectedMode.goalMoney = null;
+				MYear = BasicYear + 420;
+			}
 
 			return resultMsgList;
 
@@ -690,9 +698,109 @@ namespace whr_wpf.Model
 		/// <summary>
 		/// 目標達成状況のチェック
 		/// </summary>
-		private void CheckAchievement()
+		/// <returns>true:目標達成 false:目標未達成</returns>
+		/// <exception cref="GameOverException">ゲームオーバー</exception>
+		private bool CheckAchievement()
 		{
-			//todo 目標達成状況を確認するコードを実装
+			
+			if ((Year > SelectedMode.MYear) && (SelectedMode.MYear > 0)) 
+			{
+				throw new GameOverException("目標の達成に失敗しました。ゲームオーバーです。");
+			}
+
+			bool HasGoal = false;
+
+			//路線作成目標
+			if (SelectedMode.goalLineMake.HasValue)
+			{
+				LineGoalTargetEnum lineGoalTarget = SelectedMode.goalLineMake.Value;
+				if (!ExtractLinesByTargetType(lineGoalTarget).All(line => line.IsExist)) { return false; }
+				HasGoal = true;
+			}
+
+			//技術開発目標
+			foreach (var m in SelectedMode.goalTechDevelop)
+			{
+				switch (m.Key)
+				{
+					case PowerEnum.Steam:
+						if (m.Value == 0 && genkaiJoki == 0) return false;
+						else if (genkaiJoki < m.Value) return false;
+						break;
+					case PowerEnum.Electricity:
+						if (m.Value == 0 && genkaiDenki == 0) return false;
+						else if (genkaiDenki < m.Value) return false;
+						break;
+					case PowerEnum.Diesel:
+						if (m.Value == 0 && genkaiKidosha == 0) return false;
+						else if (genkaiKidosha < m.Value) return false;
+						break;
+					case PowerEnum.LinearMotor:
+						if (m.Value == 0 && genkaiLinear == 0) return false;
+						else if (genkaiLinear < m.Value) return false;
+						break;
+				}
+				HasGoal = true;
+			}
+
+			//路線速度目標
+			if (SelectedMode.goalLineBestSpeed.Item1.HasValue)
+			{
+				(LineGoalTargetEnum?, int) goalLineBestSpeed = SelectedMode.goalLineBestSpeed;
+				LineGoalTargetEnum target = goalLineBestSpeed.Item1.Value;
+				if (!ExtractLinesByTargetType(target).All(line =>
+					line.TotalNumberTrips(false) > 0 && line.CalcHyokaSpeed() >= goalLineBestSpeed.Item2))
+				{
+					return false;
+				}
+				HasGoal = true;
+			}
+
+			//路線収支目標
+			if (SelectedMode.goalLineManage.HasValue)
+			{
+				LineGoalTargetEnum target = SelectedMode.goalLineManage.Value;
+				if (!ExtractLinesByTargetType(target).All(line => line.incomeLastWeek - line.outlayLastWeek > 0))
+				{
+					return false;
+				}
+				HasGoal = true;
+			}
+
+			//所持金目標
+			if (SelectedMode.goalMoney.HasValue)
+			{
+				long goal = SelectedMode.goalMoney.Value;
+				if (Money < goal) { return false; }
+				HasGoal = true;
+			}
+
+			//最後まで目標チェックをパスしたとき、目標があれば目標達成、目標が無ければ目標未達成扱い
+			return HasGoal;
+		}
+
+		/// <summary>
+		/// 路線目標の対象の種類に応じて路線を抽出
+		/// </summary>
+		/// <param name="lineGoalTarget"></param>
+		/// <returns></returns>
+		private IEnumerable<Line> ExtractLinesByTargetType(LineGoalTargetEnum lineGoalTarget)
+		{
+			IEnumerable<Line> target = lines;
+			switch (lineGoalTarget)
+			{
+				case LineGoalTargetEnum.MostImportant:
+					target = lines.Where(line => line.grade == LineGrade.MostImportant);
+					break;
+				case LineGoalTargetEnum.MostImportantAndMain:
+					target = lines.Where(line => line.grade == LineGrade.MostImportant || line.grade == LineGrade.Main);
+					break;
+				case LineGoalTargetEnum.All:
+					target = lines;
+					break;
+			}
+
+			return target;
 		}
 
 		/// <summary>

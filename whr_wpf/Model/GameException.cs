@@ -32,4 +32,12 @@ namespace whr_wpf.Model
 		public CannotContinueException(string message) : base(message) { }
 	}
 
+	/// <summary>
+	/// ゲームオーバー時の例外
+	/// </summary>
+	public class GameOverException : Exception
+	{
+		public GameOverException(string message) : base(message) { }
+	} 
+
 }

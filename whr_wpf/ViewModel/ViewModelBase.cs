@@ -76,6 +76,10 @@ namespace whr_wpf.ViewModel
 				{
 					MessageBox.Show(e.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Information);
 				}
+				catch (GameOverException e)
+				{
+					MessageBox.Show(e.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Information);
+				}
 			}
 		}
 
