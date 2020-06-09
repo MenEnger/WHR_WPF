@@ -10,7 +10,7 @@
     <Grid>
         <StackPanel>
             <Label Content="情報" Foreground="White" HorizontalContentAlignment="Center" FontSize="24" />
-            <TextBlock  Text="{Binding InfoStr}" FontSize="14" Foreground="White"/>
+            <TextBlock  Text="{Binding InfoStr}" FontSize="12" Foreground="White"/>
             <Button Content="閉じる" Command="{Binding Close}"/>
         </StackPanel>
     </Grid>

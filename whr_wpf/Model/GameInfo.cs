@@ -53,6 +53,8 @@ namespace whr_wpf.Model
 			MYear = value.MYear;
 
 			//TODO ここにゲーム設定、技術開発、技術開発状況に応じた限界許容本数の追加、路線、運行系統のダイヤ等、目標読み込み時の処理を追記
+			//都市の人口調整
+			stations.ForEach(station => station.Population = station.Population * value.peopleNume / value.peopleDenom);
 
 			//技術開発
 			genkaiJoki = Math.Min(value.genkaiJoki, 150);

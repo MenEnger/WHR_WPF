@@ -241,7 +241,7 @@ namespace whr_wpf.Model
 		/// <summary>
 		/// 転換クロスシート
 		/// </summary>
-		[Display(Name = "転換クロスシートシート")]
+		[Display(Name = "転換クロスシート")]
 		[ComfortLevel(6, 4300)]
 		Convertible = 6,
 
@@ -613,16 +613,19 @@ namespace whr_wpf.Model
 		/// <summary>
 		/// 最重要幹線
 		/// </summary>
+		[Display(Name = "最重要幹線")]
 		MostImportant = 1,
 
 		/// <summary>
 		/// 最重要幹線と幹線
 		/// </summary>
+		[Display(Name = "最重要幹線及び幹線")]
 		MostImportantAndMain = 2,
 
 		/// <summary>
 		/// 全線
 		/// </summary>
+		[Display(Name = "全線")]
 		All = 3
 	}
 }

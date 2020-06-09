@@ -548,7 +548,7 @@ namespace whr_wpf.Util
 			//目標
 			mode.goalLineMake = (LineGoalTargetEnum?)ParseIntOrNull(ExtractModProperty(modeLines, "mmake"));
 			mode.goalTechDevelop = ExtractModProperties(modeLines, "mtec").ToDictionary(
-				value => (PowerEnum)(int.Parse(value.Split(",")[0]) + 1),
+				value => (PowerEnum)(int.Parse(value.Split(",")[0]) - 1),
 				value => int.Parse(value.Split(",")[1]));
 			string[] mlbsValues = ExtractModProperty(modeLines, "mlbs")?.Split(",") ?? null;
 			if (mlbsValues != null) {
