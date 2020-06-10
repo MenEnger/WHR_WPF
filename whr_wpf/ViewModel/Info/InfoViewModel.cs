@@ -50,13 +50,14 @@ namespace whr_wpf.ViewModel.Info
 				if (gameInfo.isDevelopedConvertibleCross) { text.Append("転換クロスシート\n"); }
 				text.Append($"○達成目標\n");
 				if (gameInfo.SelectedMode.goalLineMake.HasValue) { text.Append($"{gameInfo.SelectedMode.goalLineMake.Value.ToName()}をすべて作成\n"); }
-				foreach (var m in gameInfo.SelectedMode.goalTechDevelop) {
-					string msg = 
-						m.Value == 0 
+				foreach (var m in gameInfo.SelectedMode.goalTechDevelop)
+				{
+					string msg =
+						m.Value == 0
 						? $"{m.Key.ToName()}の開発\n" : $"{m.Key.ToName()}を{m.Value}km/h以上に\n";
 					text.Append(msg);
 				}
-				if (gameInfo.SelectedMode.goalLineBestSpeed.Item1.HasValue) 
+				if (gameInfo.SelectedMode.goalLineBestSpeed.Item1.HasValue)
 				{
 					text.Append($"{gameInfo.SelectedMode.goalLineBestSpeed.Item1.Value.ToName()}を{gameInfo.SelectedMode.goalLineBestSpeed.Item2}km/h以上に\n");
 				}

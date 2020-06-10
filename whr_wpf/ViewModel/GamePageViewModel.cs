@@ -122,7 +122,7 @@ namespace whr_wpf.ViewModel
 			{
 				MessageBox.Show(e.Message, "ゲームオーバー", MessageBoxButton.OK, MessageBoxImage.Information);
 				ApplicationUtil.ForceExit();
-			} 
+			}
 		}
 
 		private void DoNextMonth()

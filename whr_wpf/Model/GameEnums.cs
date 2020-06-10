@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Security.Cryptography.X509Certificates;
-using System.Windows.Media;
 
 namespace whr_wpf.Model
 {

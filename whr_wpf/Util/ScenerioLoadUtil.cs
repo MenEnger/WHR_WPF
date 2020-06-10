@@ -338,7 +338,8 @@ namespace whr_wpf.Util
 			mode.genkaiKidosha = ParseIntOrNull(ExtractModProperty(modeLines, "diesel"));
 			mode.genkaiLinear = ParseIntOrNull(ExtractModProperty(modeLines, "linear"));
 			var tecno = ParseIntOrNull(ExtractModProperty(modeLines, "tecno"));
-			if (tecno.HasValue) {
+			if (tecno.HasValue)
+			{
 				int tecnoV = tecno.Value;
 				if ((tecnoV & 256) > 0) //動的信号
 				{
@@ -426,8 +427,9 @@ namespace whr_wpf.Util
 					mode.isDevelopedBlockingSignal = true;
 				}
 			}
-			int[] people = ExtractModProperty(modeLines, "people")?.Split(",").Select(it => int.Parse(it)).Take(2).ToArray() ?? new int[] { 1,1};
-			if (people.Count() == 2) {
+			int[] people = ExtractModProperty(modeLines, "people")?.Split(",").Select(it => int.Parse(it)).Take(2).ToArray() ?? new int[] { 1, 1 };
+			if (people.Count() == 2)
+			{
 				mode.peopleNume = people[0];
 				mode.peopleDenom = people[1];
 			}
@@ -533,7 +535,7 @@ namespace whr_wpf.Util
 			//運行系統
 			List<KeitoDefaultSetting> keitoDefaultSettings = new List<KeitoDefaultSetting>();
 			int[] udc = ExtractModProperty(modeLines, "udc")?.Split(",").Select(value => int.Parse(value)).ToArray() ?? new int[0];
-			int[] udcr = ExtractModProperty(modeLines, "udcr")?.Split(",").Select(value => int.Parse(value)).ToArray()?? new int[udc.Length];
+			int[] udcr = ExtractModProperty(modeLines, "udcr")?.Split(",").Select(value => int.Parse(value)).ToArray() ?? new int[udc.Length];
 			for (int i = 0; i < udc.Length; i++)
 			{
 				KeitoDefaultSetting setting = new KeitoDefaultSetting()
@@ -551,7 +553,8 @@ namespace whr_wpf.Util
 				value => (PowerEnum)(int.Parse(value.Split(",")[0]) - 1),
 				value => int.Parse(value.Split(",")[1]));
 			string[] mlbsValues = ExtractModProperty(modeLines, "mlbs")?.Split(",") ?? null;
-			if (mlbsValues != null) {
+			if (mlbsValues != null)
+			{
 				mode.goalLineBestSpeed = ((LineGoalTargetEnum?)ParseIntOrNull(mlbsValues[0]), int.Parse(mlbsValues[1]));
 			}
 			string[] mmanegeValues = ExtractModProperty(modeLines, "mmanage")?.Split(",") ?? null;

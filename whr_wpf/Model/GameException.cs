@@ -38,6 +38,6 @@ namespace whr_wpf.Model
 	public class GameOverException : Exception
 	{
 		public GameOverException(string message) : base(message) { }
-	} 
+	}
 
 }

@@ -290,7 +290,7 @@ namespace whr_wpf.ViewModel
 
 			override public bool CanExecute(object parameter)
 			{
-				return vm.LaneSu != null && vm.RailType != null && vm.Taihisen != null 
+				return vm.LaneSu != null && vm.RailType != null && vm.Taihisen != null
 					&& vm.Line.CanConstruct(
 						vm.BestSpeed,
 						vm.RailType.RailType,

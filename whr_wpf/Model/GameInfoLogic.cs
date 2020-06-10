@@ -702,8 +702,8 @@ namespace whr_wpf.Model
 		/// <exception cref="GameOverException">ゲームオーバー</exception>
 		private bool CheckAchievement()
 		{
-			
-			if ((Year > SelectedMode.MYear) && (SelectedMode.MYear > 0)) 
+
+			if ((Year > SelectedMode.MYear) && (SelectedMode.MYear > 0))
 			{
 				throw new GameOverException("目標の達成に失敗しました。ゲームオーバーです。");
 			}

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using whr_wpf.Util;
 
@@ -454,7 +453,7 @@ namespace whr_wpf.Model
 		/// 経済動向
 		/// </summary>
 		double[] economyTrends = { Rnd().Next(0, 360), Rnd().Next(0, 360), Rnd().Next(0, 360), Rnd().Next(0, 360) };
-		
+
 
 		/// <summary>
 		/// 経済動向指数計算
