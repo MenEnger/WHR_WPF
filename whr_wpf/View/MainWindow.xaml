@@ -5,6 +5,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:whr_wpf"
         mc:Ignorable="d"
-        Title="世界鉄道網" Height="730" Width="980" WindowStartupLocation="CenterScreen" ShowsNavigationUI="False" Source="MainMenuPage.xaml">
+        Title="世界鉄道網" Height="748" Width="995" WindowStartupLocation="CenterScreen" ShowsNavigationUI="False" Source="MainMenuPage.xaml" ResizeMode="NoResize">
     
 </NavigationWindow>

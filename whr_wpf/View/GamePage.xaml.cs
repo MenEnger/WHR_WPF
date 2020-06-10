@@ -1,7 +1,8 @@
-﻿using System.Windows;
+﻿using System;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using whr_wpf.Model;
 using whr_wpf.ViewModel;
@@ -22,17 +23,16 @@ namespace whr_wpf
 			this.gameInfo = gameInfo;
 			this.DataContext = new GamePageViewModel(gameInfo, this);
 			Loaded += (s, e) => { DrawMap(); };
+			Loaded += ShowModeMessageAsync;
 		}
 
-		private BitmapImage bgMap = null;
-
-		public void SetBgImage(BitmapImage image)
+		private void ShowModeMessageAsync(object sender, EventArgs e)
 		{
-			//this.image.Source = image;
-			bgMap = image;
+			Task.Run(() =>
+			{
+				MessageBox.Show(gameInfo.SelectedMode.Message);
+			});
 		}
-
-		//private GameInfo getCurrentGameState() => GameInfo.CurrentInstance;
 
 		//ゲーム画面の描画
 		public void DrawMap()

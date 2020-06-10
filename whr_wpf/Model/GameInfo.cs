@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Media.Imaging;
@@ -29,9 +30,183 @@ namespace whr_wpf.Model
 		public DifficultyLevelEnum? Difficulty { get; set; } = null;
 
 		/// <summary>
-		/// モード
+		/// 選択されたモード set時にgameInfoの設定を初期化していく
 		/// </summary>
-		public ModeEnum? Mode { get; set; } = null;
+		public Mode SelectedMode
+		{
+			get => _selectedMode; set
+			{
+				_selectedMode = value;
+				ApplyModeSetting(value);
+			}
+		}
+
+		/// <summary>
+		/// モードごとの設定を適用
+		/// </summary>
+		/// <param name="value"></param>
+		private void ApplyModeSetting(Mode value)
+		{
+			Year = value.Year;
+			Money = value.Money;
+			MYear = value.MYear;
+
+			//TODO ここにゲーム設定、技術開発、技術開発状況に応じた限界許容本数の追加、路線、運行系統のダイヤ等、目標読み込み時の処理を追記
+			//都市の人口調整
+			stations.ForEach(station => station.Population = station.Population * value.peopleNume / value.peopleDenom);
+
+			//技術開発
+			genkaiJoki = Math.Min(value.genkaiJoki, 150);
+			genkaiDenki = value.genkaiDenki ?? genkaiDenki;
+			genkaiKidosha = value.genkaiKidosha ?? genkaiKidosha;
+			genkaiLinear = value.genkaiLinear ?? genkaiLinear;
+			if (value.isDevelopedDynamicSignal)
+			{
+				isDevelopedDynamicSignal = true;
+				genkaikyoyo += 5;
+			}
+			if (value.isDevelopedFreeGauge || isDevelopedDynamicSignal)
+			{
+				isDevelopedFreeGauge = true;
+			}
+			if (value.isDevelopedMachineTilt || isDevelopedFreeGauge)
+			{
+				isDevelopedMachineTilt = true;
+			}
+			if (value.isDevelopedDualSeat || isDevelopedMachineTilt)
+			{
+				isDevelopedDualSeat = true;
+			}
+			if (value.isDevelopedRetructableLong || isDevelopedDualSeat)
+			{
+				isDevelopedRetructableLong = true;
+			}
+			if (value.isDevelopedRichCross || isDevelopedRetructableLong)
+			{
+				isDevelopedRichCross = true;
+			}
+			if (value.isDevelopedCarTiltPendulum || isDevelopedRichCross)
+			{
+				isDevelopedCarTiltPendulum = true;
+			}
+			if (value.isDevelopedAutoGate || isDevelopedCarTiltPendulum)
+			{
+				isDevelopedAutoGate = true;
+			}
+			if (value.isDevelopedConvertibleCross || isDevelopedAutoGate)
+			{
+				isDevelopedConvertibleCross = true;
+			}
+			if (value.isDevelopedBlockingSignal || isDevelopedConvertibleCross)
+			{
+				isDevelopedBlockingSignal = true;
+				genkaikyoyo += 5;
+			}
+
+			//累計投資額、速度上限調整
+			AccumulatedInvest.steam = (long)Math.Pow(genkaiJoki - 35, 3) / 5 * TechCost / 4;
+
+			AccumulatedInvest.electricMotor = genkaiDenki <= 360
+				? (long)Math.Pow(genkaiDenki + 5, 3) / 10 * TechCost / 2
+				: ((50000 * (genkaiDenki - 10)) + 30377125) / 10 * TechCost / 2;
+			if (genkaiDenki < 60) { genkaiDenki = 0; }
+			if (genkaiDenki > 0 && genkaiJoki < 100) { genkaiJoki = 100; }
+
+			AccumulatedInvest.diesel = genkaiKidosha <= 360
+				? (long)Math.Pow(genkaiKidosha + 25, 3) / 5 * TechCost / 2
+				: (82638000 + (100000 * (genkaiKidosha - 10))) / 10 * TechCost / 2;
+			if (genkaiKidosha < 40) { genkaiKidosha = 0; }
+			if (genkaiKidosha > 0 && genkaiDenki == 0) { genkaiDenki = 100; }
+
+			AccumulatedInvest.linearMotor = (long)Math.Pow(genkaiLinear - 110, 3) / 20 * TechCost;
+			if (genkaiLinear < 300) { genkaiLinear = 0; }
+			if (genkaiLinear > 0 && genkaiDenki < 200) { genkaiDenki = 200; }
+
+			if (isDevelopedDynamicSignal) { AccumulatedInvest.newPlan = 500000 * TechCost / 20; }
+			else if (isDevelopedFreeGauge) { AccumulatedInvest.newPlan = 300000 * TechCost / 20; }
+			else if (isDevelopedMachineTilt) { AccumulatedInvest.newPlan = 200000 * TechCost / 20; }
+			else if (isDevelopedDualSeat) { AccumulatedInvest.newPlan = 100000 * TechCost / 20; }
+			else if (isDevelopedRetructableLong) { AccumulatedInvest.newPlan = 50000 * TechCost / 20; }
+			else if (isDevelopedRichCross) { AccumulatedInvest.newPlan = 30000 * TechCost / 20; }
+			else if (isDevelopedCarTiltPendulum) { AccumulatedInvest.newPlan = 20000 * TechCost / 20; }
+			else if (isDevelopedAutoGate) { AccumulatedInvest.newPlan = 10000 * TechCost / 20; }
+			else if (isDevelopedConvertibleCross) { AccumulatedInvest.newPlan = 5000 * TechCost / 20; }
+			else if (isDevelopedBlockingSignal) { AccumulatedInvest.newPlan = 1000 * TechCost / 20; }
+
+			//路線のデフォ設定
+			lines.Zip(value.LineSettings, (line, setting) => new { Line = line, Setting = setting }).ToList().ForEach(it =>
+				{
+					it.Line.IsExist = it.Setting.IsExist;
+					it.Line.Type = it.Setting.Type;
+					it.Line.gauge = it.Setting.gauge;
+					it.Line.IsElectrified = it.Setting.IsElectrified;
+					it.Line.bestSpeed = it.Setting.bestSpeed;
+					it.Line.LaneNum = it.Setting.LaneNum;
+					it.Line.retentionRate = it.Setting.retentionRate;
+					it.Line.taihisen = it.Setting.taihisen;
+					it.Line.useComposition = it.Setting.useComposition;
+					it.Line.runningPerDay = it.Setting.runningPerDay;
+				});
+
+			//運行系統のデフォルト運行設定
+			diagrams.Zip(value.KeitoDefaultSettings, (keito, setting) =>
+			(Keito: keito, Setting: setting)).ToList().ForEach(it =>
+				{
+					it.Keito.useComposition = it.Setting.useComposition;
+					it.Keito.runningPerDay = it.Setting.runningPerDay;
+				});
+
+			//各路線ダイヤ設定、系統と路線の投入編成数の決定
+			lines.ForEach(line =>
+			{
+				int totalRunningPerDay = line.TotalNumberTrips(false);
+
+				int genkai = line.CalcGenkaiHonsuu(DiagramType.LimittedExpressPrior, genkaikyoyo);
+				if (totalRunningPerDay <= genkai)
+				{
+					line.diagram = DiagramType.LimittedExpressPrior;
+					return;
+				}
+
+				genkai = line.CalcGenkaiHonsuu(DiagramType.Regular, genkaikyoyo);
+				if (totalRunningPerDay <= genkai)
+				{
+					line.diagram = DiagramType.Regular;
+					return;
+				}
+
+				genkai = line.CalcGenkaiHonsuu(DiagramType.OverCrowded, genkaikyoyo);
+				if (totalRunningPerDay <= genkai)
+				{
+					line.diagram = DiagramType.OverCrowded;
+					return;
+				}
+
+				genkai = line.CalcGenkaiHonsuu(DiagramType.Parallel, genkaikyoyo);
+				if (totalRunningPerDay <= genkai)
+				{
+					line.diagram = DiagramType.Parallel;
+					return;
+				}
+
+				throw new CannotContinueException($"シナリオダイヤ設定エラーです。路線'{line.Caption}'のスペックが路線と系統に設定された運行本数を捌けません。");
+			});
+			diagrams.ForEach(keito =>
+			{
+				ImmutableDictionary<Line, DiagramType> lineDiagrams = keito.route.ToImmutableDictionary(
+					line => line,
+					line => line.diagram);
+				keito.useCompositionNum = keito.CalcUseCompositionNum(keito.useComposition, keito.runningPerDay, lineDiagrams);
+			});
+			lines.ForEach(line =>
+			{
+				line.useCompositionNum = line.CalcUseCompositionNum(line.useComposition, line.runningPerDay, line.diagram);
+			});
+
+			compositions.AddRange(value.DefautltCompositions);
+		}
+
+		private Mode _selectedMode = null;
 
 		/// <summary>
 		/// シナリオバージョン
@@ -159,7 +334,7 @@ namespace whr_wpf.Model
 		/// <summary>
 		/// モード
 		/// </summary>
-		public List<Mode> modes = new List<Mode>();
+		public List<Mode> Modes { get; set; } = new List<Mode>();
 
 		/// <summary>
 		/// 編成
@@ -278,6 +453,7 @@ namespace whr_wpf.Model
 		/// 経済動向
 		/// </summary>
 		double[] economyTrends = { Rnd().Next(0, 360), Rnd().Next(0, 360), Rnd().Next(0, 360), Rnd().Next(0, 360) };
+
 
 		/// <summary>
 		/// 経済動向指数計算

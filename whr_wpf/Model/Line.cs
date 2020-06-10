@@ -33,7 +33,6 @@ namespace whr_wpf.Model
 		/// </summary>
 		public RailTypeEnum Type { get; set; }
 
-
 		/// <summary>
 		/// 軌間幅
 		/// </summary>
@@ -95,7 +94,7 @@ namespace whr_wpf.Model
 		/// <summary>
 		/// 定着率 lwe
 		/// </summary>
-		public int retentionRate = 10000;  //デフォ10000
+		public int retentionRate = GameConstants.RetentionRateDefault;  //デフォ10000
 
 		/// <summary>
 		/// 先週の乗車数 lus
@@ -216,7 +215,7 @@ namespace whr_wpf.Model
 		/// <param name="diagram"></param>
 		/// <param name="genkaiKyoyo"></param>
 		/// <returns></returns>
-		private int CalcGenkaiHonsuu(DiagramType diagram, int genkaiKyoyo)
+		public int CalcGenkaiHonsuu(DiagramType diagram, int genkaiKyoyo)
 		{
 			int honsu = 0;
 			bool isOddLanes = this.LaneNum % 2 == 1;
@@ -1077,7 +1076,7 @@ namespace whr_wpf.Model
 		/// 評価速度を算出 ssp
 		/// </summary>
 		/// <returns></returns>
-		private int CalcHyokaSpeed()
+		public int CalcHyokaSpeed()
 		{
 			//路線と系統の速度の平均=評価速度
 

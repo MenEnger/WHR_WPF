@@ -5,11 +5,13 @@ using System.Linq;
 namespace whr_wpf.Model
 {
 	/// <summary>
-	/// モード
+	/// index.modのモードの設定を表すクラス
 	/// </summary>
 	[Serializable()]
 	public class Mode
 	{
+		public Mode() { }
+
 		/// <summary>
 		/// モード名
 		/// </summary>
@@ -40,7 +42,161 @@ namespace whr_wpf.Model
 		/// </summary>
 		public List<DefautltComposition> DefautltCompositions { get; set; }
 
-		public Mode() { }
+		/// <summary>
+		/// 路線のデフォルト設定
+		/// </summary>
+		public List<LineDefaultSetting> LineSettings { get; set; }
+
+		/// <summary>
+		/// 運行系統のデフォルト設定
+		/// </summary>
+		public List<KeitoDefaultSetting> KeitoDefaultSettings { get; set; }
+
+		/// <summary>
+		/// 蒸気機関の限界スピード steam
+		/// </summary>
+		public int genkaiJoki = 40;
+
+		/// <summary>
+		/// 電気モーターの限界スピード elect
+		/// </summary>
+		public int? genkaiDenki;
+
+		/// <summary>
+		/// 気動車の限界スピード diesel
+		/// </summary>
+		public int? genkaiKidosha;
+
+		/// <summary>
+		/// リニアの限界スピード linear
+		/// </summary>
+		public int? genkaiLinear;
+
+		//新企画技術の開発状況 tecno
+		public bool isDevelopedCarTiltPendulum; //振り子式車体傾斜装置
+		public bool isDevelopedBlockingSignal; //閉塞信号
+		public bool isDevelopedFreeGauge; //フリーゲージ
+		public bool isDevelopedDualSeat; //デュアルシート
+		public bool isDevelopedRichCross; //豪華クロスシート
+		public bool isDevelopedRetructableLong; //収納式ロングシート
+		public bool isDevelopedConvertibleCross; //転換クロスシート
+		public bool isDevelopedAutoGate; //自動改札機
+		public bool isDevelopedDynamicSignal; //動的信号
+		public bool isDevelopedMachineTilt; //機械式車体傾斜装置
+
+		/// <summary>
+		/// 人口係数の掛ける数 people[0]
+		/// </summary>
+		public int peopleNume = 1;
+
+		/// <summary>
+		/// 人口係数の割る数 people[1]
+		/// </summary>
+		public int peopleDenom = 1;
+
+		/// <summary>
+		/// 路線作成目標 mmake
+		/// </summary>
+		public LineGoalTargetEnum? goalLineMake = null;
+
+		/// <summary>
+		/// 動力の技術開発目標 mtech
+		/// key:動力 value:速度(0なら開発すること)
+		/// </summary>
+		public Dictionary<PowerEnum, int> goalTechDevelop = new Dictionary<PowerEnum, int>();
+
+		/// <summary>
+		/// 路線の速度目標 mlbs
+		/// key:対象となる路線の格 value:速度目標
+		/// </summary>
+		public (LineGoalTargetEnum?, int) goalLineBestSpeed = (null, 0);
+
+		/// <summary>
+		/// 路線の収支黒字化目標 mmanage
+		/// </summary>
+		public LineGoalTargetEnum? goalLineManage = null;
+
+		/// <summary>
+		/// 目標とする所持金 10万円単位
+		/// </summary>
+		public long? goalMoney = null;
+
+		/// <summary>
+		/// 期限とする年 myear
+		/// </summary>
+		public int gameoverYear;
+
+		/// <summary>
+		/// 路線のデフォルト状態の設定
+		/// </summary>
+		public class LineDefaultSetting
+		{
+			/// <summary>
+			/// 敷設済みか ltn
+			/// </summary>
+			public bool IsExist { get; set; }
+
+			/// <summary>
+			/// 路線のタイプ lk
+			/// </summary>
+			public RailTypeEnum Type { get; set; }
+
+			/// <summary>
+			/// 軌間幅 lk
+			/// </summary>
+			public RailGaugeEnum gauge;
+
+			/// <summary>
+			/// 電化路線か lk
+			/// </summary>
+			public bool? IsElectrified { get; set; }
+
+			/// <summary>
+			/// 最高速度 lbs
+			/// </summary>
+			public int bestSpeed;
+
+			/// <summary>
+			/// 路線数 las　1=単線　2=複線　4～=複々線～
+			/// </summary>
+			public int LaneNum { get; set; }
+
+			/// <summary>
+			/// 待避線 lts
+			/// </summary>
+			public TaihisenEnum taihisen = TaihisenEnum.Every20km;
+
+			/// <summary>
+			/// 定着率 lwe
+			/// </summary>
+			public int retentionRate = GameConstants.RetentionRateDefault;  //デフォ10000
+
+			/// <summary>
+			/// 投入編成 udc
+			/// </summary>
+			public DefautltComposition useComposition;
+
+			/// <summary>
+			/// 一日あたり運行本数 ulcr
+			/// </summary>
+			public int runningPerDay;
+		}
+
+		/// <summary>
+		/// 運行系統のデフォルト状態の設定
+		/// </summary>
+		public class KeitoDefaultSetting
+		{
+			/// <summary>
+			/// 投入編成 udc
+			/// </summary>
+			public DefautltComposition useComposition;
+
+			/// <summary>
+			/// 日間運行本数 udcr
+			/// </summary>
+			public int runningPerDay;
+		}
 	}
 
 	/// <summary>

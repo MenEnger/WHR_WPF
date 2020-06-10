@@ -111,23 +111,39 @@ namespace whr_wpf.ViewModel
 		private void DoNextWeek()
 		{
 			List<string> msgs = GameInfo.NextWeek();
-			if (msgs.Count > 0)
+			try
 			{
-				MessageBox.Show(string.Join("\n===\n", msgs));
+				if (msgs.Count > 0)
+				{
+					MessageBox.Show(string.Join("\n===\n", msgs));
+				}
+			}
+			catch (GameOverException e)
+			{
+				MessageBox.Show(e.Message, "ゲームオーバー", MessageBoxButton.OK, MessageBoxImage.Information);
+				ApplicationUtil.ForceExit();
 			}
 		}
 
 		private void DoNextMonth()
 		{
 			List<string> msgs = new List<string>();
-			for (int i = 0; i < 4; i++)
+			try
 			{
-				msgs.AddRange(GameInfo.NextWeek());
-				InvokeAllNotify();
+				for (int i = 0; i < 4; i++)
+				{
+					msgs.AddRange(GameInfo.NextWeek());
+					InvokeAllNotify();
+				}
+				if (msgs.Count > 0)
+				{
+					MessageBox.Show(string.Join("\n===\n", msgs));
+				}
 			}
-			if (msgs.Count > 0)
+			catch (GameOverException e)
 			{
-				MessageBox.Show(string.Join("\n===\n", msgs));
+				MessageBox.Show(e.Message, "ゲームオーバー", MessageBoxButton.OK, MessageBoxImage.Information);
+				ApplicationUtil.ForceExit();
 			}
 		}
 

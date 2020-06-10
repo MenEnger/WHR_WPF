@@ -84,7 +84,7 @@ namespace whr_wpf.ViewModel
 		public string PowerSource => Composition != null ? $"動力　{Composition.Power.ToName()}" : "";
 		public string CarNum => Composition != null ? $"編成両数　{((Composition is DefautltComposition dComp) ? dComp.CarCount : Composition.CarCount)}" : "";
 		public string HeldUnits => Composition != null ? $"余剰編成数　{Composition.HeldUnits}" : "";
-		public string Price => Composition != null ? $"編成価格　{Composition.Price}拾万円" : "";
+		public string Price => Composition != null ? $"編成価格　{LogicUtil.AppendMoneyUnit(Composition.Price)}" : "";
 		public string Josharitsu
 		{
 			get

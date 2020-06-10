@@ -1,12 +1,14 @@
 ﻿using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using whr_wpf.Model;
 using static whr_wpf.Model.GameInfo;
+using static whr_wpf.Model.Mode;
 
 namespace whr_wpf.Util
 {
@@ -90,12 +92,7 @@ namespace whr_wpf.Util
 			BindDiagramsToLines(gameInfo);
 
 			//モード読み込み
-			gameInfo.modes = LoadModes(modLines);
-			//FIXME 仮で最初のモードの車輌などを注入しているので、ここを動的に
-			gameInfo.compositions.AddRange(gameInfo.modes[0].DefautltCompositions);
-			gameInfo.Money = gameInfo.modes[0].Money;
-			gameInfo.Year = gameInfo.modes[0].Year;
-			gameInfo.MYear = gameInfo.modes[0].MYear;
+			gameInfo.Modes = LoadModes(modLines);
 
 			Console.WriteLine("ファイル読み込み完了");
 			return gameInfo;
@@ -198,7 +195,7 @@ namespace whr_wpf.Util
 					isKamotuOperated = true
 				};
 
-				for (int idx = 2; ; idx++) //経由地
+				for (int idx = 2; ; idx++) //経由路線
 				{
 					var j = int.Parse(cols[idx]);
 					if (j == -1)
@@ -321,16 +318,124 @@ namespace whr_wpf.Util
 			return modeObjList;
 		}
 
+		/// <summary>
+		/// モード設定文字列からモードオブジェクト作成
+		/// </summary>
+		/// <param name="modeLines"></param>
+		/// <returns></returns>
 		private static Mode CreateMode(List<string> modeLines)
 		{
 			Mode mode = new Mode();
 
+			//ゲーム設定
 			mode.Name = ExtractModProperty(modeLines, "#mode");
 			mode.Year = int.Parse(ExtractModProperty(modeLines, "year"));
 			mode.Money = long.Parse(ExtractModProperty(modeLines, "money"));
 			mode.Message = ExtractModProperty(modeLines, "message").Replace(',', '\n');
 			mode.MYear = int.Parse(ExtractModProperty(modeLines, "myear"));
+			mode.genkaiJoki = ParseIntOrNull(ExtractModProperty(modeLines, "steam")) ?? 40;
+			mode.genkaiDenki = ParseIntOrNull(ExtractModProperty(modeLines, "elect"));
+			mode.genkaiKidosha = ParseIntOrNull(ExtractModProperty(modeLines, "diesel"));
+			mode.genkaiLinear = ParseIntOrNull(ExtractModProperty(modeLines, "linear"));
+			var tecno = ParseIntOrNull(ExtractModProperty(modeLines, "tecno"));
+			if (tecno.HasValue)
+			{
+				int tecnoV = tecno.Value;
+				if ((tecnoV & 256) > 0) //動的信号
+				{
+					mode.isDevelopedDynamicSignal = true;
+					mode.isDevelopedFreeGauge = true;
+					mode.isDevelopedMachineTilt = true;
+					mode.isDevelopedDualSeat = true;
+					mode.isDevelopedRetructableLong = true;
+					mode.isDevelopedRichCross = true;
+					mode.isDevelopedCarTiltPendulum = true;
+					mode.isDevelopedAutoGate = true;
+					mode.isDevelopedConvertibleCross = true;
+					mode.isDevelopedBlockingSignal = true;
+				}
+				else if ((tecnoV & 4) > 0) //フリーゲージトレイン
+				{
+					mode.isDevelopedFreeGauge = true;
+					mode.isDevelopedMachineTilt = true;
+					mode.isDevelopedDualSeat = true;
+					mode.isDevelopedRetructableLong = true;
+					mode.isDevelopedRichCross = true;
+					mode.isDevelopedCarTiltPendulum = true;
+					mode.isDevelopedAutoGate = true;
+					mode.isDevelopedConvertibleCross = true;
+					mode.isDevelopedBlockingSignal = true;
+				}
+				else if ((tecnoV & 512) > 0) //機械式車体傾斜装置
+				{
+					mode.isDevelopedMachineTilt = true;
+					mode.isDevelopedDualSeat = true;
+					mode.isDevelopedRetructableLong = true;
+					mode.isDevelopedRichCross = true;
+					mode.isDevelopedCarTiltPendulum = true;
+					mode.isDevelopedAutoGate = true;
+					mode.isDevelopedConvertibleCross = true;
+					mode.isDevelopedBlockingSignal = true;
+				}
+				else if ((tecnoV & 8) > 0) //デュアルシート
+				{
+					mode.isDevelopedDualSeat = true;
+					mode.isDevelopedRetructableLong = true;
+					mode.isDevelopedRichCross = true;
+					mode.isDevelopedCarTiltPendulum = true;
+					mode.isDevelopedAutoGate = true;
+					mode.isDevelopedConvertibleCross = true;
+					mode.isDevelopedBlockingSignal = true;
+				}
+				else if ((tecnoV & 32) > 0) //収納式ロングシート
+				{
+					mode.isDevelopedRetructableLong = true;
+					mode.isDevelopedRichCross = true;
+					mode.isDevelopedCarTiltPendulum = true;
+					mode.isDevelopedAutoGate = true;
+					mode.isDevelopedConvertibleCross = true;
+					mode.isDevelopedBlockingSignal = true;
+				}
+				else if ((tecnoV & 16) > 0) //豪華クロスシート
+				{
+					mode.isDevelopedRichCross = true;
+					mode.isDevelopedCarTiltPendulum = true;
+					mode.isDevelopedAutoGate = true;
+					mode.isDevelopedConvertibleCross = true;
+					mode.isDevelopedBlockingSignal = true;
+				}
+				else if ((tecnoV & 1) > 0) //振り子式車体傾斜装置
+				{
+					mode.isDevelopedCarTiltPendulum = true;
+					mode.isDevelopedAutoGate = true;
+					mode.isDevelopedConvertibleCross = true;
+					mode.isDevelopedBlockingSignal = true;
+				}
+				else if ((tecnoV & 128) > 0) //自動改札機
+				{
+					mode.isDevelopedAutoGate = true;
+					mode.isDevelopedConvertibleCross = true;
+					mode.isDevelopedBlockingSignal = true;
+				}
+				else if ((tecnoV & 64) > 0) //転換クロスシート
+				{
+					mode.isDevelopedConvertibleCross = true;
+					mode.isDevelopedBlockingSignal = true;
+				}
+				else if ((tecnoV & 2) > 0) //閉塞信号
+				{
+					mode.isDevelopedBlockingSignal = true;
+				}
+			}
+			int[] people = ExtractModProperty(modeLines, "people")?.Split(",").Select(it => int.Parse(it)).Take(2).ToArray() ?? new int[] { 1, 1 };
+			if (people.Count() == 2)
+			{
+				mode.peopleNume = people[0];
+				mode.peopleDenom = people[1];
+			}
 
+
+			//デフォルト編成
 			mode.DefautltCompositions = ExtractModProperties(modeLines, "car").Select(value =>
 			{
 				string[] arr = value.Split(",");
@@ -375,6 +480,91 @@ namespace whr_wpf.Util
 				};
 			}).ToList();
 
+			//路線
+			List<LineDefaultSetting> lineDefaultSettings = new List<LineDefaultSetting>();
+			bool[] ltn = ExtractModProperty(modeLines, "ltn")?.Split(",").Select(flg => int.Parse(flg) != 0).ToArray() ?? new bool[0];
+			int[] lk = ExtractModProperty(modeLines, "lk")?.Split(",").Select(value => int.Parse(value)).ToArray() ?? new int[ltn.Length];
+			int[] lbs = ExtractModProperty(modeLines, "lbs")?.Split(",").Select(value => int.Parse(value)).ToArray() ?? new int[ltn.Length];
+			int[] las = ExtractModProperty(modeLines, "las")?.Split(",").Select(value => int.Parse(value)).ToArray() ?? new int[ltn.Length];
+			int[] lwe = ExtractModProperty(modeLines, "lwe")?.Split(",").Select(value => int.Parse(value)).ToArray() ?? Enumerable.Repeat(GameConstants.RetentionRateDefault, ltn.Length).ToArray();
+			int[] lts = ExtractModProperty(modeLines, "lts")?.Split(",").Select(value => int.Parse(value)).ToArray() ?? new int[ltn.Length];
+			int[] ulc = ExtractModProperty(modeLines, "ulc")?.Split(",").Select(value => int.Parse(value)).ToArray() ?? null;
+			int[] ulcr = ExtractModProperty(modeLines, "ulcr")?.Split(",").Select(value => int.Parse(value)).ToArray() ?? new int[ltn.Length];
+			for (int i = 0; i < ltn.Length; i++)
+			{
+				LineDefaultSetting setting = new LineDefaultSetting();
+
+				setting.IsExist = ltn[i];
+				if (setting.IsExist)
+				{
+					if (i < lk.Length)
+					{
+						setting.Type = (lk[i] & 4) > 0 ? RailTypeEnum.LinearMotor : RailTypeEnum.Iron;
+						setting.gauge = (lk[i] & 1) > 0 ? RailGaugeEnum.Regular : RailGaugeEnum.Narrow;
+						setting.IsElectrified = (lk[i] & 2) > 0;
+					}
+					if (i < lbs.Length)
+					{
+						setting.bestSpeed = lbs[i];
+					}
+					if (i < las.Length)
+					{
+						setting.LaneNum = las[i];
+					}
+					if (i < lwe.Length)
+					{
+						setting.retentionRate = lwe[i];
+					}
+					if (i < lts.Length)
+					{
+						setting.taihisen = (TaihisenEnum)lts[i];
+					}
+					if (ulc != null)
+					{
+						setting.useComposition = mode.DefautltCompositions[ulc[i] - 1];
+					}
+					if (i < ulcr.Length)
+					{
+						setting.runningPerDay = ulcr[i];
+					}
+				}
+				lineDefaultSettings.Add(setting);
+			}
+			mode.LineSettings = lineDefaultSettings;
+
+			//運行系統
+			List<KeitoDefaultSetting> keitoDefaultSettings = new List<KeitoDefaultSetting>();
+			int[] udc = ExtractModProperty(modeLines, "udc")?.Split(",").Select(value => int.Parse(value)).ToArray() ?? new int[0];
+			int[] udcr = ExtractModProperty(modeLines, "udcr")?.Split(",").Select(value => int.Parse(value)).ToArray() ?? new int[udc.Length];
+			for (int i = 0; i < udc.Length; i++)
+			{
+				KeitoDefaultSetting setting = new KeitoDefaultSetting()
+				{
+					useComposition = mode.DefautltCompositions[udc[i] - 1],
+					runningPerDay = udcr[i]
+				};
+				keitoDefaultSettings.Add(setting);
+			}
+			mode.KeitoDefaultSettings = keitoDefaultSettings;
+
+			//目標
+			mode.goalLineMake = (LineGoalTargetEnum?)ParseIntOrNull(ExtractModProperty(modeLines, "mmake"));
+			mode.goalTechDevelop = ExtractModProperties(modeLines, "mtec").ToDictionary(
+				value => (PowerEnum)(int.Parse(value.Split(",")[0]) - 1),
+				value => int.Parse(value.Split(",")[1]));
+			string[] mlbsValues = ExtractModProperty(modeLines, "mlbs")?.Split(",") ?? null;
+			if (mlbsValues != null)
+			{
+				mode.goalLineBestSpeed = ((LineGoalTargetEnum?)ParseIntOrNull(mlbsValues[0]), int.Parse(mlbsValues[1]));
+			}
+			string[] mmanegeValues = ExtractModProperty(modeLines, "mmanage")?.Split(",") ?? null;
+			if (mmanegeValues != null)
+			{
+				mode.goalLineManage = (LineGoalTargetEnum?)ParseIntOrNull(mmanegeValues[0]);
+			}
+			mode.goalMoney = ParseIntOrNull(ExtractModProperty(modeLines, "mmoney"));
+			mode.gameoverYear = int.Parse(ExtractModProperty(modeLines, "myear"));
+
 			return mode;
 		}
 
@@ -386,7 +576,7 @@ namespace whr_wpf.Util
 		/// <returns></returns>
 		public static string ExtractModProperty(List<string> modLines, string property)
 		{
-			return modLines.Find(line => line.StartsWith(property)).Split(":")[1];
+			return modLines.Find(line => line.StartsWith(property))?.Split(":")[1] ?? null;
 		}
 
 		/// <summary>
@@ -401,6 +591,23 @@ namespace whr_wpf.Util
 				.Where(line => line.StartsWith(property))
 				.Select(line => line.Split(":")[1])
 				.ToList();
+		}
+
+		/// <summary>
+		/// 数字を数値にパースする nullならnullを返す
+		/// </summary>
+		/// <param name="s"></param>
+		/// <returns></returns>
+		public static int? ParseIntOrNull([AllowNull] string s)
+		{
+			if (s is null)
+			{
+				return null;
+			}
+			else
+			{
+				return int.Parse(s);
+			}
 		}
 
 	}

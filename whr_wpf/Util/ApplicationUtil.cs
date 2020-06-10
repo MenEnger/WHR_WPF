@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows;
 using whr_wpf.Model;
@@ -65,7 +64,7 @@ namespace whr_wpf
 			}
 		}
 
-		
+
 
 		/// <summary>
 		/// オブジェクトの内容をファイルから読み込み復元する

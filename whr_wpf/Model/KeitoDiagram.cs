@@ -146,7 +146,7 @@ namespace whr_wpf.Model
 		public (int maximumRunningPerDay, Line bottleNeck) CalcMaximumRunningPerDay(int genkaiKyoyo)
 		{
 			Line bottleNeckLine = route.OrderBy(line => line.CalcExcessCapacityWithoutSpecifiedKeito(this, false, genkaiKyoyo)).FirstOrDefault();
-			return (bottleNeckLine.CalcExcessCapacityWithoutSpecifiedKeito(this, true, genkaiKyoyo), bottleNeckLine);
+			return (bottleNeckLine.CalcExcessCapacityWithoutSpecifiedKeito(this, false, genkaiKyoyo), bottleNeckLine);
 		}
 
 		/// <summary>
@@ -264,7 +264,6 @@ namespace whr_wpf.Model
 			//現在の各路線のダイヤ設定を保存
 			ImmutableDictionary<Line, DiagramType> originalDiagram = route.ToImmutableDictionary(line => line, line => line.diagram);
 
-			//route.ForEach(line => line.diagram = lineDiagramPairs[line]);
 			int newUseCompositionNum = newUseCompositionNum = CalcUseCompositionNum(newComposition, runningPerDay, lineDiagramPairs);
 
 			if (newComposition.HeldUnits < CalcMissingCompositions(newComposition, runningPerDay, lineDiagramPairs))

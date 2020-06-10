@@ -52,6 +52,8 @@ namespace whr_wpf
 			}
 			catch (Exception ex)
 			{
+				Console.Error.WriteLine(ex.Message);
+				Console.Error.WriteLine(ex.StackTrace);
 				MessageBox.Show(ex.Message, "シナリオ読み込みエラー", MessageBoxButton.OK, MessageBoxImage.Error);
 				return;
 			}

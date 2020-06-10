@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Windows.Media;
 
 namespace whr_wpf.Model
 {
@@ -64,9 +63,9 @@ namespace whr_wpf.Model
 	public class GameConstants
 	{
 		/// <summary>
-		/// 背景色
+		/// 定着度のデフォルト値
 		/// </summary>
-		public Brush bgcolor = new SolidColorBrush(Color.FromRgb(0, 102, 153));
+		public const int RetentionRateDefault = 10000;
 
 		/// <summary>
 		/// 1両あたり座席数
@@ -105,15 +104,6 @@ namespace whr_wpf.Model
 
 		[Display(Name = "激むず")]
 		VeryHard = 5
-	}
-
-	/// <summary>
-	/// モード
-	/// </summary>
-	public enum ModeEnum
-	{
-		Free,
-		Y1880
 	}
 
 	/// <summary>
@@ -254,7 +244,7 @@ namespace whr_wpf.Model
 		/// <summary>
 		/// 転換クロスシート
 		/// </summary>
-		[Display(Name = "転換クロスシートシート")]
+		[Display(Name = "転換クロスシート")]
 		[ComfortLevel(6, 4300)]
 		Convertible = 6,
 
@@ -616,5 +606,29 @@ namespace whr_wpf.Model
 		/// </summary>
 		[Display(Name = "500億円")]
 		OK500 = 500000,
+	}
+
+	/// <summary>
+	/// 路線作成目標
+	/// </summary>
+	public enum LineGoalTargetEnum
+	{
+		/// <summary>
+		/// 最重要幹線
+		/// </summary>
+		[Display(Name = "最重要幹線")]
+		MostImportant = 1,
+
+		/// <summary>
+		/// 最重要幹線と幹線
+		/// </summary>
+		[Display(Name = "最重要幹線及び幹線")]
+		MostImportantAndMain = 2,
+
+		/// <summary>
+		/// 全線
+		/// </summary>
+		[Display(Name = "全線")]
+		All = 3
 	}
 }
