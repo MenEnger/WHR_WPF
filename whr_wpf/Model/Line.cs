@@ -94,7 +94,7 @@ namespace whr_wpf.Model
 		/// <summary>
 		/// 定着率 lwe
 		/// </summary>
-		public int retentionRate = 10000;  //デフォ10000
+		public int retentionRate = GameConstants.RetentionRateDefault;  //デフォ10000
 
 		/// <summary>
 		/// 先週の乗車数 lus

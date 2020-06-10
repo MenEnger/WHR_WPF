@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography.X509Certificates;
 using System.Windows.Media;
 
 namespace whr_wpf.Model
@@ -63,7 +64,11 @@ namespace whr_wpf.Model
 	/// </summary>
 	public class GameConstants
 	{
-		
+		/// <summary>
+		/// 定着度のデフォルト値
+		/// </summary>
+		public const int RetentionRateDefault = 10000;
+
 		/// <summary>
 		/// 1両あたり座席数
 		/// </summary>

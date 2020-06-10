@@ -146,7 +146,7 @@ namespace whr_wpf.Model
 		public (int maximumRunningPerDay, Line bottleNeck) CalcMaximumRunningPerDay(int genkaiKyoyo)
 		{
 			Line bottleNeckLine = route.OrderBy(line => line.CalcExcessCapacityWithoutSpecifiedKeito(this, false, genkaiKyoyo)).FirstOrDefault();
-			return (bottleNeckLine.CalcExcessCapacityWithoutSpecifiedKeito(this, true, genkaiKyoyo), bottleNeckLine);
+			return (bottleNeckLine.CalcExcessCapacityWithoutSpecifiedKeito(this, false, genkaiKyoyo), bottleNeckLine);
 		}
 
 		/// <summary>

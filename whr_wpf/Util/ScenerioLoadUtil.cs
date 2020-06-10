@@ -484,7 +484,7 @@ namespace whr_wpf.Util
 			int[] lk = ExtractModProperty(modeLines, "lk")?.Split(",").Select(value => int.Parse(value)).ToArray() ?? new int[ltn.Length];
 			int[] lbs = ExtractModProperty(modeLines, "lbs")?.Split(",").Select(value => int.Parse(value)).ToArray() ?? new int[ltn.Length];
 			int[] las = ExtractModProperty(modeLines, "las")?.Split(",").Select(value => int.Parse(value)).ToArray() ?? new int[ltn.Length];
-			int[] lwe = ExtractModProperty(modeLines, "lwe")?.Split(",").Select(value => int.Parse(value)).ToArray() ?? new int[ltn.Length];
+			int[] lwe = ExtractModProperty(modeLines, "lwe")?.Split(",").Select(value => int.Parse(value)).ToArray() ?? Enumerable.Repeat(GameConstants.RetentionRateDefault, ltn.Length).ToArray();
 			int[] lts = ExtractModProperty(modeLines, "lts")?.Split(",").Select(value => int.Parse(value)).ToArray() ?? new int[ltn.Length];
 			int[] ulc = ExtractModProperty(modeLines, "ulc")?.Split(",").Select(value => int.Parse(value)).ToArray() ?? null;
 			int[] ulcr = ExtractModProperty(modeLines, "ulcr")?.Split(",").Select(value => int.Parse(value)).ToArray() ?? new int[ltn.Length];
