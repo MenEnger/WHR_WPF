@@ -632,5 +632,7 @@ namespace whr_wpf.Model
 			if (gameInfo.modss != null) { result = gameInfo.modss.MultiplyKamotsu(result); }
 			return result;
 		}
+
+		public long CalcRequiredMinutes() => route.Sum(line => (long)line.CalcRequiredMinutes());
 	}
 }

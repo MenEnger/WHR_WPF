@@ -154,7 +154,7 @@ namespace whr_wpf.Model
 		/// </summary>
 		/// <param name="composition">計算に使用する編成</param>
 		/// <returns>所要分数</returns>
-		public int CalcRequieredMinutes(IComposition composition) => route.Select(line => line.CalcRequieredMinutes(composition)).Sum();
+		public int CalcRequieredMinutes(IComposition composition) => route.Select(line => line.CalcRequiredMinutes(composition)).Sum();
 
 		/// <summary>
 		/// 編成と運行本数を指定して乗車率予想
@@ -334,7 +334,7 @@ namespace whr_wpf.Model
 		/// <returns></returns>
 		private int CalcRunningPerDay(IComposition newComposition, int useCompositionNum, ImmutableDictionary<Line, DiagramType> lineDiagramPairs)
 		{
-			int requireMinutes = route.Select(line => line.CalcRequieredMinutes(newComposition, lineDiagramPairs[line])).Sum();
+			int requireMinutes = route.Select(line => line.CalcRequiredMinutes(newComposition, lineDiagramPairs[line])).Sum();
 			if (requireMinutes == 0) { return 0; }
 			return 540 * useCompositionNum / requireMinutes;
 		}

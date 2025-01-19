@@ -95,6 +95,10 @@ namespace whr_wpf.Util
 			gameInfo.Modes = LoadModes(modLines);
 
 			Console.WriteLine("ファイル読み込み完了");
+
+			// 読み込んだ情報にないゲーム情報を生成
+			gameInfo.Ap = gameInfo.stations.Sum(station => station.Population);
+
 			return gameInfo;
 		}
 

@@ -888,7 +888,7 @@ namespace whr_wpf.Model
 		/// <param name="composition">計算に用いる編成</param>
 		/// <param name="diagramType">ダイアグラム型</param>
 		/// <returns>何分掛かるか</returns>
-		public int CalcRequieredMinutes(IComposition composition, DiagramType diagramType)
+		public int CalcRequiredMinutes(IComposition composition, DiagramType diagramType)
 		{
 			int ave = CalcAverageSpeed(composition, diagramType);
 			if (ave == 0) { return int.MaxValue; }
@@ -896,12 +896,19 @@ namespace whr_wpf.Model
 			return minutes != 0 ? minutes : 1;
 		}
 
+
 		/// <summary>
 		/// 所要時間(既存ダイヤグラムで計算)
 		/// </summary>
 		/// <param name="composition">編成</param>
 		/// <returns>何分掛かるか</returns>
-		public int CalcRequieredMinutes(IComposition composition) => CalcRequieredMinutes(composition, diagram);
+		public int CalcRequiredMinutes(IComposition composition) => CalcRequiredMinutes(composition, diagram);
+
+		/// <summary>
+		/// 所要時間(既存編成、既存ダイヤグラムで計算)
+		/// </summary>
+		/// <returns>何分掛かるか</returns>
+		public int CalcRequiredMinutes() => CalcRequiredMinutes(useComposition, diagram);
 
 		/// <summary>
 		/// 平均速度
@@ -963,7 +970,7 @@ namespace whr_wpf.Model
 		/// <returns></returns>
 		public int CalcUseCompositionNum(IComposition composition, int runningPerDay, DiagramType diagramType)
 		{
-			return (int)MathF.Ceiling((float)runningPerDay * CalcRequieredMinutes(composition, diagramType) / 540);
+			return (int)MathF.Ceiling((float)runningPerDay * CalcRequiredMinutes(composition, diagramType) / 540);
 		}
 
 		/// <summary>
