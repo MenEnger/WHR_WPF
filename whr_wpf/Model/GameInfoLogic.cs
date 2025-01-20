@@ -642,59 +642,12 @@ namespace whr_wpf.Model
 			//人口設定
 			Ap = MultiplyNumByDifficuluty(Ap);
 
-			// 各駅の人口シェア計算
-			// 駅のオブジェクトを辞書に変換する
-			Dictionary<Station, int> stationPopulationShare = stations.ToDictionary(station => station, station =>
-			{
-				// 基本シェア
-				int baseShare = station.Population * 100;
+			//各駅の人口を計算
+			Dictionary<Station, int> stationPopulationDistribution = CalculateStationPopulationDistribution();
 
-				// 路線や乗り継ぎの相手駅によるシェアを加算
-				IEnumerable<(long, int Population)> lineRequiredMinutesAndPopulation = station.BelongingLines.Select(line =>
-				{
-					Station otherStation = line.Start == station ? line.End : line.Start;
-					return ((long)line.CalcRequiredMinutes(), otherStation.Population);
-				});
-				List<Longway> longwaysWithThisStation = longwayList.Where(longway => longway.start == station || longway.end == station).ToList();
-				IEnumerable<(long, int Population)> longwayRequiredMinutesAndPopulation = longwaysWithThisStation.Select(longway =>
-				{
-					Station otherStation = longway.start == station ? longway.end : longway.start;
-					return (longway.CalcRequiredMinutes(), otherStation.Population);
-				});
-				var lineAndLongwayPopulationShareInfo = lineRequiredMinutesAndPopulation.Concat(longwayRequiredMinutesAndPopulation);
-				double otherStationShare = lineAndLongwayPopulationShareInfo.Sum(info =>
-				{
-					long requiredMinutes = info.Item1;
-					int otherStationPopulation = info.Item2;
-					return (600.0 / requiredMinutes + 10) / 10 * (otherStationPopulation / 10);
-				});
-
-				int stationPopulationShareTotal = baseShare + (int)otherStationShare;
-
-				// 首都は1%ボーナス
-				if (station.Size == StationSize.Capital || station.Size == StationSize.Transit) { stationPopulationShareTotal = stationPopulationShareTotal * 101 / 100; }
-
-				return stationPopulationShareTotal;
-			});
-
-			// シェアを適正値に下げる 
-			// シェアの合計が100000以下になるまで2で割り続ける
-			int totalShare = stationPopulationShare.Sum(kv => kv.Value);
-			while (totalShare > 100000)
-			{
-				totalShare /= 2;
-				stationPopulationShare = stationPopulationShare.ToDictionary(kv => kv.Key, kv => kv.Value / 2);
-			}
-
-			//シェアを人口に反映
-			foreach (var kv in stationPopulationShare)
-			{
-				var station = kv.Key;
-				var share = kv.Value;
-				int newPopulation = Ap * share / totalShare;
-				// 人口0都市の防止
-				station.Population = Math.Max(newPopulation, 1);
-			}
+			//人口に反映
+			stations.ForEach(station => station.Population = stationPopulationDistribution[station]);
+			Ap = stations.Sum(station => station.Population);
 
 			//戦時体制
 			if (modss == null)
@@ -738,6 +691,66 @@ namespace whr_wpf.Model
 				default:
 					return num;
 			}
+		}
+
+		/// <summary>
+		/// 人口計算
+		/// </summary>
+		/// 
+		internal Dictionary<Station, int> CalculateStationPopulationDistribution()
+		{
+			Dictionary<Station, int> stationPopulationShare = stations.ToDictionary(station => station, station =>
+			{
+				// 基本シェア
+				int baseShare = station.Population * 100;
+
+				// 路線や乗り継ぎの相手駅によるシェア
+				IEnumerable<(long RequiredMinutes, int Population)> lineRequiredMinutesAndPopulation = station.BelongingLines.Select(line =>
+				{
+					Station otherStation = line.Start == station ? line.End : line.Start;
+					return ((long)line.CalcRequiredMinutes(), otherStation.Population);
+				});
+				List<Longway> longwaysWithThisStation = longwayList.Where(longway => longway.start == station || longway.end == station).ToList();
+				IEnumerable<(long RequiredMinutes, int Population)> longwayRequiredMinutesAndPopulation = longwaysWithThisStation.Select(longway =>
+				{
+					Station otherStation = longway.start == station ? longway.end : longway.start;
+					return (longway.CalcRequiredMinutes(), otherStation.Population);
+				});
+				// 相手駅によるシェアの計算
+				var lineAndLongwayPopulationShareInfo = lineRequiredMinutesAndPopulation.Concat(longwayRequiredMinutesAndPopulation);
+				double otherStationShare = lineAndLongwayPopulationShareInfo.Sum(lineData =>
+				{
+					long requiredMinutes = lineData.RequiredMinutes;
+					int otherStationPopulation = lineData.Population;
+					return (600.0 / requiredMinutes + 10) / 10 * (otherStationPopulation / 10);
+				});
+
+				int stationPopulationShareTotal = baseShare + (int)otherStationShare;
+
+				// 首都は1%ボーナス
+				if (station.Size == StationSize.Capital || station.Size == StationSize.Transit) { stationPopulationShareTotal = stationPopulationShareTotal * 101 / 100; }
+
+				return stationPopulationShareTotal;
+			});
+
+			// シェアを適正値に下げる
+			int totalShare = stationPopulationShare.Sum(kv => kv.Value);
+			while (totalShare > 100000)
+			{
+				totalShare /= 2;
+				stationPopulationShare = stationPopulationShare.ToDictionary(kv => kv.Key, kv => kv.Value / 2);
+			}
+
+			//シェアを基に人口を計算
+			Dictionary<Station, int> updatedPopulation = stationPopulationShare.ToDictionary(kv => kv.Key, kv =>
+			{
+				int stationShare = kv.Value;
+				int newPopulation = (int)((long)Ap * stationShare / totalShare);
+				// 人口が0にならないようにする
+				return Math.Max(newPopulation, 1);
+			});
+
+			return updatedPopulation;
 		}
 
 		/// <summary>
