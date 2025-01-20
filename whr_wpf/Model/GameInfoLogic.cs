@@ -697,7 +697,7 @@ namespace whr_wpf.Model
 		/// 人口計算
 		/// </summary>
 		/// 
-		internal Dictionary<Station, int> CalculateStationPopulationDistribution()
+		Dictionary<Station, int> CalculateStationPopulationDistribution()
 		{
 			Dictionary<Station, int> stationPopulationShare = stations.ToDictionary(station => station, station =>
 			{
