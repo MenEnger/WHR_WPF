@@ -705,32 +705,30 @@ namespace whr_wpf.Model
 				int baseShare = station.Population * 100;
 
 				// 路線や乗り継ぎの相手駅によるシェア
-				IEnumerable<(long RequiredMinutes, int Population)> lineRequiredMinutesAndPopulation = station.BelongingLines.Select(line =>
+				// 計算諸元の取得
+				IEnumerable<(long RequiredMinutes, int OtherStationPopulation)> lineRequiredMinutesAndPopulation = station.BelongingLines.Select(line =>
 				{
 					Station otherStation = line.Start == station ? line.End : line.Start;
 					return ((long)line.CalcRequiredMinutes(), otherStation.Population);
 				});
 				List<Longway> longwaysWithThisStation = longwayList.Where(longway => longway.start == station || longway.end == station).ToList();
-				IEnumerable<(long RequiredMinutes, int Population)> longwayRequiredMinutesAndPopulation = longwaysWithThisStation.Select(longway =>
+				IEnumerable<(long RequiredMinutes, int OtherStationPopulation)> longwayRequiredMinutesAndPopulation = longwaysWithThisStation.Select(longway =>
 				{
 					Station otherStation = longway.start == station ? longway.end : longway.start;
 					return (longway.CalcRequiredMinutes(), otherStation.Population);
 				});
-				// 相手駅によるシェアの計算
 				var lineAndLongwayPopulationShareInfo = lineRequiredMinutesAndPopulation.Concat(longwayRequiredMinutesAndPopulation);
-				double otherStationShare = lineAndLongwayPopulationShareInfo.Sum(lineData =>
-				{
-					long requiredMinutes = lineData.RequiredMinutes;
-					int otherStationPopulation = lineData.Population;
-					return (600.0 / requiredMinutes + 10) / 10 * (otherStationPopulation / 10);
-				});
 
-				int stationPopulationShareTotal = baseShare + (int)otherStationShare;
+				// 相手駅によるシェアの計算
+				int otherStationShare = (int)lineAndLongwayPopulationShareInfo.Sum(param =>
+					(600.0 / param.RequiredMinutes + 10) / 10 * (param.OtherStationPopulation / 10));
+
+				int stationPopulationShare = baseShare + otherStationShare;
 
 				// 首都は1%ボーナス
-				if (station.Size == StationSize.Capital || station.Size == StationSize.Transit) { stationPopulationShareTotal = stationPopulationShareTotal * 101 / 100; }
+				if (station.Size == StationSize.Capital || station.Size == StationSize.Transit) { stationPopulationShare = stationPopulationShare * 101 / 100; }
 
-				return stationPopulationShareTotal;
+				return stationPopulationShare;
 			});
 
 			// シェアを適正値に下げる
