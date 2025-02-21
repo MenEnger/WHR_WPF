@@ -643,7 +643,7 @@ namespace whr_wpf.Model
 			Ap = MultiplyNumByDifficuluty(Ap);
 
 			//各駅の人口を計算
-			Dictionary<Station, int> stationPopulationDistribution = CalculateStationPopulationDistribution();
+			Dictionary<Station, int> stationPopulationDistribution = CalculateStationPopulationDistribution(stations, longwayList, Ap);
 
 			//人口に反映
 			stations.ForEach(station => station.Population = stationPopulationDistribution[station]);
@@ -697,7 +697,7 @@ namespace whr_wpf.Model
 		/// 人口計算
 		/// </summary>
 		/// 
-		Dictionary<Station, int> CalculateStationPopulationDistribution()
+		public Dictionary<Station, int> CalculateStationPopulationDistribution(IEnumerable<Station> stations, IEnumerable<Longway> longwayList, int allPopulation)
 		{
 			Dictionary<Station, int> stationPopulationShare = stations.ToDictionary(station => station, station =>
 			{
@@ -743,7 +743,7 @@ namespace whr_wpf.Model
 			Dictionary<Station, int> updatedPopulation = stationPopulationShare.ToDictionary(kv => kv.Key, kv =>
 			{
 				int stationShare = kv.Value;
-				int newPopulation = (int)((long)Ap * stationShare / totalShare);
+				int newPopulation = (int)((long)allPopulation * stationShare / totalShare);
 				// 人口が0にならないようにする
 				return Math.Max(newPopulation, 1);
 			});
