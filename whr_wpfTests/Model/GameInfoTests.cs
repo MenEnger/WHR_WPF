@@ -1,223 +1,324 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using whr_wpf.Model;
-using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using whr_wpf.Model;
 
 namespace whr_wpf.Model.Tests
 {
-	public class DummyComposition : IComposition
-	{
-		public DummyComposition() { }
+    [TestClass]
+    public class GameInfoTests
+    {
+        // 原作1.52の整数計算から求めた期待値。Apは人口比率を掛ける前の総人口。
+        private const int BasePopulation = 200000;
+        private static Station Town(string name, int population, StationSize size = StationSize.Other)
+            => new Station { Name = name, Population = population, Size = size };
+        private static DefautltComposition Composition(int speed = 60)
+            => new DefautltComposition { BestSpeed = speed, Tilt = CarTiltEnum.None, CarCount = 8 };
+        private static Line Connect(Station start, Station end, int distance = 9)
+        {
+            var line = new Line
+            {
+                IsExist = true, Start = start, End = end, Distance = distance,
+                bestSpeed = 60, LaneNum = 2, diagram = DiagramType.LimittedExpressPrior,
+                useComposition = Composition(), useCompositionNum = 1, runningPerDay = 1
+            };
+            start.BelongingLines.Add(line);
+            end.BelongingLines.Add(line);
+            return line;
+        }
+        private static Longway Path(Station start, Station end, params Line[] route)
+            => new Longway { start = start, end = end, route = route.ToList() };
+        private static Mode EmptyMode() => new Mode
+        {
+            Year = 1880, Money = 1000000, goalMoney = long.MaxValue,
+            DefautltCompositions = new List<DefautltComposition>(),
+            LineSettings = new List<Mode.LineDefaultSetting>(),
+            KeitoDefaultSettings = new List<Mode.KeitoDefaultSetting>()
+        };
+        private static GameInfo Game(params Station[] towns)
+        {
+            var game = new GameInfo
+            {
+                stations = towns.ToList(), longwayList = new List<Longway>(),
+                warModeList = new List<GameInfo.WarMode>(), TechCost = 100, BasicYear = 1880,
+                Difficulty = DifficultyLevelEnum.Normal
+            };
+            game.SelectedMode = EmptyMode();
+            return game;
+        }
+        private static void AdvanceYear(GameInfo game)
+        {
+            game.Month = 12;
+            game.Week = 4;
+            game.NextWeek();
+        }
+        private static Dictionary<Station, int> Distribute(Station[] towns, params Longway[] paths)
+            => new GameInfo().CalculateStationPopulationDistribution(towns, paths, BasePopulation);
 
-		public int BestSpeed
-		{
-			get => 60;
-			set
-			{
-
-			}
-		}
-
-
-		public int CarCount => throw new NotImplementedException();
-
-		public CarTiltEnum Tilt { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-		public CarGaugeEnum? Gauge { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-		public bool IsElectrified => throw new NotImplementedException();
-
-		public string Name { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-		public int PassengerCapacity => throw new NotImplementedException();
-
-		public PowerEnum Power { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-		public int Price => throw new NotImplementedException();
-
-		public RailTypeEnum Type { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-		public int HeldUnits => 1;
-
-		public SeatEnum? BestComfortSeat => throw new NotImplementedException();
-
-		public void Purchase(GameInfo gameInfo, int quantity)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void Release(int quantity)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void Use(int quantity)
-		{
-			throw new NotImplementedException();
-		}
-	}
-
-	[TestClass()]
-	public class GameInfoTests
-	{
-
-		// テスト用の定数
-		private const int ApValue = 100000;
-
-		#region ヘルパーメソッド
-		// 簡易な Station 作成ヘルパー
-		private Station CreateStation(string name, int population, StationSize size = StationSize.Other)
-		{
-			return new Station
-			{
-				Name = name,
-				Population = population,
-				Size = size,
-				X = 0,
-				Y = 0
-			};
-		}
-
-		// ダミーの Line 作成ヘルパー
-		// ※CalcRequiredMinutes()が返す値を一定にするため、各プロパティを設定
-		// ここでは、DiagramType を LimittedExpressPrior とし、
-		// bestSpeed = 60、Distance = 9 とすると
-		//    平均速度 = 60*9/10 = 54  で、9*60/54 = 10 分となる
-		private Line CreateDummyLine(Station station1, Station station2)
-		{
-			var line = new Line
-			{
-				Start = station1,
-				End = station2,
-				Distance = 9,
-				bestSpeed = 60,
-				LaneNum = 2,
-				diagram = DiagramType.LimittedExpressPrior,
-				useComposition = new DummyComposition { BestSpeed = 60 }
-			};
-			return line;
-		}
-
-		// ダミーの Longway 作成ヘルパー
-		// 経由ルートにダミーの Line を1本設定して、CalcRequiredMinutes() が 10 分となるようにする
-		private Longway CreateDummyLongway(Station station1, Station station2)
-		{
-			var longway = new Longway
-			{
-				start = station1,
-				end = station2,
-				route = new List<Line> { CreateDummyLine(station1, station2) }
-			};
-			return longway;
-		}
-		#endregion
-
-		[TestMethod]
-		public void Test_SingleStation_NoConnections()
-		{
-			// Arrange
-			var station = CreateStation("StationA", 50); // Population = 50 → baseShare = 5000
-			var stations = new List<Station> { station };
-			var longways = new List<Longway>(); // 接続なし
-			var calculator = new GameInfo { };
-
-			// Act
-			var result = calculator.CalculateStationPopulationDistribution(stations, longways, ApValue);
-
-			// Assert
-			Assert.IsTrue(result.ContainsKey(station));
-			// 単一の場合、比率は 1:1 となるため、新人口は Ap と同じ値となる
-			Assert.AreEqual(ApValue, result[station]);
-		}
-
-		[TestMethod]
-		public void Test_TwoStations_NoConnections()
-		{
-			// Arrange
-			var stationA = CreateStation("StationA", 50);  // baseShare = 5000
-			var stationB = CreateStation("StationB", 100); // baseShare = 10000
-			var stations = new List<Station> { stationA, stationB };
-			var longways = new List<Longway>();
-			var calculator = new GameInfo {};
-
-			// Act
-			var result = calculator.CalculateStationPopulationDistribution(stations, longways, ApValue);
-
-			// 期待値：
-			// 合計シェア = 5000 + 10000 = 15000
-			// stationA の新人口 = Ap * 5000 / 15000 = 約 33333
-			// stationB の新人口 = Ap * 10000 / 15000 = 約 66666
-			Assert.IsTrue(result.ContainsKey(stationA));
-			Assert.IsTrue(result.ContainsKey(stationB));
-			Assert.AreEqual((int)((long)ApValue * 5000 / 15000), result[stationA]);
-			Assert.AreEqual((int)((long)ApValue * 10000 / 15000), result[stationB]);
-		}
-
-		[TestMethod]
-		public void Test_SingleStation_CapitalBonus()
-		{
-			// Arrange
-			var station = CreateStation("CapitalStation", 50, StationSize.Capital);
-			var stations = new List<Station> { station };
-			var longways = new List<Longway>();
-			var calculator = new GameInfo { };
-
-			// Act
-			var result = calculator.CalculateStationPopulationDistribution(stations, longways, ApValue);
-
-			// 首都の場合、基本シェア 5000 に 1% のボーナス → 5000 * 101/100 = 5050
-			// 単一の場合、結果は Ap と同じ
-			Assert.IsTrue(result.ContainsKey(station));
-			Assert.AreEqual(ApValue, result[station]);
-		}
-
-		[TestMethod]
-		public void Test_TwoStations_WithConnections()
-		{
-			// Arrange
-			// 2駅間に、所属路線と長距離直通（Longway）の両方で接続があるケース
-			var stationA = CreateStation("StationA", 50);
-			var stationB = CreateStation("StationB", 100);
-
-			// 所属路線（両駅に同じ Line を追加）
-			var line = CreateDummyLine(stationA, stationB);
-			stationA.BelongingLines.Add(line);
-			stationB.BelongingLines.Add(line);
-
-			// Longway 接続
-			var longway = CreateDummyLongway(stationA, stationB);
-			var stations = new List<Station> { stationA, stationB };
-			var longways = new List<Longway> { longway };
-
-			var calculator = new GameInfo { };
-
-			// Act
-			var result = calculator.CalculateStationPopulationDistribution(stations, longways,ApValue);
-
-			// 以下、各駅のシェアを手計算（※CalcRequiredMinutes()は上記ダミー設定により 10 分となる）
-			// 【stationA】:
-			//  - 基本シェア = 50 * 100 = 5000
-			//  - 所属路線: 相手駅 stationB の Population=100, 費用計算:
-			//       (600/10 + 10)/10 * (100/10) = (60 + 10)/10 * 10 = 70
-			//  - Longway: 同様に 70
-			//  → 合計シェア = 5000 + 70 + 70 = 5140
-			//
-			// 【stationB】:
-			//  - 基本シェア = 100 * 100 = 10000
-			//  - 所属路線: 相手駅 stationA の Population=50 → (600/10+10)/10*(50/10) = 35
-			//  - Longway: 同様に 35
-			//  → 合計シェア = 10000 + 35 + 35 = 10070
-			//
-			// 全体合計 = 5140 + 10070 = 15210（15210 < 100000 なのでスケーリングは行われない）
-			int totalShare = 5140 + 10070; // 15210
-			int expectedA = (int)((long)ApValue * 5140 / totalShare);
-			int expectedB = (int)((long)ApValue * 10070 / totalShare);
-
-			// Assert
-			Assert.IsTrue(result.ContainsKey(stationA));
-			Assert.IsTrue(result.ContainsKey(stationB));
-			Assert.AreEqual(expectedA, result[stationA]);
-			Assert.AreEqual(expectedB, result[stationB]);
-		}
-	}
+        [TestMethod]
+        public void SingleTownApIncludesPopulationRatio()
+        {
+            var town = Town("単独都市", 50);
+            Assert.AreEqual(100000, Distribute(new[] { town })[town]);
+        }
+        [TestMethod]
+        public void DisconnectedTownsKeepRelativeSharesWithoutChangingInput()
+        {
+            var a = Town("A", 50);
+            var b = Town("B", 100);
+            var result = Distribute(new[] { a, b });
+            Assert.AreEqual(33333, result[a]);
+            Assert.AreEqual(66666, result[b]);
+            Assert.AreEqual(50, a.Population);
+        }
+        [DataTestMethod]
+        [DataRow(20)]
+        [DataRow(17)]
+        public void CapitalBonusExcludesTransferTown(int capitalSize)
+        {
+            var a = Town("首都", 50, (StationSize)capitalSize);
+            var b = Town("乗換都市", 50, (StationSize)16);
+            var result = Distribute(new[] { a, b });
+            Assert.AreEqual(50248, result[a]);
+            Assert.AreEqual(49751, result[b]);
+        }
+        [TestMethod]
+        public void DirectAndLongwaySharesBothApply()
+        {
+            var a = Town("A", 50);
+            var b = Town("B", 100);
+            var line = Connect(a, b);
+            Assert.AreEqual(10, line.CalcAverageRequireMinutes());
+            var result = Distribute(new[] { a, b }, Path(a, b, line));
+            Assert.AreEqual(33793, result[a]);
+            Assert.AreEqual(66206, result[b]);
+        }
+        [TestMethod]
+        public void ConnectedSharesPreserveIntegerMultiplicationOrder()
+        {
+            var a = Town("A", 51);
+            var b = Town("B", 79);
+            var line = Connect(a, b, 20);
+            Assert.AreEqual(22, line.CalcAverageRequireMinutes());
+            var result = Distribute(new[] { a, b }, Path(a, b, line));
+            // 3*79/10=23と3*51/10=15を、直接接続と長距離接続でそれぞれ加算。
+            Assert.AreEqual(39354, result[a]);
+            Assert.AreEqual(60645, result[b]);
+        }
+        [DataTestMethod]
+        [DataRow(false, 1, 1)]
+        [DataRow(true, 0, 0)]
+        [DataRow(true, 0, 10)]
+        public void UnbuiltOrUnallocatedLineAddsNoShares(bool exists, int units, int trips)
+        {
+            var a = Town("A", 50);
+            var b = Town("B", 100);
+            var line = Connect(a, b);
+            line.IsExist = exists;
+            line.useCompositionNum = units;
+            line.runningPerDay = trips;
+            var result = Distribute(new[] { a, b }, Path(a, b, line));
+            Assert.AreEqual(33333, result[a]);
+            Assert.AreEqual(66666, result[b]);
+        }
+        [TestMethod]
+        public void ThroughOnlyServiceAddsLongwayShareWithoutDirectShare()
+        {
+            var a = Town("A", 50);
+            var b = Town("B", 100);
+            var line = Connect(a, b);
+            line.useCompositionNum = 0;
+            line.runningPerDay = 0;
+            line.belongingKeitoDiagrams.Add(new KeitoDiagram
+            {
+                route = new List<Line> { line }, useComposition = Composition(),
+                useCompositionNum = 1, runningPerDay = 1
+            });
+            Assert.AreEqual(54, line.CalcHyokaSpeed());
+            var result = Distribute(new[] { a, b }, Path(a, b, line));
+            Assert.AreEqual(33565, result[a]);
+            Assert.AreEqual(66434, result[b]);
+        }
+        [TestMethod]
+        public void EvaluationSpeedAveragesAllocatedServicesWithoutTripWeights()
+        {
+            var line = Connect(Town("A", 50), Town("B", 100));
+            line.bestSpeed = 120;
+            line.belongingKeitoDiagrams.Add(new KeitoDiagram
+            {
+                route = new List<Line> { line }, useComposition = Composition(120),
+                useCompositionNum = 1, runningPerDay = 10
+            });
+            line.belongingKeitoDiagrams.Add(new KeitoDiagram
+            {
+                route = new List<Line> { line }, useComposition = Composition(30),
+                useCompositionNum = 0, runningPerDay = 0
+            });
+            Assert.AreEqual(81, line.CalcHyokaSpeed());
+            Assert.AreEqual(6, line.CalcAverageRequireMinutes());
+        }
+        [TestMethod]
+        public void LongwayRequiresEverySegmentToOperate()
+        {
+            var a = Town("A", 50);
+            var middle = Town("中間", 50);
+            var b = Town("B", 100);
+            var first = Connect(a, middle);
+            var last = Connect(middle, b);
+            last.IsExist = false;
+            var towns = new[] { a, middle, b };
+            var expected = Distribute(towns);
+            var actual = Distribute(towns, Path(a, b, first, last), Path(a, b));
+            foreach (var town in towns) Assert.AreEqual(expected[town], actual[town]);
+        }
+        [TestMethod]
+        public void EngineTechnologyBonusesRespectThresholdsAndCombinedSpeedBonus()
+        {
+            var town = Town("A", 50);
+            var game = new GameInfo
+            {
+                genkaiDenki = 200, genkaiKidosha = 40, genkaiLinear = 300,
+                isDevelopedBlockingSignal = true
+            };
+            int Population() => game.CalculateStationPopulationDistribution(new[] { town }, new Longway[0], 1000)[town];
+            Assert.AreEqual(590, Population());
+            game.genkaiDenki = 201;
+            Assert.AreEqual(620, Population());
+            game.genkaiKidosha = 201;
+            Assert.AreEqual(620, Population());
+            game.genkaiLinear = 990;
+            Assert.AreEqual(720, Population());
+        }
+        [TestMethod]
+        public void EverySpecialTechnologyAddsTwoPercentagePoints()
+        {
+            var town = Town("A", 50);
+            var game = new GameInfo
+            {
+                isDevelopedDynamicSignal = true, isDevelopedFreeGauge = true,
+                isDevelopedMachineTilt = true, isDevelopedDualSeat = true,
+                isDevelopedRetructableLong = true, isDevelopedRichCross = true,
+                isDevelopedCarTiltPendulum = true, isDevelopedAutoGate = true,
+                isDevelopedConvertibleCross = true, isDevelopedBlockingSignal = true
+            };
+            Assert.AreEqual(700, game.CalculateStationPopulationDistribution(new[] { town }, new Longway[0], 1000)[town]);
+        }
+        [TestMethod]
+        public void ModePopulationAndTechnologyApplyBeforeApInitialization()
+        {
+            var town = Town("A", 50);
+            var game = Game(town);
+            var mode = EmptyMode();
+            mode.peopleNume = 8;
+            mode.peopleDenom = 5;
+            mode.genkaiDenki = 60;
+            game.SelectedMode = mode;
+            Assert.AreEqual(80, town.Population);
+            Assert.AreEqual(153, game.Ap);
+            game.MYear = 2300;
+            AdvanceYear(game);
+            Assert.AreEqual(154, game.Ap);
+            Assert.AreEqual(80, town.Population);
+        }
+        [TestMethod]
+        public void AnnualRoundingDoesNotRebaseApFromVisiblePopulation()
+        {
+            var a = Town("A", 50);
+            var b = Town("B", 100);
+            var game = Game(a, b);
+            game.MYear = 2300;
+            AdvanceYear(game);
+            Assert.AreEqual(303, game.Ap);
+            Assert.AreEqual(50, a.Population);
+            Assert.AreEqual(101, b.Population);
+            AdvanceYear(game);
+            Assert.AreEqual(306, game.Ap);
+            Assert.AreEqual(50, a.Population);
+            Assert.AreEqual(102, b.Population);
+        }
+        [DataTestMethod]
+        [DataRow(DifficultyLevelEnum.VeryEasy, 1980, 1000, 2024)]
+        [DataRow(DifficultyLevelEnum.Easy, 1980, 1000, 2010)]
+        [DataRow(DifficultyLevelEnum.Normal, 1980, 1000, 2000)]
+        [DataRow(DifficultyLevelEnum.Hard, 1980, 1000, 2000)]
+        [DataRow(DifficultyLevelEnum.VeryHard, 1980, 1000, 2000)]
+        [DataRow(DifficultyLevelEnum.Normal, 1980, 2300, 2024)]
+        [DataRow(DifficultyLevelEnum.Easy, 1098, 1000, 2024)]
+        [DataRow(DifficultyLevelEnum.Easy, 1099, 1000, 2010)]
+        public void AnnualGrowthUsesDifficultyAndModeDeadline(DifficultyLevelEnum difficulty, int year, int deadline, int expectedAp)
+        {
+            var game = Game(Town("A", 1000));
+            game.Difficulty = difficulty;
+            game.Year = year;
+            game.MYear = deadline;
+            AdvanceYear(game);
+            Assert.AreEqual(year + 1, game.Year);
+            Assert.AreEqual(expectedAp, game.Ap);
+        }
+        [TestMethod]
+        public void TechnologyDevelopmentChangesVisiblePopulationWithoutRebasingAp()
+        {
+            var town = Town("A", 1000);
+            var game = Game(town);
+            game.Year = 1980;
+            game.MYear = 1000;
+            game.genkaiDenki = 60;
+            AdvanceYear(game);
+            Assert.AreEqual(2000, game.Ap);
+            Assert.AreEqual(1040, town.Population);
+        }
+        [TestMethod]
+        public void ZeroPopulationHasMinimumOneAndEmptyMapIsAllowed()
+        {
+            var town = Town("A", 0);
+            var game = new GameInfo();
+            Assert.AreEqual(1, game.CalculateStationPopulationDistribution(new[] { town }, new Longway[0], 0)[town]);
+            Assert.AreEqual(0, Distribute(new Station[0]).Count);
+        }
+        [TestMethod]
+        public void CapitalBonusTruncatesBeforeMultiplication()
+        {
+            var a = Town("首都", 51, StationSize.Capital);
+            var b = Town("B", 79);
+            Connect(a, b, 20);
+            var result = Distribute(new[] { a, b });
+            // 首都シェア5123を5123/10*101/10=5171に補正する。
+            Assert.AreEqual(39515, result[a]);
+            Assert.AreEqual(60484, result[b]);
+        }
+        [TestMethod]
+        public void ShareHalvingKeepsIndependentlyRoundedTotal()
+        {
+            var a = Town("A", 499);
+            var b = Town("B", 499);
+            Connect(a, b, 20);
+            var result = Distribute(new[] { a, b });
+            // シェアは50049ずつ。合計100098/2=50049、各都市は25024。
+            Assert.AreEqual(49999, result[a]);
+            Assert.AreEqual(49999, result[b]);
+        }
+        [TestMethod]
+        public void UnallocatedThroughTripsCannotMakeLongwayOperational()
+        {
+            var a = Town("A", 50);
+            var b = Town("B", 100);
+            var line = Connect(a, b);
+            line.runningPerDay = 0;
+            line.belongingKeitoDiagrams.Add(new KeitoDiagram
+            {
+                route = new List<Line> { line }, useComposition = Composition(),
+                useCompositionNum = 0, runningPerDay = 10
+            });
+            var expected = Distribute(new[] { a, b });
+            var actual = Distribute(new[] { a, b }, Path(a, b, line));
+            Assert.AreEqual(expected[a], actual[a]);
+            Assert.AreEqual(expected[b], actual[b]);
+        }
+        [TestMethod]
+        public void LargeBaselineUsesWideIntermediateArithmetic()
+        {
+            var town = Town("A", 1000);
+            Assert.AreEqual(500000000, new GameInfo().CalculateStationPopulationDistribution(new[] { town }, new Longway[0], 1000000000)[town]);
+        }
+    }
 }

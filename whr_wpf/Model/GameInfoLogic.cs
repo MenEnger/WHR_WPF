@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 
 namespace whr_wpf.Model
@@ -639,15 +638,7 @@ namespace whr_wpf.Model
 
 			if (Year == SteamYear) { resultMsgList.Add("今年から、蒸気機関車の設定が不可能になります。\n（現在設定中のものは引き続き使用可能です）"); }
 
-			//人口設定
-			Ap = MultiplyNumByDifficuluty(Ap);
-
-			//各駅の人口を計算
-			Dictionary<Station, int> stationPopulationDistribution = CalculateStationPopulationDistribution(stations, longwayList, Ap);
-
-			//人口に反映
-			stations.ForEach(station => station.Population = stationPopulationDistribution[station]);
-			Ap = stations.Sum(station => station.Population);
+			UpdatePopulation();
 
 			//戦時体制
 			if (modss == null)
@@ -669,86 +660,6 @@ namespace whr_wpf.Model
 			}
 
 			return resultMsgList;
-		}
-
-		/// <summary>
-		/// 難易度によって数値を微増 総人口増加で使う
-		/// </summary>
-		/// <param name="num"></param>
-		/// <returns></returns>
-		private int MultiplyNumByDifficuluty(int num)
-		{
-			switch (Difficulty)
-			{
-				case DifficultyLevelEnum.VeryEasy:
-					return num * 253 / 250;
-				case DifficultyLevelEnum.Easy:
-					return Year < BasicYear + 100 ? num * 253 / 250 : num * 201 / 200;
-				case DifficultyLevelEnum.Normal:
-				case DifficultyLevelEnum.Hard:
-				case DifficultyLevelEnum.VeryHard:
-					return Year < BasicYear + 100 ? num * 253 / 250 : num;
-				default:
-					return num;
-			}
-		}
-
-		/// <summary>
-		/// 人口計算
-		/// </summary>
-		/// 
-		public Dictionary<Station, int> CalculateStationPopulationDistribution(IEnumerable<Station> stations, IEnumerable<Longway> longwayList, int allPopulation)
-		{
-			Dictionary<Station, int> stationPopulationShare = stations.ToDictionary(station => station, station =>
-			{
-				// 基本シェア
-				int baseShare = station.Population * 100;
-
-				// 路線や乗り継ぎの相手駅によるシェア
-				// 計算諸元の取得
-				IEnumerable<(long RequiredMinutes, int OtherStationPopulation)> lineRequiredMinutesAndPopulation = station.BelongingLines.Select(line =>
-				{
-					Station otherStation = line.Start == station ? line.End : line.Start;
-					return ((long)line.CalcRequiredMinutes(), otherStation.Population);
-				});
-				List<Longway> longwaysWithThisStation = longwayList.Where(longway => longway.start == station || longway.end == station).ToList();
-				IEnumerable<(long RequiredMinutes, int OtherStationPopulation)> longwayRequiredMinutesAndPopulation = longwaysWithThisStation.Select(longway =>
-				{
-					Station otherStation = longway.start == station ? longway.end : longway.start;
-					return (longway.CalcRequiredMinutes(), otherStation.Population);
-				});
-				var lineAndLongwayPopulationShareInfo = lineRequiredMinutesAndPopulation.Concat(longwayRequiredMinutesAndPopulation);
-
-				// 相手駅によるシェアの計算
-				int otherStationShare = (int)lineAndLongwayPopulationShareInfo.Sum(param =>
-					(600.0 / param.RequiredMinutes + 10) / 10 * (param.OtherStationPopulation / 10));
-
-				int stationPopulationShare = baseShare + otherStationShare;
-
-				// 首都は1%ボーナス
-				if (station.Size == StationSize.Capital || station.Size == StationSize.Transit) { stationPopulationShare = stationPopulationShare * 101 / 100; }
-
-				return stationPopulationShare;
-			});
-
-			// シェアを適正値に下げる
-			int totalShare = stationPopulationShare.Sum(kv => kv.Value);
-			while (totalShare > 100000)
-			{
-				totalShare /= 2;
-				stationPopulationShare = stationPopulationShare.ToDictionary(kv => kv.Key, kv => kv.Value / 2);
-			}
-
-			//シェアを基に人口を計算
-			Dictionary<Station, int> updatedPopulation = stationPopulationShare.ToDictionary(kv => kv.Key, kv =>
-			{
-				int stationShare = kv.Value;
-				int newPopulation = (int)((long)allPopulation * stationShare / totalShare);
-				// 人口が0にならないようにする
-				return Math.Max(newPopulation, 1);
-			});
-
-			return updatedPopulation;
 		}
 
 		/// <summary>

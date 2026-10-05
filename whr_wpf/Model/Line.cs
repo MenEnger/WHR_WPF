@@ -1085,17 +1085,19 @@ namespace whr_wpf.Model
 		/// <returns></returns>
 		public int CalcHyokaSpeed()
 		{
-			//路線と系統の速度の平均=評価速度
+			// 投入編成のある路線運行・系統運行の平均。本数による重み付けはしない。
 
-			int lineAverageSpeed = 0;
-			if (useCompositionNum > 0) { lineAverageSpeed = CalcAverageSpeed(useComposition, diagram); }
-			int[] keitoAveSpeeds = belongingKeitoDiagrams.Select(keito =>
+			if (!IsExist || diagram == DiagramType.None) { return 0; }
+			var speeds = new List<int>();
+			if (useCompositionNum > 0 && useComposition != null)
 			{
-				//各系統のこの路線にあたる部分だけの平均速度を求める
-				Line line = keito.route.Where(lineInKeito => lineInKeito == this).First();
-				return line.CalcAverageSpeed(keito.useComposition, line.diagram);
-			}).ToArray();
-			return (lineAverageSpeed + keitoAveSpeeds.Sum()) / (1 + keitoAveSpeeds.Length);
+				speeds.Add(CalcAverageSpeed(useComposition, diagram));
+			}
+			foreach (var keito in belongingKeitoDiagrams.Where(keito => keito.useCompositionNum > 0 && keito.useComposition != null))
+			{
+				speeds.Add(CalcAverageSpeed(keito.useComposition, diagram));
+			}
+			return speeds.Count == 0 ? 0 : (int)(speeds.Sum(speed => (long)speed) / speeds.Count);
 		}
 
 		/// <summary>

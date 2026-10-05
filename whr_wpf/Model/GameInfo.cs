@@ -204,6 +204,7 @@ namespace whr_wpf.Model
 			});
 
 			compositions.AddRange(value.DefautltCompositions);
+			InitializePopulation();
 		}
 
 		private Mode _selectedMode = null;
@@ -327,7 +328,7 @@ namespace whr_wpf.Model
 		public int MYear { get; set; }
 
 		/// <summary>
-		/// 総人口
+		/// 技術開発の人口比率を適用する前の総人口（ap）
 		/// </summary>
 		public int Ap { get; set; } = 0;
 

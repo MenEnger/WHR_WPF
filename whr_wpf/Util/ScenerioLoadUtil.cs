@@ -98,8 +98,7 @@ namespace whr_wpf.Util
 
 			Console.WriteLine("ファイル読み込み完了");
 
-			// 読み込んだ情報にないゲーム情報を生成
-			gameInfo.Ap = gameInfo.stations.Sum(station => station.Population);
+			// モードの人口補正・技術設定が適用された後でApを初期化する。
 
 			return gameInfo;
 		}
@@ -111,7 +110,7 @@ namespace whr_wpf.Util
 		/// <returns></returns>
 		private static List<Mode> LoadModes(List<string> modLines) => CreateModeList(modLines);
 
-		// Original scenarios use Shift_JIS; also accept UTF-8 scenarios.
+		// 元シナリオのShift_JISと、新規シナリオのUTF-8を読み込む。
 		private static Encoding GetScenarioEncoding(string path)
 		{
 			var utf8 = new UTF8Encoding(false, true);
