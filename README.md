@@ -22,10 +22,12 @@
 
 1. .NET 9 SDK（Windows x64）をインストールしてください。
 1. リポジトリのルートで `dotnet build whr_wpf.sln` を実行してください。
-1. \whr_wpf\bin\Debug\net9.0-windows内に、 <http://hp.vector.co.jp/authors/VA037302/world/index.html> からダウンロード、解凍してできるフォルダのうち、jnrフォルダをコピーしてください。
-1. その出力フォルダを作業ディレクトリにして「世界鉄道網.exe」を実行してください。
+1. オリジナル配布物のjnrフォルダを `whr_wpf/jnr` に配置してください。ビルド時に出力先へ自動コピーします。
+1. 再度ビルドし、出力フォルダの「世界鉄道網.exe」を実行してください。シナリオは実行ファイルの横から読み込みます。
 
 自動テストはリポジトリのルートで `dotnet test whr_wpf.sln` を実行します。
+
+オリジナル1.52の配布物は[Web ArchiveのZIP](https://web.archive.org/web/20240721073537id_/http://hp.vector.co.jp/authors/VA037302/world/down/wnr152.zip)から取得できます。[ソーススクリプト付きCAB](https://web.archive.org/web/20240721073536id_/http://hp.vector.co.jp/authors/VA037302/world/down/wnr152.cab)も保存されています。シナリオのShift_JISとUTF-8に対応しています。取得した `whr_wpf/jnr` はGit管理対象外です。
 
 ### 実行環境セットアップ
 

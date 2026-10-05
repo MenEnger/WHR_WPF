@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <None Remove="View\map.png" />
+    <None Update="jnr\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
