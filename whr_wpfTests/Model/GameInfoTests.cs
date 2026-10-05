@@ -6,6 +6,7 @@ using whr_wpf.Model;
 namespace whr_wpf.Model.Tests
 {
     [TestClass]
+    [TestCategory("OriginalPopulation")]
     public class GameInfoTests
     {
         // 原作1.52の整数計算から求めた期待値。Apは人口比率を掛ける前の総人口。
