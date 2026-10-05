@@ -633,6 +633,5 @@ namespace whr_wpf.Model
 			return result;
 		}
 
-		public long CalcRequiredMinutes() => route.Sum(line => (long)line.CalcRequiredMinutes());
 	}
 }
