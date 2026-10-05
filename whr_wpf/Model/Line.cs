@@ -888,7 +888,7 @@ namespace whr_wpf.Model
 		/// <param name="composition">計算に用いる編成</param>
 		/// <param name="diagramType">ダイアグラム型</param>
 		/// <returns>何分掛かるか</returns>
-		public int CalcRequieredMinutes(IComposition composition, DiagramType diagramType)
+		public int CalcRequiredMinutes(IComposition composition, DiagramType diagramType)
 		{
 			int ave = CalcAverageSpeed(composition, diagramType);
 			if (ave == 0) { return int.MaxValue; }
@@ -896,12 +896,19 @@ namespace whr_wpf.Model
 			return minutes != 0 ? minutes : 1;
 		}
 
+
 		/// <summary>
 		/// 所要時間(既存ダイヤグラムで計算)
 		/// </summary>
 		/// <param name="composition">編成</param>
 		/// <returns>何分掛かるか</returns>
-		public int CalcRequieredMinutes(IComposition composition) => CalcRequieredMinutes(composition, diagram);
+		public int CalcRequiredMinutes(IComposition composition) => CalcRequiredMinutes(composition, diagram);
+
+		/// <summary>
+		/// 所要時間(既存編成、既存ダイヤグラムで計算)
+		/// </summary>
+		/// <returns>何分掛かるか</returns>
+		public int CalcRequiredMinutes() => CalcRequiredMinutes(useComposition, diagram);
 
 		/// <summary>
 		/// 平均速度
@@ -963,7 +970,7 @@ namespace whr_wpf.Model
 		/// <returns></returns>
 		public int CalcUseCompositionNum(IComposition composition, int runningPerDay, DiagramType diagramType)
 		{
-			return (int)MathF.Ceiling((float)runningPerDay * CalcRequieredMinutes(composition, diagramType) / 540);
+			return (int)MathF.Ceiling((float)runningPerDay * CalcRequiredMinutes(composition, diagramType) / 540);
 		}
 
 		/// <summary>
@@ -1078,17 +1085,19 @@ namespace whr_wpf.Model
 		/// <returns></returns>
 		public int CalcHyokaSpeed()
 		{
-			//路線と系統の速度の平均=評価速度
+			// 投入編成のある路線運行・系統運行の平均。本数による重み付けはしない。
 
-			int lineAverageSpeed = 0;
-			if (useCompositionNum > 0) { lineAverageSpeed = CalcAverageSpeed(useComposition, diagram); }
-			int[] keitoAveSpeeds = belongingKeitoDiagrams.Select(keito =>
+			if (!IsExist || diagram == DiagramType.None) { return 0; }
+			var speeds = new List<int>();
+			if (useCompositionNum > 0 && useComposition != null)
 			{
-				//各系統のこの路線にあたる部分だけの平均速度を求める
-				Line line = keito.route.Where(lineInKeito => lineInKeito == this).First();
-				return line.CalcAverageSpeed(keito.useComposition, line.diagram);
-			}).ToArray();
-			return (lineAverageSpeed + keitoAveSpeeds.Sum()) / (1 + keitoAveSpeeds.Length);
+				speeds.Add(CalcAverageSpeed(useComposition, diagram));
+			}
+			foreach (var keito in belongingKeitoDiagrams.Where(keito => keito.useCompositionNum > 0 && keito.useComposition != null))
+			{
+				speeds.Add(CalcAverageSpeed(keito.useComposition, diagram));
+			}
+			return speeds.Count == 0 ? 0 : (int)(speeds.Sum(speed => (long)speed) / speeds.Count);
 		}
 
 		/// <summary>

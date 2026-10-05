@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using whr_wpf.Model;
@@ -48,7 +49,7 @@ namespace whr_wpf
 			GameInfo gameInfo;
 			try
 			{
-				gameInfo = ScenerioLoadUtil.LoadFile("jnr");
+				gameInfo = ScenerioLoadUtil.LoadFile(Path.Combine(AppContext.BaseDirectory, "jnr"));
 			}
 			catch (Exception ex)
 			{
@@ -66,6 +67,7 @@ namespace whr_wpf
 		private void ContinueStart_Click(object sender, RoutedEventArgs e)
 		{
 			GameInfo info = (GameInfo)ApplicationUtil.LoadData();
+			if (info == null) { return; }
 			var page = new GamePage(info);
 			NavigationService.Navigate(page);
 		}

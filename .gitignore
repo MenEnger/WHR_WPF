@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Original scenario data downloaded locally (not redistributed).
+/whr_wpf/jnr/
+
 # User-specific files
 *.rsuser
 *.suo

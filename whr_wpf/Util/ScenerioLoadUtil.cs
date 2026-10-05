@@ -1,9 +1,10 @@
-﻿using Microsoft.VisualBasic.FileIO;
+using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using whr_wpf.Model;
@@ -22,7 +23,8 @@ namespace whr_wpf.Util
 			var gameInfo = new GameInfo();
 
 			//mod読み込み
-			List<string> modLines = ApplicationUtil.LoadFileLines(Path.Combine(baseDir, "index.mod"));
+			string modPath = Path.Combine(baseDir, "index.mod");
+			List<string> modLines = File.ReadAllLines(modPath, GetScenarioEncoding(modPath)).ToList();
 			gameInfo.ScenerioVersion = int.Parse(ExtractModProperty(modLines, "version"));
 			gameInfo.BasicYear = int.Parse(ExtractModProperty(modLines, "basicyear"));
 			gameInfo.Season = (SeasonEnum)int.Parse(ExtractModProperty(modLines, "season"));
@@ -72,7 +74,7 @@ namespace whr_wpf.Util
 			}
 
 			//画像
-			var bgImage = new BitmapImage(new Uri(Path.Combine(baseDir, "map.bmp"), UriKind.Relative));
+			var bgImage = new BitmapImage(new Uri(Path.GetFullPath(Path.Combine(baseDir, "map.bmp")), UriKind.Absolute));
 			gameInfo.map = bgImage;
 
 			//初期化
@@ -95,6 +97,9 @@ namespace whr_wpf.Util
 			gameInfo.Modes = LoadModes(modLines);
 
 			Console.WriteLine("ファイル読み込み完了");
+
+			// モードの人口補正・技術設定が適用された後でApを初期化する。
+
 			return gameInfo;
 		}
 
@@ -105,11 +110,27 @@ namespace whr_wpf.Util
 		/// <returns></returns>
 		private static List<Mode> LoadModes(List<string> modLines) => CreateModeList(modLines);
 
+		// 元シナリオのShift_JISと、新規シナリオのUTF-8を読み込む。
+		private static Encoding GetScenarioEncoding(string path)
+		{
+			var utf8 = new UTF8Encoding(false, true);
+			try
+			{
+				utf8.GetString(File.ReadAllBytes(path));
+				return utf8;
+			}
+			catch (DecoderFallbackException)
+			{
+				Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+				return Encoding.GetEncoding(932);
+			}
+		}
+
 		//town.csv読み込み
 		private static List<Station> CreateStationFromFile(string basePath)
 		{
 			string csvfile = Path.Combine(basePath, "town.csv");
-			TextFieldParser parser = new TextFieldParser(csvfile);
+			using TextFieldParser parser = new TextFieldParser(csvfile, GetScenarioEncoding(csvfile));
 			parser.TextFieldType = FieldType.Delimited;
 			parser.SetDelimiters(","); // 区切り文字はコンマ
 
@@ -136,7 +157,7 @@ namespace whr_wpf.Util
 		private static List<Line> CreateLineFromFile(string basePath, GameInfo gameInfo)
 		{
 			string csvfile = Path.Combine(basePath, "line.csv");
-			TextFieldParser parser = new TextFieldParser(csvfile);
+			using TextFieldParser parser = new TextFieldParser(csvfile, GetScenarioEncoding(csvfile));
 			parser.TextFieldType = FieldType.Delimited;
 			parser.SetDelimiters(","); // 区切り文字はコンマ
 
@@ -175,7 +196,7 @@ namespace whr_wpf.Util
 		private static List<Longway> CreateLongwayFromFile(string basePath, GameInfo gameInfo)
 		{
 			string csvfile = Path.Combine(basePath, "longway.csv");
-			TextFieldParser parser = new TextFieldParser(csvfile)
+			using TextFieldParser parser = new TextFieldParser(csvfile, GetScenarioEncoding(csvfile))
 			{
 				TextFieldType = FieldType.Delimited
 			};
@@ -221,7 +242,7 @@ namespace whr_wpf.Util
 		private static List<KeitoDiagram> CreateDiagramFromFile(string basePath, GameInfo gameInfo)
 		{
 			string csvfile = Path.Combine(basePath, "diagram.csv");
-			TextFieldParser parser = new TextFieldParser(csvfile)
+			using TextFieldParser parser = new TextFieldParser(csvfile, GetScenarioEncoding(csvfile))
 			{
 				TextFieldType = FieldType.Delimited
 			};

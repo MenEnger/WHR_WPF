@@ -182,7 +182,7 @@ namespace whr_wpf.ViewModel
 		public int CalcRequieredMinutes()
 		{
 			DiagramType diagramType = JudgementSuitableDiagram();
-			return diagramType == Model.DiagramType.None ? 0 : line.CalcRequieredMinutes(Composition, diagramType);
+			return diagramType == Model.DiagramType.None ? 0 : line.CalcRequiredMinutes(Composition, diagramType);
 		}
 
 		private bool CanSpeedUp() => line.CanSpeedUp();
