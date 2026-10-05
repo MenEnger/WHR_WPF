@@ -66,6 +66,7 @@ namespace whr_wpf
 		private void ContinueStart_Click(object sender, RoutedEventArgs e)
 		{
 			GameInfo info = (GameInfo)ApplicationUtil.LoadData();
+			if (info == null) { return; }
 			var page = new GamePage(info);
 			NavigationService.Navigate(page);
 		}

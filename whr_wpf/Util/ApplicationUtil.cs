@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows;
 using whr_wpf.Model;
 
@@ -18,15 +17,8 @@ namespace whr_wpf
 		/// <param name="info"></param>
 		public static void Exit(GameInfo info)
 		{
-			MessageBoxResult x = MessageBox.Show("セーブしますか？", "", MessageBoxButton.YesNoCancel);
-			switch (x)
-			{
-				case MessageBoxResult.Yes:
-					SaveData(info);
-					break;
-				case MessageBoxResult.Cancel:
-					return;
-			}
+			MessageBoxResult x = MessageBox.Show("現在セーブ機能は利用できません。保存せずに終了しますか？", "終了確認", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+			if (x != MessageBoxResult.Yes) { return; }
 
 			Application.Current.Shutdown();
 		}
@@ -73,22 +65,18 @@ namespace whr_wpf
 		/// <returns>復元されたオブジェクト</returns>
 		public static object LoadFromBinaryFile(string path)
 		{
-			FileStream fs = new FileStream(path,
-				FileMode.Open,
-				FileAccess.Read);
-			BinaryFormatter f = new BinaryFormatter();
-			//読み込んで逆シリアル化する
-			object obj = f.Deserialize(fs);
-			fs.Close();
-
-			return obj;
+			throw new NotSupportedException("旧形式のセーブデータの読み込みは現在利用できません。");
 		}
 
 		/// <summary>
 		/// オブジェクトの内容をファイルから読み込み復元する
 		/// </summary>
 		/// <returns>復元されたオブジェクト</returns>
-		public static object LoadData() => LoadFromBinaryFile("save.dat");
+		public static object LoadData()
+		{
+			MessageBox.Show("ロード機能は現在利用できません。新規ゲームから開始してください。", "ロード", MessageBoxButton.OK, MessageBoxImage.Information);
+			return null;
+		}
 
 		/// <summary>
 		/// オブジェクトの内容をファイルに保存する
@@ -97,13 +85,7 @@ namespace whr_wpf
 		/// <param name="path">保存先のファイル名</param>
 		public static void SaveToBinaryFile(object obj, string path)
 		{
-			FileStream fs = new FileStream(path,
-				FileMode.Create,
-				FileAccess.Write);
-			BinaryFormatter bf = new BinaryFormatter();
-			//シリアル化して書き込む
-			bf.Serialize(fs, obj);
-			fs.Close();
+			throw new NotSupportedException("セーブ機能は現在利用できません。");
 		}
 
 		/// <summary>
@@ -111,6 +93,9 @@ namespace whr_wpf
 		/// </summary>
 		/// <param name="info">保存するオブジェクト</param>
 		/// <param name="path">保存先のファイル名</param>
-		public static void SaveData(GameInfo info) => SaveToBinaryFile(info, "save.dat");
+		public static void SaveData(GameInfo info)
+		{
+			MessageBox.Show("セーブ機能は現在利用できません。", "セーブ", MessageBoxButton.OK, MessageBoxImage.Information);
+		}
 	}
 }

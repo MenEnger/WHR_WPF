@@ -1,4 +1,4 @@
-﻿# 世界鉄道網(WPFリメイク版)
+# 世界鉄道網(WPFリメイク版)
 
 ## 概要
 
@@ -13,18 +13,19 @@
 ## 開発環境
 
 - Windows 10  
-- Microsoft Visual Studio Community 2019  
-- .NET Core 3.1
+- .NET 9 SDK（Windows x64）
+- Visual Studioを使う場合は.NET 9に対応したバージョン
 
 ### 開発環境セットアップ
 
 開発には以下の環境が必要となります。
 
-1. Microsoft Visual Studio Community 2019をインストール  
-    その際にワークロードの「.NET デスクトップ開発」を含めるようしてください。
-1. 「whr_wpf.sln」を開き、ビルドしてください。
-1. \whr_wpf\bin\Debug\netcoreapp3.1内に、 <http://hp.vector.co.jp/authors/VA037302/world/index.html> からダウンロード、解凍してできるフォルダのうち、jnrフォルダをコピーしてください。
-1. Debugで実行すると、アプリケーションが起動します。
+1. .NET 9 SDK（Windows x64）をインストールしてください。
+1. リポジトリのルートで `dotnet build whr_wpf.sln` を実行してください。
+1. \whr_wpf\bin\Debug\net9.0-windows内に、 <http://hp.vector.co.jp/authors/VA037302/world/index.html> からダウンロード、解凍してできるフォルダのうち、jnrフォルダをコピーしてください。
+1. その出力フォルダを作業ディレクトリにして「世界鉄道網.exe」を実行してください。
+
+自動テストはリポジトリのルートで `dotnet test whr_wpf.sln` を実行します。
 
 ### 実行環境セットアップ
 
@@ -32,9 +33,8 @@ EXEを実行する環境には、以下をインストールすることが必�
 開発環境としてセットアップしたものについては、本セクションの手順は不要です。
 また、EXEファイルと同じ階層に、開発環境セットアップと同様にjnrフォルダが必要になりますので、上記の手順に沿って取得＆配置してください。
 
-- .NET Core 3.1 Runtime、Desktop Runtime 3.1.4  
-   下記ページ内のDesktop Runtime 3.1.4  
-   <https://dotnet.microsoft.com/download/dotnet-core/3.1>
+- .NET Desktop Runtime 9（Windows x64、最新の9.0.x）
+   <https://dotnet.microsoft.com/download/dotnet/9.0>
 
 ## オリジナル版より改良された箇所
 
@@ -48,7 +48,7 @@ EXEを実行する環境には、以下をインストールすることが必�
 
 - ゲーム全般
   - セーブ/ロード  
-    (仮で実装しましたが、クラッシュします)
+    .NET 9移行に伴い、旧BinaryFormatter形式の処理を停止しています。操作時に利用不可の案内を表示します。既存のsave.datは読み込み・上書きしません。
   - チュートリアルモード
   - 任意のシナリオの読み込み  
     読み込めるシナリオはexeと同じ階層のjnrフォルダ内に配置したシナリオのみです。
