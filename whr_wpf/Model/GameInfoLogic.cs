@@ -160,12 +160,13 @@ namespace whr_wpf.Model
 		{
 			var resultMsgList = new List<string>();
 
-			// 前週の状態への依存があるため、各処理と通知の順序を維持する。
+			// 原作と同様に週次の路線状態を初期化し、各処理と通知の順序を維持する。
+			ResetWeeklyLineState();
 			CalculateWeeklyPassengers();
 			ApplyWeeklyPassengerAdjustments();
 			AccumulateWeeklyFreight();
 			UpdateWeeklyPassengerIncome();
-			int kamotsuTanka = new Random().Next(35, 45);
+			int kamotsuTanka = new Random().Next(35, 46);
 			AdjustWeeklyTransportCapacity();
 			SettleWeeklyRailwayAccounts(kamotsuTanka);
 			ApplyWeeklySubsidy();

@@ -22,12 +22,12 @@ namespace whr_wpf.Model.Tests
             stock.Release(1);
             Assert.AreEqual(2, stock.HeldUnits);
             stock.Sale(game, 1);
-            // 現状の売却は保有数だけ減り、売却代金は資金に加算されない。
-            Assert.AreEqual((999700L, 1), (game.Money, stock.HeldUnits));
+            // ADR 0002 / F05: 原作の売却代金を資金へ加算する。
+            Assert.AreEqual((999710L, 1), (game.Money, stock.HeldUnits));
             Assert.ThrowsException<InvalidOperationException>(() => stock.Use(2));
             Assert.ThrowsException<ArgumentException>(() => stock.Use(-1));
             Assert.ThrowsException<InvalidOperationException>(() => stock.Sale(game, 2));
-            Assert.AreEqual((999700L, 1), (game.Money, stock.HeldUnits));
+            Assert.AreEqual((999710L, 1), (game.Money, stock.HeldUnits));
         }
 
         [DataTestMethod]

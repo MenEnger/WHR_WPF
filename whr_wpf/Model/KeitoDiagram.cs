@@ -84,7 +84,7 @@ namespace whr_wpf.Model
 		/// </summary>
 		public void DiagramReset()
 		{
-			useComposition.Release(useCompositionNum);
+			if (useComposition != null) { useComposition.Release(useCompositionNum); }
 			useComposition = null;
 			useCompositionNum = 0;
 			runningPerDay = 0;
