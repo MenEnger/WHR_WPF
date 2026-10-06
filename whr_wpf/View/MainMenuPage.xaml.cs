@@ -60,11 +60,16 @@ namespace whr_wpf
 				ApplicationUtil.ForceExit();
 				return;
 			}
+			catch (ScenarioReadException ex)
+			{
+				var logPath = ScenarioReadDiagnostics.TryWrite(ex);
+				MessageBox.Show(ScenarioPresentation.WithDiagnosticLog(ScenarioPresentation.FormatReadError(ex), logPath), "シナリオ読み込みエラー", MessageBoxButton.OK, MessageBoxImage.Error);
+				return;
+			}
 			catch (Exception ex)
 			{
-				Console.Error.WriteLine(ex.Message);
-				Console.Error.WriteLine(ex.StackTrace);
-				MessageBox.Show(ex.Message, "シナリオ読み込みエラー", MessageBoxButton.OK, MessageBoxImage.Error);
+				var logPath = ScenarioReadDiagnostics.TryWrite(ex);
+				MessageBox.Show(ScenarioPresentation.WithDiagnosticLog(ScenarioPresentation.FormatUnexpectedReadError(), logPath), "シナリオ読み込みエラー", MessageBoxButton.OK, MessageBoxImage.Error);
 				return;
 			}
 

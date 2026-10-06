@@ -116,13 +116,15 @@ namespace whr_wpf.Model.Tests
             var townPath = Path.Combine(files.DirectoryPath, "town.csv");
             File.Delete(townPath);
             var readCount = 0;
-            var error = Assert.ThrowsException<FileNotFoundException>(() => ScenarioPresentation.LoadScenario(files.DirectoryPath, path =>
+            var error = Assert.ThrowsException<ScenarioReadException>(() => ScenarioPresentation.LoadScenario(files.DirectoryPath, path =>
             {
                 readCount++;
                 return ScenarioPresentation.LoadMap(path);
             }));
             Assert.AreEqual(1, readCount);
-            Assert.AreEqual(townPath, error.FileName);
+            Assert.AreEqual(townPath, error.FilePath);
+            Assert.AreEqual(ScenarioReadError.FileNotFound, error.Error);
+            Assert.IsInstanceOfType<FileNotFoundException>(error.InnerException);
             // CSV失敗時にも、先に確保した画像の元ファイルは開いたままにしない。
             File.Delete(Path.Combine(files.DirectoryPath, "map.bmp"));
         }

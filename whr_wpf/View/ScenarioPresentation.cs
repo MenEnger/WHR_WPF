@@ -51,5 +51,48 @@ namespace whr_wpf.View
             ScenarioValidationError.InvalidBasicYear => "基礎とする年の値が異常です",
             _ => throw new ArgumentOutOfRangeException(nameof(error))
         };
+
+        public static string FormatReadError(ScenarioReadException error)
+        {
+            var reason = error.Error switch
+            {
+                ScenarioReadError.FileNotFound => "必要なファイルが見つかりません。",
+                ScenarioReadError.AccessDenied => "ファイルを読み取る権限がありません。",
+                ScenarioReadError.IoFailure => "ファイルを読み取れませんでした。",
+                ScenarioReadError.MissingValue => "必須の設定項目がありません。",
+                ScenarioReadError.InvalidNumber => "数値の書式が正しくありません。",
+                ScenarioReadError.NumberOutOfRange => "数値が読み取れる範囲を超えています。",
+                ScenarioReadError.InvalidFormat => "データの書式が正しくありません。",
+                ScenarioReadError.MissingField => "必要な項目が足りません。",
+                ScenarioReadError.InvalidReference => "参照先の番号が正しくありません。",
+                ScenarioReadError.InvalidSetting => "設定の組み合わせが正しくありません。",
+                _ => throw new ArgumentOutOfRangeException(nameof(error))
+            };
+            var stage = error.Stage switch
+            {
+                ScenarioReadStage.Settings => "設定",
+                ScenarioReadStage.Stations => "駅",
+                ScenarioReadStage.Lines => "路線",
+                ScenarioReadStage.Longways => "乗り継ぎ",
+                ScenarioReadStage.Diagrams => "運転系統",
+                ScenarioReadStage.Modes => "モード",
+                _ => throw new ArgumentOutOfRangeException(nameof(error))
+            };
+            // 内部例外の文言を案内に混ぜず、入力を直すための出典だけを表示する。
+            var source = $"解析対象: {stage}";
+            if (!string.IsNullOrEmpty(error.FilePath)) source += $"\nファイル: {error.FilePath}";
+            if (error.LineNumber.HasValue) source += $"\n行: {error.LineNumber.Value}";
+            if (error.ModeNumber.HasValue) source += $"\nモード: {error.ModeNumber.Value}";
+            if (!string.IsNullOrEmpty(error.PropertyName)) source += $"\n項目: {error.PropertyName}";
+            return reason + "\n" + source;
+        }
+
+        public static string FormatUnexpectedReadError()
+            => "シナリオを読み込めませんでした。ファイルと地図画像を確認してください。";
+
+        public static string WithDiagnosticLog(string message, string logPath)
+            => message + (logPath == null
+                ? "\n診断ログを保存できませんでした。"
+                : $"\n診断ログ: {logPath}");
     }
 }
