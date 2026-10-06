@@ -45,7 +45,9 @@ namespace whr_wpf.Model.Tests
         {
             files = new ScenarioFiles();
             File.Delete(Path.Combine(files.DirectoryPath, "town.csv"));
-            Assert.ThrowsException<FileNotFoundException>(() => ScenerioLoadUtil.LoadFile(files.DirectoryPath));
+            var error = Assert.ThrowsException<ScenarioReadException>(() => ScenerioLoadUtil.LoadFile(files.DirectoryPath));
+            Assert.AreEqual(ScenarioReadError.FileNotFound, error.Error);
+            Assert.IsInstanceOfType<FileNotFoundException>(error.InnerException);
         }
 
         [TestMethod]
@@ -53,7 +55,10 @@ namespace whr_wpf.Model.Tests
         {
             files = new ScenarioFiles();
             files.ReplaceProperty("rpm:0", "rpm:invalid");
-            Assert.ThrowsException<FormatException>(() => ScenerioLoadUtil.LoadFile(files.DirectoryPath));
+            var error = Assert.ThrowsException<ScenarioReadException>(() => ScenerioLoadUtil.LoadFile(files.DirectoryPath));
+            Assert.AreEqual(ScenarioReadError.InvalidNumber, error.Error);
+            Assert.AreEqual("rpm", error.PropertyName);
+            Assert.IsInstanceOfType<FormatException>(error.InnerException);
         }
 
         [DataTestMethod]
