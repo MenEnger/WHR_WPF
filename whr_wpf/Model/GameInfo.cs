@@ -134,6 +134,7 @@ namespace whr_wpf.Model
 			else if (isDevelopedBlockingSignal) { AccumulatedInvest.newPlan = 1000 * TechCost / 20; }
 
 			//路線のデフォ設定
+			lines.ForEach(line => line.IsSuspended = false);
 			lines.Zip(value.LineSettings, (line, setting) => new { Line = line, Setting = setting }).ToList().ForEach(it =>
 				{
 					it.Line.IsExist = it.Setting.IsExist;

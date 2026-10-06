@@ -245,6 +245,7 @@ namespace whr_wpf.Model
 		/// 
 		public void SettingComposition(IComposition newComposition, int runningPerDay, GameInfo gameInfo)
 		{
+			if (runningPerDay < 0) { throw new ArgumentOutOfRangeException(nameof(runningPerDay), "運行本数は0以上で指定してください"); }
 			if (gameInfo is null)
 			{
 				throw new ArgumentNullException(nameof(gameInfo));
@@ -254,6 +255,7 @@ namespace whr_wpf.Model
 			{
 				throw new ArgumentNullException(nameof(newComposition));
 			}
+			if (!IsExist) { throw new InvalidOperationException("未建設または休止中の区間には系統を設定できません"); }
 
 			//先に編成が設定できるかチェック　そうしないと編成確保時に不整合が起きる
 			(bool isAcceptableFreq, ImmutableDictionary<Line, DiagramType> lineDiagramPairs) = JudgeDiagramForRunningPerDay(runningPerDay, gameInfo);

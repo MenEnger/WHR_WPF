@@ -27,11 +27,13 @@
 
 自動テストはリポジトリのルートで `dotnet test whr_wpf.sln` を実行します。
 
-テストは、WPF版の現在の挙動を記録する `CurrentBehavior`、回収した原作ソースに基づく人口計算を確認する `OriginalPopulation`、採用した原作由来の状態変更を確認する `AdoptedOriginalState` に分けています。現状記録だけを実行する場合は `dotnet test whr_wpf.sln --filter TestCategory=CurrentBehavior` を使用します。テスト用の小さなシナリオをコードで作成するため、配布データの取得は不要です。
+テストは、WPF版の現在の挙動を記録する `CurrentBehavior`、回収した原作ソースに基づく人口計算を確認する `OriginalPopulation`、採用した原作由来の状態変更を確認する `AdoptedOriginalState`、ユーザーが選んだ仕様を確認する `SelectedBehavior` に分けています。現状記録だけを実行する場合は `dotnet test whr_wpf.sln --filter TestCategory=CurrentBehavior` を使用します。テスト用の小さなシナリオをコードで作成するため、配布データの取得は不要です。
 
 改修は、変更対象の現状を記録してからリファクタリングし、その後に原作との違いを比較する順序で進めます。現状挙動のテストが通ることは、その挙動が望ましい仕様だという意味ではありません。失敗時の途中変更や負数の扱いなど、気になる挙動も `CurrentBehavior` と日本語コメントで記録し、仕様変更として採用する際に期待値を更新します。
 
 原作との[比較結果](docs/original-analysis.md)、[Astraによる設計仮説](docs/design-hypotheses.md)、[採用判断のADR](docs/decisions/0001-original-comparison-policy.md)、[判断待ち一覧](docs/pending-decisions.md)を分けて記録しています。
+
+単線の削減操作は設備を保持する[休止](docs/decisions/0003-suspend-and-reconstruct.md)です。休止中は運行と維持費が停止し、投入編成を返却します。再建画面は保持した規格を引き継ぎ、原作寄りに建設費を再度支払います。
 
 ### 人口増加処理
 

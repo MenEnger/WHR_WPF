@@ -14,7 +14,7 @@
             <Button x:Name="ShrinkButton" Content="軌道縮小" TabIndex="4" Command="{Binding Narrow}" Height="30" ToolTip="レール幅を、標準軌から狭軌に変えます"/>
             <Button x:Name="ExpanseButton" Content="軌道拡大" TabIndex="5" Command="{Binding Expanse}" Height="30" ToolTip="レール幅を、狭軌から標準軌に変えます"/>
             <Button x:Name="AdditionButton" Content="路線増設" TabIndex="6" Command="{Binding Addition}" Height="30" ToolTip="路線を増設します。運行可能本数が増えます"/>
-            <Button x:Name="RemoveButton" Content="路線撤去" TabIndex="7" Command="{Binding Remove}" Height="30" ToolTip="路線を減らします。運行可能本数が減ります。単線の場合は廃止になります"/>
+            <Button x:Name="RemoveButton" Content="路線削減・休止" TabIndex="7" Command="{Binding Remove}" Height="30" ToolTip="複線以上は路線を削減します。単線は設備を保持して休止し、運行編成を返却します。再建には建設費がかかります"/>
             <Button x:Name="TaihiButton" Content="待避線変更" TabIndex="8" Command="{Binding Taihisen}" Height="30" ToolTip="待避線の設定を変更します。運行本数が増減します"/>
             <Button x:Name="CancelButton" Content="閉じる" TabIndex="9" Command="{Binding Cancel}" Height="30" ToolTip="路線設定･情報表示画面に戻ります"/>
         </StackPanel>

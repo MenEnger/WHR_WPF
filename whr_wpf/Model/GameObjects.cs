@@ -345,6 +345,8 @@ namespace whr_wpf.Model
 
 		public void Purchase(GameInfo gameInfo, int quantity)
 		{
+			if (quantity < 0) { throw new ArgumentOutOfRangeException(nameof(quantity), "数量は0以上で指定してください"); }
+			if (quantity == 0) { return; }
 			gameInfo.SpendMoney(Price * quantity);
 			HeldUnits += quantity;
 		}
@@ -361,7 +363,11 @@ namespace whr_wpf.Model
 			return;
 		}
 
-		public void Release(int quantity) => HeldUnits += quantity;
+		public void Release(int quantity)
+		{
+			if (quantity < 0) { throw new ArgumentOutOfRangeException(nameof(quantity), "数量は0以上で指定してください"); }
+			HeldUnits += quantity;
+		}
 
 		/// <summary>
 		/// 構成車輌 (key:車両  value:構成両数)
@@ -403,11 +409,17 @@ namespace whr_wpf.Model
 
 		public void Purchase(GameInfo gameInfo, int quantity)
 		{
+			if (quantity < 0) { throw new ArgumentOutOfRangeException(nameof(quantity), "数量は0以上で指定してください"); }
+			if (quantity == 0) { return; }
 			gameInfo.SpendMoney(Price * quantity);
 			HeldUnits += quantity;
 		}
 
-		public void Release(int quantity) => HeldUnits += quantity;
+		public void Release(int quantity)
+		{
+			if (quantity < 0) { throw new ArgumentOutOfRangeException(nameof(quantity), "数量は0以上で指定してください"); }
+			HeldUnits += quantity;
+		}
 
 		public void Use(int quantity)
 		{
