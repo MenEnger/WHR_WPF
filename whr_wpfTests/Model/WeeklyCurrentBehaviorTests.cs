@@ -236,6 +236,7 @@ namespace whr_wpf.Model.Tests
         {
             var game = Game();
             game.SelectedMode.MYear = 1880;
+            game.MYear = 1880;
             game.SelectedMode.goalMoney = long.MaxValue;
             YearEnd(game);
             // 失敗しても巻き戻されない現状を記録する。望ましい仕様とはまだ判定しない。

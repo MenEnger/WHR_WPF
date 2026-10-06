@@ -51,7 +51,15 @@ namespace whr_wpf.Model.Tests
         {
             game.Month = 12;
             game.Week = 4;
-            game.NextWeek();
+            // 人口テストは期限後の年次更新も検証する。更新後に期限切れとなるケースは終了を確認する。
+            if (game.MYear > 0 && game.Year + 1 > game.MYear)
+            {
+                Assert.ThrowsException<GameOverException>(() => game.NextWeek());
+            }
+            else
+            {
+                game.NextWeek();
+            }
         }
         private static Dictionary<Station, int> Distribute(Station[] towns, params Longway[] paths)
             => new GameInfo().CalculateStationPopulationDistribution(towns, paths, BasePopulation);
