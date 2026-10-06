@@ -55,6 +55,78 @@ namespace whr_wpf.Model.Tests
             });
         }
 
+        [DataTestMethod]
+        [DataRow(false)]
+        [DataRow(true)]
+        public void ImageSnapshotSurvivesSourceChangeBeforeCsvParsing(bool replace)
+        {
+            OnStaThread(() =>
+            {
+                using var files = new ScenarioFiles();
+                System.Windows.Media.Imaging.BitmapImage? snapshot = null;
+                var readCount = 0;
+                var presentation = ScenarioPresentation.LoadScenario(files.DirectoryPath, path =>
+                {
+                    readCount++;
+                    snapshot = ScenarioPresentation.LoadMap(path);
+                    // 画像確保とCSV解析の間の変更を、並行処理のタイミングに依存せず再現する。
+                    if (replace) File.WriteAllText(path, "置換された画像");
+                    else File.Delete(path);
+                    return snapshot;
+                });
+                Assert.AreEqual(1, readCount);
+                Assert.AreSame(snapshot, presentation.MapImage);
+                Assert.AreEqual(2, presentation.GameInfo.stations.Count);
+                presentation.GameInfo.SelectedMode = presentation.GameInfo.Modes.Single();
+                var page = new GamePage(presentation);
+                page.DrawMap();
+                Assert.AreSame(snapshot, ((ImageBrush)((Canvas)page.FindName("MapCanvas")).Background).ImageSource);
+            });
+        }
+
+        [TestMethod]
+        public void MapFailurePrecedesCsvFailure()
+        {
+            using var files = new ScenarioFiles();
+            var mapPath = Path.Combine(files.DirectoryPath, "map.bmp");
+            File.Delete(mapPath);
+            File.Delete(Path.Combine(files.DirectoryPath, "town.csv"));
+            var error = Assert.ThrowsException<FileNotFoundException>(() => ScenarioPresentation.LoadScenario(files.DirectoryPath));
+            Assert.AreEqual(mapPath, error.FileName);
+        }
+
+        [TestMethod]
+        public void InvalidSettingsPrecedeMapPreparation()
+        {
+            using var files = new ScenarioFiles();
+            files.ReplaceProperty("version:3", "version:0");
+            var readCount = 0;
+            Assert.ThrowsException<ScenarioValidationException>(() => ScenarioPresentation.LoadScenario(files.DirectoryPath, path =>
+            {
+                readCount++;
+                throw new AssertFailedException("不正な設定の後に画像を読んではいけない");
+            }));
+            Assert.AreEqual(0, readCount);
+        }
+
+        [TestMethod]
+        public void CsvFailureDoesNotReturnPartialPresentation()
+        {
+            using var files = new ScenarioFiles();
+            var townPath = Path.Combine(files.DirectoryPath, "town.csv");
+            File.Delete(townPath);
+            var readCount = 0;
+            var error = Assert.ThrowsException<FileNotFoundException>(() => ScenarioPresentation.LoadScenario(files.DirectoryPath, path =>
+            {
+                readCount++;
+                return ScenarioPresentation.LoadMap(path);
+            }));
+            Assert.AreEqual(1, readCount);
+            Assert.AreEqual(townPath, error.FileName);
+            // CSV失敗時にも、先に確保した画像の元ファイルは開いたままにしない。
+            File.Delete(Path.Combine(files.DirectoryPath, "map.bmp"));
+        }
+
         [TestMethod]
         public void MissingMapIsRejectedByPresentation()
         {

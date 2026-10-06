@@ -12,10 +12,24 @@ namespace whr_wpf.View
         public BitmapImage MapImage { get; }
 
         public ScenarioPresentation(GameInfo gameInfo)
+            : this(gameInfo, string.IsNullOrEmpty(gameInfo.MapImagePath) ? null : LoadMap(gameInfo.MapImagePath))
+        {
+        }
+
+        private ScenarioPresentation(GameInfo gameInfo, BitmapImage mapImage)
         {
             GameInfo = gameInfo;
             // 読込済み画像を難易度・モード選択からゲーム画面へ引き継ぐ。
-            MapImage = string.IsNullOrEmpty(gameInfo.MapImagePath) ? null : LoadMap(gameInfo.MapImagePath);
+            MapImage = mapImage;
+        }
+
+        public static ScenarioPresentation LoadScenario(string baseDirectory, Func<string, BitmapImage> readMap = null)
+        {
+            BitmapImage mapImage = null;
+            // 旧読込順と同じく、設定検証後・CSV解析前に表示側で画像を確保する。
+            var gameInfo = ScenerioLoadUtil.LoadFile(baseDirectory,
+                path => mapImage = (readMap ?? LoadMap)(path));
+            return new ScenarioPresentation(gameInfo, mapImage);
         }
 
         public static BitmapImage LoadMap(string filePath)

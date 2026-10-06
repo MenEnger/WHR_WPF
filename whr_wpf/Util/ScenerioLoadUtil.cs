@@ -17,6 +17,13 @@ namespace whr_wpf.Util
 		/// ファイル読み込み
 		/// </summary>
 		public static GameInfo LoadFile(string baseDir)
+			=> LoadFile(baseDir, null);
+
+		/// <summary>
+		/// 設定検証後・CSV解析前に、利用側で参照資源を確保して読み込む。
+		/// </summary>
+		/// <param name="prepareMap">地図参照先の通知。画像を使わない利用側では省略する。</param>
+		public static GameInfo LoadFile(string baseDir, Action<string> prepareMap)
 		{
 			var gameInfo = new GameInfo();
 
@@ -71,6 +78,7 @@ namespace whr_wpf.Util
 
 			// 地図は参照先のみ記録し、画像の読込は表示側へ任せる。
 			gameInfo.MapImagePath = Path.GetFullPath(Path.Combine(baseDir, "map.bmp"));
+			prepareMap?.Invoke(gameInfo.MapImagePath);
 
 			//初期化
 

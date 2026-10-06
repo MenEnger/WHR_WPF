@@ -50,9 +50,8 @@ namespace whr_wpf
 			ScenarioPresentation presentation;
 			try
 			{
-				var gameInfo = ScenerioLoadUtil.LoadFile(Path.Combine(AppContext.BaseDirectory, "jnr"));
-				// 画面遷移前に地図を検査し、画像の問題も既存の読込エラーとして案内する。
-				presentation = new ScenarioPresentation(gameInfo);
+				// 設定検証・地図確保・CSV解析を従来の順序で実行する。
+				presentation = ScenarioPresentation.LoadScenario(Path.Combine(AppContext.BaseDirectory, "jnr"));
 			}
 			catch (ScenarioValidationException ex)
 			{
