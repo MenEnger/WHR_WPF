@@ -3,9 +3,11 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using whr_wpf.Model;
 using whr_wpf.ViewModel;
+using whr_wpf.View;
 
 namespace whr_wpf
 {
@@ -15,9 +17,16 @@ namespace whr_wpf
 	public partial class GamePage : Page
 	{
 		private GameInfo gameInfo;
+		private readonly BitmapImage mapImage;
 
-		public GamePage(GameInfo gameInfo)
+		public GamePage(GameInfo gameInfo) : this(new ScenarioPresentation(gameInfo))
 		{
+		}
+
+		public GamePage(ScenarioPresentation presentation)
+		{
+			var gameInfo = presentation.GameInfo;
+			mapImage = presentation.MapImage;
 			InitializeComponent();
 
 			this.gameInfo = gameInfo;
@@ -42,7 +51,7 @@ namespace whr_wpf
 			var info = gameInfo;
 
 			//地図
-			MapCanvas.Background = new ImageBrush(info.map);
+			MapCanvas.Background = new ImageBrush(mapImage);
 
 			////路線
 			//foreach (Model.Line lineRail in info.lines)

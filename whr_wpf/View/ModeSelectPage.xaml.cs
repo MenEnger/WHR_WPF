@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
 using whr_wpf.Model;
+using whr_wpf.View;
 
 namespace whr_wpf
 {
@@ -12,11 +13,13 @@ namespace whr_wpf
 	public partial class ModeSelectPage : Page
 	{
 		private GameInfo gameInfo;
+		private readonly ScenarioPresentation presentation;
 
-		public ModeSelectPage(GameInfo gameInfo)
+		public ModeSelectPage(ScenarioPresentation presentation)
 		{
 			InitializeComponent();
-			this.gameInfo = gameInfo;
+			this.presentation = presentation;
+			this.gameInfo = presentation.GameInfo;
 			Loaded += InitializeButtons;
 		}
 
@@ -95,7 +98,7 @@ namespace whr_wpf
 		{
 			gameInfo.SelectedMode = mode;
 
-			var page = new GamePage(gameInfo);
+			var page = new GamePage(presentation);
 			NavigationService.Navigate(page);
 		}
 	}

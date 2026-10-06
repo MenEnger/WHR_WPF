@@ -5,8 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Media.Imaging;
 using whr_wpf.Model;
 using static whr_wpf.Model.GameInfo;
 using static whr_wpf.Model.Mode;
@@ -19,6 +17,13 @@ namespace whr_wpf.Util
 		/// ファイル読み込み
 		/// </summary>
 		public static GameInfo LoadFile(string baseDir)
+			=> LoadFile(baseDir, null);
+
+		/// <summary>
+		/// 設定検証後・CSV解析前に、利用側で参照資源を確保して読み込む。
+		/// </summary>
+		/// <param name="prepareMap">地図参照先の通知。画像を使わない利用側では省略する。</param>
+		public static GameInfo LoadFile(string baseDir, Action<string> prepareMap)
 		{
 			var gameInfo = new GameInfo();
 
@@ -47,13 +52,11 @@ namespace whr_wpf.Util
 			//バリデーションor値補正
 			if (gameInfo.ScenerioVersion < 1)
 			{
-				_ = MessageBox.Show("シナリオバージョンの数値が異常です");
-				ApplicationUtil.ForceExit();
+				throw new ScenarioValidationException(ScenarioValidationError.InvalidVersion, modPath, "version", gameInfo.ScenerioVersion);
 			}
 			if (gameInfo.BasicYear < 0)
 			{
-				_ = MessageBox.Show("基礎とする年の値が異常です");
-				ApplicationUtil.ForceExit();
+				throw new ScenarioValidationException(ScenarioValidationError.InvalidBasicYear, modPath, "basicyear", gameInfo.BasicYear);
 			}
 			//kamotuはenum定義なので一旦見送り。他のenumもチェックを一旦見送り
 			if (gameInfo.Rpm < 1)
@@ -73,9 +76,9 @@ namespace whr_wpf.Util
 				gameInfo.TechCost = 100;
 			}
 
-			//画像
-			var bgImage = new BitmapImage(new Uri(Path.GetFullPath(Path.Combine(baseDir, "map.bmp")), UriKind.Absolute));
-			gameInfo.map = bgImage;
+			// 地図は参照先のみ記録し、画像の読込は表示側へ任せる。
+			gameInfo.MapImagePath = Path.GetFullPath(Path.Combine(baseDir, "map.bmp"));
+			prepareMap?.Invoke(gameInfo.MapImagePath);
 
 			//初期化
 
