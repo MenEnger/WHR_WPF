@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Navigation;
 using whr_wpf.Model;
+using whr_wpf.View;
 
 namespace whr_wpf
 {
@@ -11,11 +12,13 @@ namespace whr_wpf
 	public partial class DifficultyLevelSelectPage : Page
 	{
 		private GameInfo gameInfo;
+		private readonly ScenarioPresentation presentation;
 
-		public DifficultyLevelSelectPage(GameInfo gameInfo)
+		public DifficultyLevelSelectPage(ScenarioPresentation presentation)
 		{
 			InitializeComponent();
-			this.gameInfo = gameInfo;
+			this.presentation = presentation;
+			this.gameInfo = presentation.GameInfo;
 		}
 
 		private void MenuExit_Click(object sender, RoutedEventArgs e)
@@ -62,7 +65,7 @@ namespace whr_wpf
 
 		private void GotoModeSelect()
 		{
-			var page = new ModeSelectPage(gameInfo);
+			var page = new ModeSelectPage(presentation);
 			NavigationService.Navigate(page);
 		}
 	}

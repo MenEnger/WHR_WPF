@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using whr_wpf.Model;
 using whr_wpf.Util;
+using whr_wpf.View;
 
 namespace whr_wpf
 {
@@ -46,10 +47,19 @@ namespace whr_wpf
 
 		private void NewStart_Click(object sender, RoutedEventArgs e)
 		{
-			GameInfo gameInfo;
+			ScenarioPresentation presentation;
 			try
 			{
-				gameInfo = ScenerioLoadUtil.LoadFile(Path.Combine(AppContext.BaseDirectory, "jnr"));
+				var gameInfo = ScenerioLoadUtil.LoadFile(Path.Combine(AppContext.BaseDirectory, "jnr"));
+				// 画面遷移前に地図を検査し、画像の問題も既存の読込エラーとして案内する。
+				presentation = new ScenarioPresentation(gameInfo);
+			}
+			catch (ScenarioValidationException ex)
+			{
+				MessageBox.Show(ScenarioPresentation.FormatValidationError(ex));
+				// 不正な版・基準年で終了する従来のUI方針は表示側で維持する。
+				ApplicationUtil.ForceExit();
+				return;
 			}
 			catch (Exception ex)
 			{
@@ -60,7 +70,7 @@ namespace whr_wpf
 			}
 
 			// Pageインスタンスを渡して遷移
-			var page = new DifficultyLevelSelectPage(gameInfo);
+			var page = new DifficultyLevelSelectPage(presentation);
 			NavigationService.Navigate(page);
 		}
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows.Media.Imaging;
 using whr_wpf.Util;
 
 namespace whr_wpf.Model
@@ -377,7 +376,8 @@ namespace whr_wpf.Model
 		/// <summary>
 		/// 背景の地図
 		/// </summary>
-		public BitmapImage map;
+		// 画像の生成・保持は表示側が担当する。
+		public string MapImagePath { get; set; }
 
 		/// <summary>
 		/// 駅名を表示するか(未実装)
