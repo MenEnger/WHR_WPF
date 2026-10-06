@@ -89,5 +89,10 @@ namespace whr_wpf.View
 
         public static string FormatUnexpectedReadError()
             => "シナリオを読み込めませんでした。ファイルと地図画像を確認してください。";
+
+        public static string WithDiagnosticLog(string message, string logPath)
+            => message + (logPath == null
+                ? "\n診断ログを保存できませんでした。"
+                : $"\n診断ログ: {logPath}");
     }
 }

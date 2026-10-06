@@ -158,6 +158,9 @@ namespace whr_wpf.Model.Tests
 
         [DataTestMethod]
         [DataRow("\n\n京都,0,1,10,20,no,10\n", 3L)]
+        [DataRow("\n   \n京都,0,1,10,20,no,10\n", 3L)]
+        [DataRow("\n\t \t\n京都,0,1,10,20,no,10\n", 3L)]
+        [DataRow("\n\u3000\n京都,0,1,10,20,no,10\n", 3L)]
         [DataRow("\n\"京都\n駅\",0,1,10,20,no,10\n", 2L)]
         [DataRow("\"京都\n駅\",0,1,10,20,1000,10\n\n大阪,0,1,30,40,no,20\n", 4L)]
         public void CsvNumericDiagnosticsUsePhysicalRecordStartLine(string data, long expectedLine)
