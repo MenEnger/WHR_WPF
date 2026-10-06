@@ -99,8 +99,6 @@ namespace whr_wpf.Util
 			//モード読み込み
 			gameInfo.Modes = LoadModes(modLines);
 
-			Console.WriteLine("ファイル読み込み完了");
-
 			// モードの人口補正・技術設定が適用された後でApを初期化する。
 
 			return gameInfo;
