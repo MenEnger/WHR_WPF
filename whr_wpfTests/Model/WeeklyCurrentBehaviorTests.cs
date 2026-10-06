@@ -190,10 +190,10 @@ namespace whr_wpf.Model.Tests
             var war = new GameInfo.WarMode { StartYear = 1881, EndYear = 1882, kamotsuIndex = 120 };
             game.warModeList.Add(war);
             YearEnd(game);
-            Assert.IsTrue(game.NextWeek().Single().Contains("戦時体制に突入"));
+            Assert.IsTrue(game.NextWeek().Single() is WarStartedEvent);
             Assert.AreSame(war, game.modss);
             YearEnd(game);
-            Assert.IsTrue(game.NextWeek().Single().Contains("戦時体制は終了"));
+            Assert.IsTrue(game.NextWeek().Single() is WarEndedEvent);
             Assert.IsNull(game.modss);
         }
 
@@ -207,7 +207,7 @@ namespace whr_wpf.Model.Tests
             Assert.AreEqual(0, game.NextWeek().Count);
             game.AccumulatedInvest.electricMotor = 300001;
             var messages = game.NextWeek();
-            Assert.IsTrue(messages.Any(message => message.Contains("目標を達成")));
+            Assert.IsTrue(messages.Any(message => message is GoalsAchievedEvent));
             Assert.AreEqual(2300, game.MYear);
             Assert.IsNull(mode.goalMoney);
             Assert.AreEqual(0, mode.goalTechDevelop.Count);
@@ -227,7 +227,7 @@ namespace whr_wpf.Model.Tests
             game.NextWeek();
             Assert.IsNotNull(game.SelectedMode.goalLineMake);
             line.IsExist = true;
-            Assert.IsTrue(game.NextWeek().Any(message => message.Contains("目標を達成")));
+            Assert.IsTrue(game.NextWeek().Any(message => message is GoalsAchievedEvent));
             Assert.AreEqual(2300, game.MYear);
         }
 
