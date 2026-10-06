@@ -39,8 +39,8 @@ namespace whr_wpf.Model.Tests
         [DataTestMethod]
         [DataRow(false, 10, 10, 90, true)]
         [DataRow(true, 10, 26, 74, false)]
-        [DataRow(true, 50, 362, -262, false)]
-        public void CurrentBehaviorFreightCapacityChangesDifferBetweenPeaceAndWar(bool wartime, int freightSize, int freightAfter, int tripsAfter, bool overCapacity)
+        [DataRow(true, 50, 100, 0, true)]
+        public void FreightCapacityChangesDifferBetweenPeaceAndWar(bool wartime, int freightSize, int freightAfter, int tripsAfter, bool overCapacity)
         {
             var game = Game();
             game.Kamotu = KamotsuEnum.EverIncrease;
@@ -50,7 +50,7 @@ namespace whr_wpf.Model.Tests
             line.SettingComposition(stock, 90, DiagramType.LimittedExpressPrior, game);
             game.longwayList.Add(new Longway { start = line.Start, end = line.End, route = new List<Line> { line } });
             if (wartime) game.modss = new GameInfo.WarMode { kamotsuIndex = 120, EndYear = 1885 };
-            // 現状では、戦時に路線運行を削り過ぎると本数が負になる場合もある。
+            // ADR 0002 / F03: 戦時の減算で生じた負数はその週に補正する。
             game.NextWeek();
             Assert.AreEqual((freightAfter, tripsAfter, overCapacity, 2, 8),
                 (line.kamotsuNumLastWeek, line.runningPerDay, line.isOverCapacity, line.useCompositionNum, stock.HeldUnits));
@@ -80,11 +80,12 @@ namespace whr_wpf.Model.Tests
             var game = Game();
             var line = Line(game);
             line.Distance = 1500;
-            line.kamotsuNumLastWeek = 1;
+            game.Kamotu = KamotsuEnum.EverIncrease;
+            game.longwayList.Add(new Longway { start = line.Start, end = line.End, route = new List<Line> { line } });
             long money = game.Money;
             game.NextWeek();
-            Assert.AreEqual(1, line.kamotsuNumLastWeek);
-            Assert.IsTrue(line.incomeLastWeek >= 245 && line.incomeLastWeek <= 308);
+            Assert.AreEqual(2, line.kamotsuNumLastWeek);
+            Assert.IsTrue(line.incomeLastWeek >= 490 && line.incomeLastWeek <= 630);
             Assert.AreEqual(line.incomeLastWeek, (long)game.income);
             Assert.AreEqual(line.outlayLastWeek, (long)game.outlay);
             Assert.AreEqual(money + game.income - game.outlay, game.Money);
@@ -92,7 +93,7 @@ namespace whr_wpf.Model.Tests
         }
 
         [TestMethod]
-        public void FreightCarriesBetweenWeeksWithoutExceedingPeaceCapacity()
+        public void FreightIsRecalculatedEachWeekWithoutExceedingPeaceCapacity()
         {
             var game = Game();
             game.Kamotu = KamotsuEnum.EverIncrease;
@@ -106,7 +107,7 @@ namespace whr_wpf.Model.Tests
                 long money = game.Money;
                 long balance = line.totalBalance;
                 game.NextWeek();
-                Assert.AreEqual((week == 0 ? 22 : 43, 10, false, 1, 9),
+                Assert.AreEqual((week == 0 ? 22 : 21, 10, false, 1, 9),
                     (line.kamotsuNumLastWeek, line.runningPerDay, line.isOverCapacity, line.useCompositionNum, stock.HeldUnits));
                 Assert.AreEqual(money + game.income - game.outlay, game.Money);
                 Assert.AreEqual(balance + game.income - game.outlay, line.totalBalance);
@@ -114,7 +115,7 @@ namespace whr_wpf.Model.Tests
         }
 
         [TestMethod]
-        public void CurrentBehaviorNegativeWartimeTripsAreClampedOnFollowingWeek()
+        public void WartimeTripsAreClampedDuringTheSameWeekAndRemainNonnegative()
         {
             var game = Game();
             game.Kamotu = KamotsuEnum.EverIncrease;
@@ -125,19 +126,19 @@ namespace whr_wpf.Model.Tests
             game.longwayList.Add(new Longway { start = line.Start, end = line.End, route = new List<Line> { line } });
             game.modss = new GameInfo.WarMode { kamotsuIndex = 120, EndYear = 1885 };
             game.NextWeek();
-            Assert.AreEqual((362, -262, false), (line.kamotsuNumLastWeek, line.runningPerDay, line.isOverCapacity));
+            Assert.AreEqual((100, 0, true), (line.kamotsuNumLastWeek, line.runningPerDay, line.isOverCapacity));
             game.NextWeek();
             Assert.AreEqual((100, 0, true, 2, 8),
                 (line.kamotsuNumLastWeek, line.runningPerDay, line.isOverCapacity, line.useCompositionNum, stock.HeldUnits));
         }
 
         [TestMethod]
-        public void CurrentBehaviorUnoperatedThroughDiagramResetThrows()
+        public void UnoperatedThroughDiagramResetIsSafe()
         {
             var game = Game();
             var through = Through(game, Line(game));
-            // 編成未設定の系統はリセットできない現状を記録する。
-            Assert.ThrowsException<NullReferenceException>(() => through.DiagramReset());
+            // ADR 0002 / F07: 編成未設定の系統も安全にリセットできる。
+            through.DiagramReset();
             Assert.AreEqual((0, 0), (through.useCompositionNum, through.runningPerDay));
         }
     }

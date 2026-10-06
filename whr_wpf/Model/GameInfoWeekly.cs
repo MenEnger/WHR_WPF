@@ -7,6 +7,21 @@ namespace whr_wpf.Model
 	public partial class GameInfo
 	{
 		/// <summary>
+		/// 今週の路線状態を初期化する。累計収支・定着率・編成割当は保持する。
+		/// </summary>
+		private void ResetWeeklyLineState()
+		{
+			foreach (Line line in lines)
+			{
+				line.passengersLastWeek = 0;
+				line.incomeLastWeek = 0;
+				line.outlayLastWeek = 0;
+				line.kamotsuNumLastWeek = 0;
+				line.isOverCapacity = false;
+			}
+		}
+
+		/// <summary>
 		/// 直接接続と乗り継ぎの旅客数を計算する。
 		/// </summary>
 		private void CalculateWeeklyPassengers()
@@ -201,7 +216,7 @@ namespace whr_wpf.Model
 		}
 
 		/// <summary>
-		/// 前週の貨物本数に今週の貨物を加算する。
+		/// 今週の貨物本数を経路ごとに加算する。
 		/// </summary>
 		private void AccumulateWeeklyFreight()
 		{
@@ -260,7 +275,7 @@ namespace whr_wpf.Model
 							line.runningPerDay -= overNum;
 							overNum = 0;
 						}
-						else if (line.runningPerDay < 0)
+						if (line.runningPerDay < 0)
 						{
 							overNum = Math.Abs(line.runningPerDay);
 							line.runningPerDay = 0;

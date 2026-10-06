@@ -255,6 +255,11 @@ namespace whr_wpf.Model
 		int SalePrice => Price / 10;
 
 		/// <summary>
+		/// 合計売却代金。原作と同様に数量を掛けた後で端数を切り捨てる。
+		/// </summary>
+		public long CalcSalePrice(int quantity) => (long)quantity * Price / 10;
+
+		/// <summary>
 		/// 軌道のタイプ
 		/// </summary>
 		RailTypeEnum Type { get; set; }
@@ -289,8 +294,11 @@ namespace whr_wpf.Model
 		/// <param name="quantity">売却する数</param>
 		public void Sale(GameInfo gameInfo, int quantity)
 		{
+			if (gameInfo is null) { throw new ArgumentNullException(nameof(gameInfo)); }
 			if (quantity > HeldUnits) { throw new InvalidOperationException("保有編成数が売却数に対して不足しています"); }
+			long salePrice = CalcSalePrice(quantity);
 			Use(quantity);
+			gameInfo.Money += salePrice;
 		}
 
 		/// <summary>
@@ -337,6 +345,8 @@ namespace whr_wpf.Model
 
 		public void Purchase(GameInfo gameInfo, int quantity)
 		{
+			if (quantity < 0) { throw new ArgumentOutOfRangeException(nameof(quantity), "数量は0以上で指定してください"); }
+			if (quantity == 0) { return; }
 			gameInfo.SpendMoney(Price * quantity);
 			HeldUnits += quantity;
 		}
@@ -353,7 +363,11 @@ namespace whr_wpf.Model
 			return;
 		}
 
-		public void Release(int quantity) => HeldUnits += quantity;
+		public void Release(int quantity)
+		{
+			if (quantity < 0) { throw new ArgumentOutOfRangeException(nameof(quantity), "数量は0以上で指定してください"); }
+			HeldUnits += quantity;
+		}
 
 		/// <summary>
 		/// 構成車輌 (key:車両  value:構成両数)
@@ -395,11 +409,17 @@ namespace whr_wpf.Model
 
 		public void Purchase(GameInfo gameInfo, int quantity)
 		{
+			if (quantity < 0) { throw new ArgumentOutOfRangeException(nameof(quantity), "数量は0以上で指定してください"); }
+			if (quantity == 0) { return; }
 			gameInfo.SpendMoney(Price * quantity);
 			HeldUnits += quantity;
 		}
 
-		public void Release(int quantity) => HeldUnits += quantity;
+		public void Release(int quantity)
+		{
+			if (quantity < 0) { throw new ArgumentOutOfRangeException(nameof(quantity), "数量は0以上で指定してください"); }
+			HeldUnits += quantity;
+		}
 
 		public void Use(int quantity)
 		{
@@ -603,7 +623,7 @@ namespace whr_wpf.Model
 		/// <returns></returns>
 		public int CalcKamotuTrips(GameInfo gameInfo)
 		{
-			if (route.Any(line => line.IsExist == false)) { return 0; }
+			if (!isKamotuOperated || route.Any(line => line.IsExist == false)) { return 0; }
 
 			int result = 0;
 			switch (gameInfo.Kamotu)

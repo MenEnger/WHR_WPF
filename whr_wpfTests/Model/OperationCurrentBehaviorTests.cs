@@ -22,12 +22,12 @@ namespace whr_wpf.Model.Tests
             stock.Release(1);
             Assert.AreEqual(2, stock.HeldUnits);
             stock.Sale(game, 1);
-            // 現状の売却は保有数だけ減り、売却代金は資金に加算されない。
-            Assert.AreEqual((999700L, 1), (game.Money, stock.HeldUnits));
+            // ADR 0002 / F05: 原作の売却代金を資金へ加算する。
+            Assert.AreEqual((999710L, 1), (game.Money, stock.HeldUnits));
             Assert.ThrowsException<InvalidOperationException>(() => stock.Use(2));
             Assert.ThrowsException<ArgumentException>(() => stock.Use(-1));
             Assert.ThrowsException<InvalidOperationException>(() => stock.Sale(game, 2));
-            Assert.AreEqual((999700L, 1), (game.Money, stock.HeldUnits));
+            Assert.AreEqual((999710L, 1), (game.Money, stock.HeldUnits));
         }
 
         [DataTestMethod]
@@ -47,15 +47,15 @@ namespace whr_wpf.Model.Tests
         [DataTestMethod]
         [DataRow(false)]
         [DataRow(true)]
-        public void CurrentBehaviorNegativePurchaseIncreasesMoneyAndReducesUnits(bool defaultStock)
+        public void NegativePurchaseIsRejectedBeforeChangingState(bool defaultStock)
         {
             var game = Game();
             IComposition stock = defaultStock
                 ? new DefautltComposition { Price = 100 }
                 : new Composition { Vehicles = new Dictionary<Car, int> { [new Car { money = 100 }] = 1 } };
-            // 入力検証のない公開メソッドの現状。負数を許容する仕様だとは判断しない。
-            stock.Purchase(game, -1);
-            Assert.AreEqual((1000100L, -1), (game.Money, stock.HeldUnits));
+            // ADR 0004: 数量の負数は状態変更前に拒否する。
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => stock.Purchase(game, -1));
+            Assert.AreEqual((1000000L, 0), (game.Money, stock.HeldUnits));
         }
 
         [TestMethod]
@@ -145,7 +145,7 @@ namespace whr_wpf.Model.Tests
             if (operation == "unelectrify") Assert.AreEqual(false, line.IsElectrified);
             if (operation == "narrow") Assert.AreEqual(RailGaugeEnum.Narrow, line.gauge);
             if (operation == "regular") Assert.AreEqual(RailGaugeEnum.Regular, line.gauge);
-            if (operation == "remove") Assert.AreEqual((false, 0, 0, (bool?)null), (line.IsExist, line.bestSpeed, line.LaneNum, line.IsElectrified));
+            if (operation == "remove") Assert.AreEqual((false, 60, 1, (bool?)false), (line.IsExist, line.bestSpeed, line.LaneNum, line.IsElectrified));
         }
 
         [DataTestMethod]

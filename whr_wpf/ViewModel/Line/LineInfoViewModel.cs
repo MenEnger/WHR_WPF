@@ -25,6 +25,12 @@ namespace whr_wpf.ViewModel
 			}
 		}
 		public string LineName => line.Name;
+		public string LineStatus => line.IsSuspended ? "休止中（設備保持）" : line.IsExist ? "営業中" : "未建設";
+		public Visibility EquipmentVisibility => line.IsExist || line.IsSuspended ? Visibility.Visible : Visibility.Collapsed;
+		public string ConstructionLabel => line.IsSuspended ? "路線再建" : "路線建造";
+		public string ConstructionDescription => line.IsSuspended
+			? "保持した設備設定で再建します。建設費がかかり、運行編成は再設定します。"
+			: "路線を新規に建造します。既に建設されている場合は、新しく作り直します";
 		public string Section => $"区間　{line.Start.Name}～{line.End.Name}";
 		public string GradeType => $"{line.grade.ToName()}：{line.propertyType.ToName()}";
 		public string Distance => $"距離　約{line.Distance}km";

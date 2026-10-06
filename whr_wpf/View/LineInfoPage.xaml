@@ -18,7 +18,8 @@
             <Label  Content="{Binding GradeType}" HorizontalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Top" Width="205" Height="20" FontSize="16" Foreground="White" Padding="5,0,5,0"/>
 
             <Label  Content="{Binding Distance}" Margin="0,16,0,0" HorizontalContentAlignment="Left" HorizontalAlignment="Center" VerticalAlignment="Top" Width="250" Height="20" FontSize="16" Foreground="White" Padding="10,0,10,0"/>
-            <StackPanel Visibility="{Binding IsExist}">
+            <Label Content="{Binding LineStatus}" Foreground="White" Padding="10,0,10,0"/>
+            <StackPanel Visibility="{Binding EquipmentVisibility}">
                 <Label  Content="{Binding RailInfo}" HorizontalContentAlignment="Left" HorizontalAlignment="Center" VerticalAlignment="Top" Width="250" Height="20" FontSize="16" Foreground="White" Padding="10,0,10,0"/>
                 <Label  Content="{Binding BestSpeed}" HorizontalContentAlignment="Left" HorizontalAlignment="Center" VerticalAlignment="Top" Width="250" Height="20" FontSize="16" Foreground="White" Padding="10,0,10,0"/>
                 <Label  Content="{Binding RailNum}" HorizontalContentAlignment="Left" HorizontalAlignment="Center" VerticalAlignment="Top" Width="250" Height="20" FontSize="16" Foreground="White" Padding="10,0,10,0"/>
@@ -34,7 +35,7 @@
             </StackPanel>
             <ComboBox x:Name="LineList" Margin="0,30,0,0" FontSize="16" DisplayMemberPath="Caption" DropDownClosed="LineList_DropDownClosed" TabIndex="1" />
             <Button x:Name="CloseBtn" Content="閉じる" Command="{Binding Close}" Height="30"/>
-            <Button x:Name="ConstructBtn" Content="路線建造" Command="{Binding Construction}"  Height="30" ToolTip="路線を新規に建造します。既に建設されている場合は、新しく作り直します"/>
+            <Button x:Name="ConstructBtn" Content="{Binding ConstructionLabel}" Command="{Binding Construction}" Height="30" ToolTip="{Binding ConstructionDescription}"/>
             <Button x:Name="ReformBtn" Content="路線改造"  Command="{Binding Reform}" Height="30" Visibility="{Binding IsExist}" ToolTip="路線を改造します。速度、路線本数、軌間、電化非電化、待避線の変更ができます" />
             <Button x:Name="DiagramBtn" Content="路線ダイヤ設定" Command="{Binding LineDiagram}" Height="30" Visibility="{Binding IsExist}" ToolTip="路線に列車を走らせる設定を行います。"/>
         </StackPanel>

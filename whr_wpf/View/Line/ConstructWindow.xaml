@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:whr_wpf"
         mc:Ignorable="d"
-        Title="路線建造" Height="450" Width="200" Background="#006699" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+        Title="{Binding ConstructionTitle}" Height="450" Width="200" Background="#006699" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
     <Grid>
         <StackPanel>
             <Label Content="路線最高速度(km/h)" HorizontalAlignment="Left" Margin="0,10,0,0" VerticalAlignment="Top" Foreground="White" FontSize="16"/>

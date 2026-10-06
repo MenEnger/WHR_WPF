@@ -295,7 +295,7 @@ namespace whr_wpf.ViewModel
 		}
 
 		/// <summary>
-		/// 路線撤去
+		/// 路線削減・休止
 		/// </summary>
 		public class RemoveCommand : CommandBase
 		{
@@ -313,7 +313,7 @@ namespace whr_wpf.ViewModel
 
 			public override void Execute(object parameter)
 			{
-				string text = vm.IsReduceOrRemoveLane() ? $"この路線を削減します。よろしいですか？" : "この路線を廃止します。よろしいですか？";
+				string text = vm.IsReduceOrRemoveLane() ? $"この路線を削減します。よろしいですか？" : "設備を保持してこの路線を休止します。運行編成は返却され、再建には建設費がかかります。よろしいですか？";
 				ExecuteDelegete exec = new ExecuteDelegete(vm.ExecuteRemoveLane);
 				vm.ExecuteWithMoney(text, exec);
 			}

@@ -104,7 +104,7 @@ namespace whr_wpf.ViewModel.Vehicle
 		}
 
 		private int CalcBuyPrice() => Composition.Price * Quantity;
-		private int CalcSalePrice() => Composition.SalePrice * Quantity;
+		private long CalcSalePrice() => Composition.CalcSalePrice(Quantity);
 
 		public ICommand QuantUp { get; set; }
 		public ICommand QuantDown { get; set; }

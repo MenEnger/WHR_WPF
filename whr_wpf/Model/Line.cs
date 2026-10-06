@@ -29,6 +29,11 @@ namespace whr_wpf.Model
 		public bool IsExist { get; set; }
 
 		/// <summary>
+		/// 設備を保持したまま運行を休止しているか。
+		/// </summary>
+		public bool IsSuspended { get; internal set; }
+
+		/// <summary>
 		/// 路線のタイプ
 		/// </summary>
 		public RailTypeEnum Type { get; set; }
@@ -207,7 +212,7 @@ namespace whr_wpf.Model
 		/// </summary>
 		/// <param name="genkaiKyoyo">追加する許容路線本数</param>
 		/// <returns></returns>
-		public int GenkaiHonsuuUnderCurrent(int genkaiKyoyo) => CalcGenkaiHonsuu(this.diagram, genkaiKyoyo);
+		public int GenkaiHonsuuUnderCurrent(int genkaiKyoyo) => IsExist ? CalcGenkaiHonsuu(this.diagram, genkaiKyoyo) : 0;
 
 		/// <summary>
 		/// 指定ダイアグラムでの路線の限界本数
@@ -385,6 +390,7 @@ namespace whr_wpf.Model
 									gameInfo));
 
 			this.IsExist = true;
+			this.IsSuspended = false;
 			this.bestSpeed = bestSpeed;
 			this.bestSpeedUpKaisu = 0;
 			this.Type = railType;
@@ -681,7 +687,7 @@ namespace whr_wpf.Model
 		}
 
 		/// <summary>
-		/// 路線削減/廃止可能か
+		/// 路線削減・休止が可能か
 		/// </summary>
 		/// <returns></returns>
 		public bool CanReduceOrRemoveLane()
@@ -690,16 +696,16 @@ namespace whr_wpf.Model
 		}
 
 		/// <summary>
-		/// 削減か廃止か
+		/// 削減か休止か
 		/// </summary>
-		/// <returns>true:削減  false:廃止</returns>
+		/// <returns>true:削減  false:休止</returns>
 		public bool IsReduceOrRemoveLane()
 		{
 			return LaneNum > 1;
 		}
 
 		/// <summary>
-		/// 路線削減/廃止
+		/// 路線削減・休止
 		/// </summary>
 		/// <param name="gameInfo"></param>
 		public void ReduceOrRemoveLane(GameInfo gameInfo)
@@ -720,15 +726,9 @@ namespace whr_wpf.Model
 			}
 			else
 			{
-				//廃止と初期化
-				bestSpeed = 0;
-				LaneNum = 0;
-				bestSpeedUpKaisu = 0;
-				diagram = DiagramType.LimittedExpressPrior;
-				IsElectrified = null;
-				taihisen = TaihisenEnum.Every20km;
-
+				// 単線は設備を残して休止する。再建には従来の建設費を適用する。
 				IsExist = false;
+				IsSuspended = true;
 			}
 			DiagramReset();
 		}
@@ -847,6 +847,7 @@ namespace whr_wpf.Model
 		/// <param name="gameInfo">ゲーム情報</param>
 		public void SettingComposition(IComposition newComposition, int runningPerDay, DiagramType newDiagramType, GameInfo gameInfo)
 		{
+			if (runningPerDay < 0) { throw new ArgumentOutOfRangeException(nameof(runningPerDay), "運行本数は0以上で指定してください"); }
 			if (gameInfo is null)
 			{
 				throw new ArgumentNullException(nameof(gameInfo));

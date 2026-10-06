@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Input;
+using System.Linq;
 using whr_wpf.Model;
 using whr_wpf.Util;
 using whr_wpf.ViewModel.Component;
@@ -147,6 +148,7 @@ namespace whr_wpf.ViewModel
 		}
 
 		public Line Line { get; set; }
+		public string ConstructionTitle => Line.IsSuspended ? "休止路線の再建" : "路線建造";
 
 		public long CalcCost()
 		{
@@ -186,6 +188,15 @@ namespace whr_wpf.ViewModel
 			laneSu = LaneSuList[1];
 			railType = RailTypeList[2];
 			taihisen = TaihiList[3];
+			if (line.IsSuspended)
+			{
+				_bestSpeed = line.bestSpeed;
+				laneSu = LaneSuList.FirstOrDefault(item => item.LaneSu == line.LaneNum)
+					?? new LaneNumViewModel { Caption = $"{line.LaneNum}線", LaneSu = line.LaneNum };
+				railType = RailTypeList.First(item => item.RailType == line.Type
+					&& (line.Type == RailTypeEnum.LinearMotor || item.RailGauge == line.gauge && item.IsElectrified == line.IsElectrified));
+				taihisen = TaihiList.First(item => item.Enum == line.taihisen);
+			}
 			InvokeAllNotify();
 		}
 

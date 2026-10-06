@@ -21,7 +21,12 @@ namespace whr_wpf.ViewModel
 		{
 			get
 			{
-				if (DoesIncludeUnlaidSections()) { return "未敷設区間あり"; }
+				if (DoesIncludeUnlaidSections())
+				{
+					bool suspended = keito.route.Any(line => line.IsSuspended);
+					bool unbuilt = keito.route.Any(line => !line.IsExist && !line.IsSuspended);
+					return suspended && unbuilt ? "休止・未建設区間あり" : suspended ? "休止区間あり" : "未建設区間あり";
+				}
 				if (IsMixedLinear()) { return "リニアが混在"; }
 				if (IsAllLinear()) { return "全てリニアで統一"; }
 				string msg = IsAllElectrified() ? "すべての電化が完了" : "非電化区間あり";
@@ -126,7 +131,7 @@ namespace whr_wpf.ViewModel
 				var rows = vm.keito.route.Select(line =>
 				{
 					string section = $"{line.Name}({line.Start.Name}～{line.End.Name})";
-					string status = $"{(!line.IsExist ? "未敷設" : FormatLineStatus(line))}";
+					string status = line.IsSuspended ? "休止中（設備保持）" : !line.IsExist ? "未建設" : FormatLineStatus(line);
 					return $"{section}: {status}";
 				}).ToList();
 				string txt = string.Join('\n', rows);
