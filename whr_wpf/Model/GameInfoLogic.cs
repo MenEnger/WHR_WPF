@@ -221,7 +221,8 @@ namespace whr_wpf.Model
 		private bool CheckAchievement()
 		{
 
-			if ((Year > SelectedMode.MYear) && (SelectedMode.MYear > 0))
+			// 達成後はフリーモードの期限へ変わるため、初期設定ではなく実行中の期限を使う。
+			if ((Year > MYear) && (MYear > 0))
 			{
 				throw new GameOverException("目標の達成に失敗しました。ゲームオーバーです。");
 			}
