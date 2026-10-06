@@ -941,7 +941,6 @@ namespace whr_wpf.Model
 		{
 			if (composition is null)
 			{
-				Console.Error.WriteLine("編成が指定されていませんので最高速度0となります");
 				return 0;
 			}
 			//路線のほうが速いなら編成側が上限になる
