@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using whr_wpf.Model;
@@ -17,9 +19,9 @@ namespace whr_wpf.ViewModel
 		public ICommand Cancel { get; set; }
 		public string EstimateCost { get; set; }
 
-		public static List<TaihiViewComponent> TaihiList => TaihiViewComponent.CreateViewList();
+		public List<TaihiViewComponent> TaihiList { get; } = TaihiViewComponent.CreateViewList();
 
-		private TaihiViewComponent taihisen = TaihiList[3];
+		private TaihiViewComponent taihisen;
 		private Line line;
 		private GameInfo gameInfo;
 		private TaihisenChangeWindow taihisenChangeWindow;
@@ -46,8 +48,11 @@ namespace whr_wpf.ViewModel
 			this.line = line;
 			this.gameInfo = gameInfo;
 			this.taihisenChangeWindow = taihisenChangeWindow;
+			// 選択肢と同じインスタンスで現在の設備を選び、初期バインド時の選択解除を防ぐ。
+			taihisen = TaihiList.First(item => item.Enum == line.taihisen);
 
 			Kettei = new KetteiCommand(this);
+			Cancel = new CancelCommand(this);
 		}
 
 		public TaihiViewComponent Taihisen
@@ -59,9 +64,13 @@ namespace whr_wpf.ViewModel
 				this.OnPropertyChanged(nameof(EstimatedCost));
 			}
 		}
-		public string EstimatedCost => LogicUtil.AppendMoneyUnit(CalcCost());
+		public string EstimatedCost => taihisen == null ? "待避線を選択してください" : LogicUtil.AppendMoneyUnit(CalcCost());
 
-		private long CalcCost() => line.CalcTaihisenChangeCost(taihisen.Enum, gameInfo);
+		private long CalcCost()
+		{
+			if (taihisen == null) { throw new InvalidOperationException("待避線を選択してください"); }
+			return line.CalcTaihisenChangeCost(taihisen.Enum, gameInfo);
+		}
 
 		private void ChangeTaihi()
 		{
@@ -86,6 +95,7 @@ namespace whr_wpf.ViewModel
 
 			public override void Execute(object parameter)
 			{
+				if (!CanExecute(parameter)) { return; }
 				string text = $"待避線を{vm.Taihisen.Caption}に変更すると{vm.CalcCost()}拾万円かかります。よろしいですか？";
 				ExecuteDelegete exec = new ExecuteDelegete(vm.ChangeTaihi);
 				vm.Execute(text, exec);
