@@ -165,7 +165,7 @@ namespace whr_wpf.ViewModel.Vehicle
 				var check = CheckCreateVehicle();
 				if (!check.CanCreateVehicle) { return CreationValidationFormatter.Format(check); }
 
-				return $"車両価格　{LogicUtil.AppendMoneyUnit(CalcVehiclePrice())}";
+				return $"車両価格　{MoneyDisplayFormatter.Format(CalcVehiclePrice())}";
 			}
 		}
 
@@ -237,7 +237,7 @@ namespace whr_wpf.ViewModel.Vehicle
 
 			public override void Execute(object parameter)
 			{
-				string text = $"この車両を開発するには{LogicUtil.AppendMoneyUnit(vm.CalcDevelopVehiclePrice())}拾万円かかります。よろしいですか？";
+				string text = $"この車両を開発するには{MoneyDisplayFormatter.Format(vm.CalcDevelopVehiclePrice())}拾万円かかります。よろしいですか？";
 				ExecuteDelegete exec = new ExecuteDelegete(vm.ExecuteDevelop);
 				vm.ExecuteWithMoney(text, exec);
 			}

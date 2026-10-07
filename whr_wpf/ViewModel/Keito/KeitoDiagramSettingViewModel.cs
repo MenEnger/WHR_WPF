@@ -85,7 +85,7 @@ namespace whr_wpf.ViewModel
 		public string PowerSource => Composition != null ? $"動力　{Composition.Power.ToName()}" : "";
 		public string CarNum => Composition != null ? $"編成両数　{((Composition is DefautltComposition dComp) ? dComp.CarCount : Composition.CarCount)}" : "";
 		public string HeldUnits => Composition != null ? $"余剰編成数　{Composition.HeldUnits}" : "";
-		public string Price => Composition != null ? $"編成価格　{LogicUtil.AppendMoneyUnit(Composition.Price)}" : "";
+		public string Price => Composition != null ? $"編成価格　{MoneyDisplayFormatter.Format(Composition.Price)}" : "";
 		public string Josharitsu
 		{
 			get
@@ -236,7 +236,7 @@ namespace whr_wpf.ViewModel
 				if (vm.CalcMissingCompositions() > 0)
 				{
 					//不足分購入
-					string text = $"不足する編成を購入するには{LogicUtil.AppendMoneyUnit(vm.CalcCompositionPurchaseCost())}かかります。よろしいですか？";
+					string text = $"不足する編成を購入するには{MoneyDisplayFormatter.Format(vm.CalcCompositionPurchaseCost())}かかります。よろしいですか？";
 					ExecuteDelegete exec = new ExecuteDelegete(vm.PurchaseMissingCompositions);
 					vm.ExecuteWithMoney(text, exec);
 				}

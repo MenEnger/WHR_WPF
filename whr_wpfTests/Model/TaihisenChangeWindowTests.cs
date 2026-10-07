@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using whr_wpf.View;
 using whr_wpf.View.Line;
 using whr_wpf.ViewModel.Component;
 using static whr_wpf.Model.Tests.CurrentBehaviorFixture;
@@ -114,8 +115,7 @@ namespace whr_wpf.Model.Tests
         }
 
         private static string FormatMoney(long amount)
-            => (string)typeof(GameInfo).Assembly.GetType("whr_wpf.Util.LogicUtil")!
-                .GetMethod("AppendMoneyUnit")!.Invoke(null, new object[] { amount })!;
+            => MoneyDisplayFormatter.Format(amount);
 
         private static void OnStaThread(Action action)
         {

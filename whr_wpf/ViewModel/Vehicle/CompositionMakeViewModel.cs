@@ -86,14 +86,14 @@ namespace whr_wpf.ViewModel.Vehicle
 						break;
 				}
 
-				builder.Append($"車両価格　{LogicUtil.AppendMoneyUnit(Vehicle.money)}\n");
+				builder.Append($"車両価格　{MoneyDisplayFormatter.Format(Vehicle.money)}\n");
 
 				builder.Append("\n");
 
 				builder.Append($"最高速度　{CompositionFactory.CalcCompositionBestSpeed(VehicleNums)}km/h\n");
 
 				int price = VehicleNums.Sum(vehicle => vehicle.Key.money * vehicle.Value);
-				builder.Append($"編成価格　{LogicUtil.AppendMoneyUnit(price)}\n");
+				builder.Append($"編成価格　{MoneyDisplayFormatter.Format(price)}\n");
 
 				return builder.ToString();
 			}

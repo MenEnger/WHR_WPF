@@ -43,3 +43,7 @@
 ## 2026-10-07：モード適用の不整合診断経路
 
 - GameInfo.ApplyModeSettingの初期ダイヤ不整合はCannotContinueExceptionとなるが、ModeSelectPage.NavigateGameのSelectedMode設定にはcatchがなく、MainMenuPageのシナリオ読込診断保存へ接続されない。コード確認、実画面未確認。不整合モードを選ぶと案内・診断保存なしで伝播する可能性。建造拒否の分離へ混ぜず、共通操作窓口/シナリオ適用の診断境界で別途判断する。
+
+## 2026-10-08：金額表示の大値境界
+
+- 旧AppendMoneyUnitは10万円単位の入力をuncheckedで乗算し、命数法は兆以下4群だけを残す。入力100000000000は0円、long.MaxValueは10万円、long.MinValueは0円となり、288230376151711744は乗算後long.MinValueでMath.AbsがOverflowExceptionとなる。移動前の固定期待値12件で確認。通常UIでの到達条件は未確認。符号表示 #24とは区別した数値範囲の候補で、金額表示の責務移動では補正しない。

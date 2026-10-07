@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using whr_wpf.Model;
 using whr_wpf.Util;
+using whr_wpf.View;
 using whr_wpf.View.Line;
 
 namespace whr_wpf.ViewModel
@@ -163,7 +164,7 @@ namespace whr_wpf.ViewModel
 
 			public override void Execute(object parameter)
 			{
-				string text = $"最高速度{vm.CalcUppedSpeed()}km/hにアップすると{LogicUtil.AppendMoneyUnit(vm.CalcSpeedUpCost())}かかります。よろしいですか？";
+				string text = $"最高速度{vm.CalcUppedSpeed()}km/hにアップすると{MoneyDisplayFormatter.Format(vm.CalcSpeedUpCost())}かかります。よろしいですか？";
 				ExecuteDelegete exec = new ExecuteDelegete(vm.ExecuteSpeedUp);
 				vm.ExecuteWithMoney(text, exec);
 			}
@@ -213,7 +214,7 @@ namespace whr_wpf.ViewModel
 
 			public override void Execute(object parameter)
 			{
-				string text = $"この路線を電化するには{LogicUtil.AppendMoneyUnit(vm.CalcDenkaCost())}かかります。よろしいですか？";
+				string text = $"この路線を電化するには{MoneyDisplayFormatter.Format(vm.CalcDenkaCost())}かかります。よろしいですか？";
 				ExecuteDelegete exec = new ExecuteDelegete(vm.ExecuteDenka);
 				vm.ExecuteWithMoney(text, exec);
 			}
@@ -238,7 +239,7 @@ namespace whr_wpf.ViewModel
 
 			public override void Execute(object parameter)
 			{
-				string text = $"この路線を狭軌に変更するには{LogicUtil.AppendMoneyUnit(vm.CalcNarrowCost())}かかります。よろしいですか？";
+				string text = $"この路線を狭軌に変更するには{MoneyDisplayFormatter.Format(vm.CalcNarrowCost())}かかります。よろしいですか？";
 				ExecuteDelegete exec = new ExecuteDelegete(vm.ExecuteNarrow);
 				vm.ExecuteWithMoney(text, exec);
 			}
@@ -263,7 +264,7 @@ namespace whr_wpf.ViewModel
 
 			public override void Execute(object parameter)
 			{
-				string text = $"この路線を標準軌に変更するには{LogicUtil.AppendMoneyUnit(vm.CalcExpanseCost())}かかります。よろしいですか？";
+				string text = $"この路線を標準軌に変更するには{MoneyDisplayFormatter.Format(vm.CalcExpanseCost())}かかります。よろしいですか？";
 				ExecuteDelegete exec = new ExecuteDelegete(vm.ExecuteExpanse);
 				vm.ExecuteWithMoney(text, exec);
 			}
@@ -288,7 +289,7 @@ namespace whr_wpf.ViewModel
 
 			public override void Execute(object parameter)
 			{
-				string text = $"この路線を増設するには{LogicUtil.AppendMoneyUnit(vm.CalcAddLaneCost())}かかります。よろしいですか？";
+				string text = $"この路線を増設するには{MoneyDisplayFormatter.Format(vm.CalcAddLaneCost())}かかります。よろしいですか？";
 				ExecuteDelegete exec = new ExecuteDelegete(vm.ExecuteAddLane);
 				vm.ExecuteWithMoney(text, exec);
 			}

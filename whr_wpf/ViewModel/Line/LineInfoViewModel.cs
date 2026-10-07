@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using whr_wpf.Model;
 using whr_wpf.Util;
+using whr_wpf.View;
 using whr_wpf.View.Line;
 
 namespace whr_wpf.ViewModel
@@ -71,9 +72,9 @@ namespace whr_wpf.ViewModel
 		public string Genkai => $"限界本数　{line.GenkaiHonsuuUnderCurrent(gameInfo.genkaikyoyo)}本/日";
 		public string Joshasuu => $"乗車数　{((line.passengersLastWeek == 0) ? 0 : line.passengersLastWeek * 100)}人";
 		public string Josharitsu => $"乗車率　{line.Josharitsu}%";
-		public string Shushi => $"収支　{LogicUtil.AppendMoneyUnit(line.incomeLastWeek - line.outlayLastWeek)}";
+		public string Shushi => $"収支　{MoneyDisplayFormatter.Format(line.incomeLastWeek - line.outlayLastWeek)}";
 		public string ShushiColor => (line.incomeLastWeek - line.outlayLastWeek) >= 0 ? "#FFFFFF" : "#FF0000";
-		public string TotalShushi => $"総合収支　 {LogicUtil.AppendMoneyUnit(line.totalBalance)}";
+		public string TotalShushi => $"総合収支　 {MoneyDisplayFormatter.Format(line.totalBalance)}";
 		public string TotalShushiColor => line.totalBalance >= 0 ? "#FFFFFF" : "#FF0000";
 
 		public ICommand Close { get; set; }

@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Input;
 using whr_wpf.Model;
 using whr_wpf.Util;
+using whr_wpf.View;
 
 namespace whr_wpf.ViewModel.Vehicle
 {
@@ -73,7 +74,7 @@ namespace whr_wpf.ViewModel.Vehicle
 
 				builder.Append($"編成両数　{Composition.CarCount}両\n");
 				builder.Append($"余剰編成数　{Composition.HeldUnits}編成\n");
-				builder.Append($"編成価格　{LogicUtil.AppendMoneyUnit(Composition.Price)}\n");
+				builder.Append($"編成価格　{MoneyDisplayFormatter.Format(Composition.Price)}\n");
 
 				return builder.ToString();
 
@@ -97,8 +98,8 @@ namespace whr_wpf.ViewModel.Vehicle
 				if (Composition is null) { return ""; }
 
 				StringBuilder builder = new StringBuilder();
-				builder.Append($"合計購入価格　{LogicUtil.AppendMoneyUnit(CalcBuyPrice())}\n");
-				builder.Append($"合計売却価格　{LogicUtil.AppendMoneyUnit(CalcSalePrice())}\n");
+				builder.Append($"合計購入価格　{MoneyDisplayFormatter.Format(CalcBuyPrice())}\n");
+				builder.Append($"合計売却価格　{MoneyDisplayFormatter.Format(CalcSalePrice())}\n");
 				return builder.ToString();
 			}
 		}
@@ -149,7 +150,7 @@ namespace whr_wpf.ViewModel.Vehicle
 
 			public override void Execute(object parameter)
 			{
-				string text = $"編成を開発するには{LogicUtil.AppendMoneyUnit(vm.CalcBuyPrice())}拾万円かかります。よろしいですか？";
+				string text = $"編成を開発するには{MoneyDisplayFormatter.Format(vm.CalcBuyPrice())}拾万円かかります。よろしいですか？";
 				ExecuteDelegete exec = new ExecuteDelegete(Buy);
 				vm.ExecuteWithMoney(text, exec);
 			}

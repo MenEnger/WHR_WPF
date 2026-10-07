@@ -61,7 +61,7 @@ namespace whr_wpf.ViewModel
 		public string PowerSource => Composition != null ? $"動力　{Composition.Power.ToName()}" : "";
 		public string CarNum => Composition != null ? $"編成両数　{((Composition is DefautltComposition dComp) ? dComp.CarCount : Composition.CarCount)}" : "";
 		public string HeldUnits => Composition != null ? $"余剰編成数　{Composition.HeldUnits}" : "";
-		public string Price => Composition != null ? $"編成価格　{LogicUtil.AppendMoneyUnit(Composition.Price)}" : "";
+		public string Price => Composition != null ? $"編成価格　{MoneyDisplayFormatter.Format(Composition.Price)}" : "";
 		public string UseCompositionNum => $"投入編成数　{CalcUseCompositionNum()}編成";
 
 		public string RequiredMinutes => $"所要時間　{(Composition is null ? "-" : CalcRequieredMinutes().ToString())}分";
@@ -214,7 +214,7 @@ namespace whr_wpf.ViewModel
 				if (vm.CalcMissingCompositions() > 0)
 				{
 					//不足分購入
-					string text = $"不足する編成を購入するには{LogicUtil.AppendMoneyUnit(vm.CalcCompositionPurchaseCost())}かかります。よろしいですか？";
+					string text = $"不足する編成を購入するには{MoneyDisplayFormatter.Format(vm.CalcCompositionPurchaseCost())}かかります。よろしいですか？";
 					ExecuteDelegete exec = new ExecuteDelegete(vm.PurchaseMissingCompositions);
 					vm.ExecuteWithMoney(text, exec);
 				}
@@ -259,7 +259,7 @@ namespace whr_wpf.ViewModel
 
 			public override void Execute(object parameter)
 			{
-				string text = $"最高速度{vm.CalcUppedSpeed()}km/hにアップすると{LogicUtil.AppendMoneyUnit(vm.CalcSpeedUpCost())}かかります。よろしいですか？";
+				string text = $"最高速度{vm.CalcUppedSpeed()}km/hにアップすると{MoneyDisplayFormatter.Format(vm.CalcSpeedUpCost())}かかります。よろしいですか？";
 				ExecuteDelegete exec = new ExecuteDelegete(vm.ExecuteSpeedUp);
 				vm.ExecuteWithMoney(text, exec);
 			}
