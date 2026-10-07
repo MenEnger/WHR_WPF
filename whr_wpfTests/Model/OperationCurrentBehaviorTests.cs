@@ -98,7 +98,7 @@ namespace whr_wpf.Model.Tests
             var line = Line(game, false);
             game.Money = 0;
             var before = Capture(line);
-            Assert.ThrowsException<InvalidOperationException>(() => line.Construct(20, RailTypeEnum.Iron, false, RailGaugeEnum.Narrow, 2, TaihisenEnum.None, game));
+            Assert.ThrowsException<LineConstructionRejectedException>(() => line.Construct(20, RailTypeEnum.Iron, false, RailGaugeEnum.Narrow, 2, TaihisenEnum.None, game));
             Assert.AreEqual(before, Capture(line));
             Assert.ThrowsException<MoneyShortException>(() => line.Construct(60, RailTypeEnum.Iron, false, RailGaugeEnum.Narrow, 2, TaihisenEnum.None, game));
             Assert.AreEqual(before, Capture(line));

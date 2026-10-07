@@ -97,6 +97,10 @@ namespace whr_wpf.ViewModel
 				{
 					MessageBox.Show(ServiceSettingFailureFormatter.Format(e.Failure), "エラー", MessageBoxButton.OK, MessageBoxImage.Information);
 				}
+				catch (LineConstructionRejectedException e)
+				{
+					MessageBox.Show(LineConstructionFailureFormatter.Format(e.Failure), "エラー", MessageBoxButton.OK, MessageBoxImage.Information);
+				}
 				catch (InvalidOperationException e)
 				{
 					MessageBox.Show(e.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Information);

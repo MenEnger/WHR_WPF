@@ -378,7 +378,10 @@ namespace whr_wpf.Model
 		/// <param name="taihisenEnum"></param>
 		public void Construct(int bestSpeed, RailTypeEnum railType, bool? isElectrified, RailGaugeEnum? railGauge, int laneSu, TaihisenEnum taihisenEnum, GameInfo gameInfo)
 		{
-			if (!CanConstruct(bestSpeed, railType, isElectrified, railGauge, laneSu)) { throw new InvalidOperationException("与えられた引数では路線を建造できません"); }
+			if (!CanConstruct(bestSpeed, railType, isElectrified, railGauge, laneSu))
+			{
+				throw new LineConstructionRejectedException(new(Name, bestSpeed, railType, isElectrified, railGauge, laneSu));
+			}
 
 			//お金チェックと消費
 			gameInfo.SpendMoney(CalcConstructCost(bestSpeed,
