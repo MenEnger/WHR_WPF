@@ -1,0 +1,43 @@
+# 編成売却・使用の数量不足を表示から分離する
+
+2026-10-07。Issue #26の第五段階。
+
+## 仕様検討
+
+IComposition.SaleとComposition/DefautltComposition.Useの数量不足3箇所を、操作種別・要求数・発生時点の余剰数を持つ拒否へ移す。売却の汎用文、使用の不足数付き文の2文章をUIで生成する。条件順・数式・引数例外・再検査・成功と失敗の状態を維持する。
+
+SaleのgameInfo null検査、価格計算とUse実行順を維持する。Useの負数量拒否を先に行う。未知ICompositionの新しいgetter先読みを追加せず、名前など未読の値は収集しない。
+
+Line/Keitoの事前不足判定と割当解放後のUse失敗は今回補正しない。既知の途中状態は現状テストと判断待ちで追跡する。内部診断・価格計算例外・一般引数不正・購入資金不足は対象外。
+
+## 影響確認
+
+Useは直接/系統割当とdefault Saleから、SaleはCompositionManageViewModelから呼ばれる。UIの例外表示はViewModelBaseを経由する。専用catchを一般InvalidOperationExceptionより前へ置き、その他処理は維持する。
+
+操作シグネチャと基底例外catch互換は維持するが、具体例外型と日本語Messageは変わる。厳密型期待の既存テストは不足発生箇所を確認して移行し、Line/Keitoの事前不足の一般例外は変えない。
+
+## 検証計画
+
+事前に3拒否箇所・2文章、要求/余剰の境界、null/負数の優先と状態を確認する。移動後は種別・当時値・不足数・不変性を検査し、文章はView側で確認する。default SaleのHeldUnits読取と後続未到達を代表検査する。既存売買成功と割当途中状態は再利用する。実ダイアログ未操作。
+
+仕様・影響レビュー（Astra、同日）：Saleはnull→不足比較→価格計算→Use→入金を維持する。比較時のHeldUnitsを一回読んで保存し、Name/Priceを追加取得しない。Sale経由のUse段階不足はUse種別のまま伝播、包み直さない。不足数は現行int減算を維持し、数値境界改善は別扱い。Line/Keitoの冒頭一般不足と解除後Use不足の型期待を区別する。指摘を反映し設計へ進む。
+
+## 設計
+
+StockShortageOperation（Use、Sale）とsealed record StockShortageFailure(Operation, RequestedQuantity, AvailableQuantity)をModelへ置く。MissingQuantityはunchecked intの差として導出し、既存Useの表示演算を維持する。StockShortageExceptionはInvalidOperationException派生、取得専用Failureと英語内部Messageを持つ。
+
+SaleはgameInfo null検査後のHeldUnits読取を局所変数へ保存し、既存比較が不足ならSale Failureを投げる。後続価格計算とUse/入金は変更しない。2つのUseは負数検査後のHeldUnits値を判定とFailureに使用し、減算成功経路は維持する。外部ICompositionのUseの例外をこの型へ変換しない。
+
+View/StockShortageFormatter.Format(Failure)で旧2文章を生成し、未知操作はArgumentOutOfRangeExceptionとする。ViewModelBaseで一般InvalidOperationExceptionより前に専用型を捕捉する。VMの確認・選択・CanExecuteや割当順序は変更しない。
+
+既存Operation/Allocationテストの対象型期待だけを実際の拒否箇所に従って更新する。数量不足3箇所のsnapshot、代表のdefault interface順序と一回読取、価格後Use不足と未入金、不変性、表示を追加する。共通在庫サービスや新検査APIは追加しない。
+
+正式設計レビュー（Astra、同日）：実装開始可。余剰数の一回読取・価格計算/Use/入金順、3数値の不変snapshotとunchecked不足数は明快で過剰さなし。OriginalStatePortTestsの売却不足も更新対象として全厳密型期待を照合する。
+
+## 検証結果
+
+製品変更前10件成功。移動後12件と文章/未知種別/旧数値演算4件を追加、既存の売買成功と割当途中状態を再利用し全453件成功（失敗・スキップ0）。Sale不足時のHeldUnits一回読取とName/Price未読、価格後Use不足と未入金、保存済み結果の不変性を検証した。
+
+実ダイアログ未操作。ViewModelBaseの専用catchの順と他例外処理は差分確認。既存の事前編成不足は一般例外のまま、旧割当解放後Use不足の期待だけ移行し途中状態を維持した。
+
+仕上げレビュー（Astra、同日）：修正必須指摘なし。Sale/Useの順序・snapshot・前段と途中の不足の区別、テスト網羅性を確認。3箇所の変更に限定し責務分離・可読性・保守性・過剰さの観点でも適正。

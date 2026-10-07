@@ -52,7 +52,7 @@ namespace whr_wpf.Model.Tests
             line.SettingComposition(oldStock, 60, DiagramType.LimittedExpressPrior, game);
             var newStock = Stock(game, 1);
             // 一部だけ足りない場合は事前チェックを通り、旧編成を返却した後で失敗する。
-            Assert.ThrowsException<InvalidOperationException>(() => line.SettingComposition(newStock, 60, DiagramType.Regular, game));
+            Assert.ThrowsException<StockShortageException>(() => line.SettingComposition(newStock, 60, DiagramType.Regular, game));
             Assert.IsNull(line.useComposition);
             Assert.AreEqual((10, 1, 0, 0, DiagramType.LimittedExpressPrior),
                 (oldStock.HeldUnits, newStock.HeldUnits, line.useCompositionNum, line.runningPerDay, line.diagram));
@@ -161,7 +161,7 @@ namespace whr_wpf.Model.Tests
             var oldStock = Stock(game);
             through.SettingComposition(oldStock, 60, game);
             var replacement = Stock(game, 1);
-            Assert.ThrowsException<InvalidOperationException>(() => through.SettingComposition(replacement, 60, game));
+            Assert.ThrowsException<StockShortageException>(() => through.SettingComposition(replacement, 60, game));
             Assert.IsNull(through.useComposition);
             Assert.AreEqual((10, 1, 0, 0, DiagramType.LimittedExpressPrior),
                 (oldStock.HeldUnits, replacement.HeldUnits, through.useCompositionNum, through.runningPerDay, line.diagram));

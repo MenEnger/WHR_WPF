@@ -159,7 +159,7 @@ namespace whr_wpf.Model.Tests
             var game = Game();
             IComposition stock = SaleStock(game, defaultStock);
             long money = game.Money;
-            Assert.ThrowsException<InvalidOperationException>(() => stock.Sale(game, 4));
+            Assert.ThrowsException<StockShortageException>(() => stock.Sale(game, 4));
             Assert.AreEqual((money, 3), (game.Money, stock.HeldUnits));
             Assert.ThrowsException<ArgumentException>(() => stock.Sale(game, -1));
             Assert.AreEqual((money, 3), (game.Money, stock.HeldUnits));
