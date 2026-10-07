@@ -303,44 +303,53 @@ namespace whr_wpf.Util
 	/// </summary>
 	public class CompositionFactory
 	{
-		public static (bool canCompositionMake, string msg) CheckMakeComposition(string name, IEnumerable<KeyValuePair<Car, int>> VehicleNums)
+		public static CompositionCreationCheck CheckMakeComposition(string name, IEnumerable<KeyValuePair<Car, int>> VehicleNums)
 		{
-			if (string.IsNullOrWhiteSpace(name)) { return (false, "名前が指定されていません"); }
+			if (string.IsNullOrWhiteSpace(name)) { return new(CompositionCreationReason.MissingName); }
 
 			ImmutableDictionary<Car, int> kvDict = VehicleNums
 				.Where(kvPair => kvPair.Value > 0)
 				.ToImmutableDictionary(kvPair => kvPair.Key, kvPair => kvPair.Value);
 
-			if (kvDict.IsEmpty) { return (false, "車両の指定がありません"); }
+			if (kvDict.IsEmpty) { return new(CompositionCreationReason.NoVehicles); }
 
 			var gauges = kvDict.Select(v => v.Key.gauge).Distinct();
 			if (gauges.Contains(CarGaugeEnum.Narrow) && gauges.Contains(CarGaugeEnum.Regular))
 			{
-				return (false, "車両の軌間に違いがあります");
+				return new(CompositionCreationReason.GaugeMismatch) { Gauges = gauges.ToImmutableArray() };
 			}
 
 			if (kvDict.Select(v => v.Key.type).Distinct().Count() != 1)
 			{
-				return (false, "車両の軌道タイプに違いがあります");
+				return new(CompositionCreationReason.TrackTypeMismatch)
+				{
+					TrackTypes = kvDict.Select(v => v.Key.type).Distinct().ToImmutableArray(),
+				};
 			}
 
 			if (kvDict.Select(v => v.Key.power).Distinct().Count() != 1)
 			{
-				return (false, "車両の動力に違いがあります");
+				return new(CompositionCreationReason.PowerMismatch)
+				{
+					Powers = kvDict.Select(v => v.Key.power).Distinct().ToImmutableArray(),
+				};
 			}
 
 			if (kvDict.Select(v => v.Key.carTilt).Distinct().Count() != 1)
 			{
-				return (false, "車両の車体傾斜装置に違いがあります");
+				return new(CompositionCreationReason.TiltMismatch)
+				{
+					Tilts = kvDict.Select(v => v.Key.carTilt).Distinct().ToImmutableArray(),
+				};
 			}
 
 			int bestSpeed = CalcCompositionBestSpeed(kvDict);
 			if (bestSpeed < 40)
 			{
-				return (false, "最高速度が40km/hに達していません");
+				return new(CompositionCreationReason.SpeedTooLow) { ActualSpeed = bestSpeed, MinimumSpeed = 40 };
 			}
 
-			return (true, null);
+			return new(CompositionCreationReason.None) { ActualSpeed = bestSpeed, MinimumSpeed = 40 };
 		}
 
 		/// <summary>
@@ -351,9 +360,9 @@ namespace whr_wpf.Util
 		/// <returns></returns>
 		public static Composition CreateComposition(string name, IEnumerable<KeyValuePair<Car, int>> VehicleNums)
 		{
-			(bool canCompositionMake, string msg) = CheckMakeComposition(name, VehicleNums);
+			CompositionCreationCheck check = CheckMakeComposition(name, VehicleNums);
 
-			if (canCompositionMake == false) { throw new InvalidOperationException(msg); }
+			if (!check.CanCompositionMake) { throw new CompositionCreationRejectedException(check); }
 
 			Composition result = new Composition();
 			result.Vehicles = VehicleNums

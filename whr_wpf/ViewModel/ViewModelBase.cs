@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Windows;
 using whr_wpf.Model;
+using whr_wpf.View;
 
 namespace whr_wpf.ViewModel
 {
@@ -71,6 +72,14 @@ namespace whr_wpf.ViewModel
 				catch (MoneyShortException)
 				{
 					MessageBox.Show("お金が足りません");
+				}
+				catch (VehicleDevelopmentRejectedException e)
+				{
+					MessageBox.Show(CreationValidationFormatter.Format(e), "エラー", MessageBoxButton.OK, MessageBoxImage.Information);
+				}
+				catch (CompositionCreationRejectedException e)
+				{
+					MessageBox.Show(CreationValidationFormatter.Format(e), "エラー", MessageBoxButton.OK, MessageBoxImage.Information);
 				}
 				catch (InvalidOperationException e)
 				{

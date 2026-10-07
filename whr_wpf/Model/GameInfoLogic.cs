@@ -51,55 +51,58 @@ namespace whr_wpf.Model
 		/// <summary>
 		/// 指定の車両が開発可能か
 		/// </summary>
-		/// <returns>開発可否 メッセージ</returns>
-		public (bool CanCreateVehicle, string msg) CheckCreateVehicle(string Name, int BestSpeed, PowerEnum Power, CarGaugeEnum Gauge, SeatEnum Seat, CarTiltEnum tilt)
+		/// <returns>開発可否と判定時点の値</returns>
+		public VehicleCreationCheck CheckCreateVehicle(string Name, int BestSpeed, PowerEnum Power, CarGaugeEnum Gauge, SeatEnum Seat, CarTiltEnum tilt)
 		{
-			if (string.IsNullOrWhiteSpace(Name)) { return (false, "名無しの権兵衛です"); }
+			VehicleCreationCheck Result(VehicleCreationReason reason, int speedLimit = 0) =>
+				new(reason, Power, BestSpeed, speedLimit, Gauge, Seat, tilt, Year, SteamYear);
+
+			if (string.IsNullOrWhiteSpace(Name)) { return Result(VehicleCreationReason.MissingName); }
 
 			if (Power == PowerEnum.LinearMotor)
 			{
-				if (genkaiLinear == 0) { return (false, "リニアは作れません"); }
-				else if (BestSpeed > genkaiLinear) { return (false, "速すぎます"); }
+				if (genkaiLinear == 0) { return Result(VehicleCreationReason.EngineUnavailable); }
+				else if (BestSpeed > genkaiLinear) { return Result(VehicleCreationReason.SpeedExceeded, genkaiLinear); }
 			}
 
-			if (Gauge == CarGaugeEnum.FreeGauge && !isDevelopedFreeGauge) { return (false, "フリーゲージは作れません"); }
+			if (Gauge == CarGaugeEnum.FreeGauge && !isDevelopedFreeGauge) { return Result(VehicleCreationReason.FreeGaugeUnavailable); }
 
 			if (Power == PowerEnum.Steam)
 			{
-				if (!IsSteamAvailable()) { return (false, "時代遅れです"); }
-				if (BestSpeed > genkaiJoki) { return (false, "速すぎます"); }
+				if (!IsSteamAvailable()) { return Result(VehicleCreationReason.SteamExpired); }
+				if (BestSpeed > genkaiJoki) { return Result(VehicleCreationReason.SpeedExceeded, genkaiJoki); }
 			}
 
 			if (Power == PowerEnum.Electricity)
 			{
-				if (genkaiDenki == 0) { return (false, "電車は作れません"); }
-				else if (BestSpeed > genkaiDenki) { return (false, "速すぎます"); }
+				if (genkaiDenki == 0) { return Result(VehicleCreationReason.EngineUnavailable); }
+				else if (BestSpeed > genkaiDenki) { return Result(VehicleCreationReason.SpeedExceeded, genkaiDenki); }
 			}
 
 			if (Power == PowerEnum.Diesel)
 			{
-				if (genkaiKidosha == 0) { return (false, "ディーゼルは作れません"); }
-				else if (BestSpeed > genkaiKidosha) { return (false, "速すぎます"); }
+				if (genkaiKidosha == 0) { return Result(VehicleCreationReason.EngineUnavailable); }
+				else if (BestSpeed > genkaiKidosha) { return Result(VehicleCreationReason.SpeedExceeded, genkaiKidosha); }
 			}
 
-			if (Seat == SeatEnum.Dual && !isDevelopedDualSeat) { return (false, "デュアル不可"); }
-			if (Seat == SeatEnum.Convertible && !isDevelopedConvertibleCross) { return (false, "転換式クロス不可"); }
-			if (Seat == SeatEnum.RetructableLong && !isDevelopedRetructableLong) { return (false, "収納式ロング不可"); }
-			if (Seat == SeatEnum.Rich && !isDevelopedRichCross) { return (false, "豪華クロス不可"); }
-			if (Seat == SeatEnum.DoubleDeckerRich && !isDevelopedRichCross) { return (false, "豪華クロス不可"); }
+			if (Seat == SeatEnum.Dual && !isDevelopedDualSeat) { return Result(VehicleCreationReason.SeatUnavailable); }
+			if (Seat == SeatEnum.Convertible && !isDevelopedConvertibleCross) { return Result(VehicleCreationReason.SeatUnavailable); }
+			if (Seat == SeatEnum.RetructableLong && !isDevelopedRetructableLong) { return Result(VehicleCreationReason.SeatUnavailable); }
+			if (Seat == SeatEnum.Rich && !isDevelopedRichCross) { return Result(VehicleCreationReason.SeatUnavailable); }
+			if (Seat == SeatEnum.DoubleDeckerRich && !isDevelopedRichCross) { return Result(VehicleCreationReason.SeatUnavailable); }
 
 			switch (tilt)
 			{
 				case CarTiltEnum.Pendulum:
-					if (!isDevelopedCarTiltPendulum) { return (false, "振り子式車体傾斜装置は未開発"); }
+					if (!isDevelopedCarTiltPendulum) { return Result(VehicleCreationReason.TiltUnavailable); }
 					break;
 				case CarTiltEnum.SimpleMecha:
 				case CarTiltEnum.HighMecha:
-					if (!isDevelopedMachineTilt) { return (false, "機械式式車体傾斜装置は未開発"); }
+					if (!isDevelopedMachineTilt) { return Result(VehicleCreationReason.TiltUnavailable); }
 					break;
 			}
 
-			return (true, "");
+			return Result(VehicleCreationReason.None);
 		}
 
 		/// <summary>
@@ -113,9 +116,9 @@ namespace whr_wpf.Model
 		/// <param name="tilt"></param>
 		public void DevelopVehicle(string name, int bestSpeed, PowerEnum power, CarGaugeEnum gauge, SeatEnum seat, CarTiltEnum tilt)
 		{
-			(bool can, _) = CheckCreateVehicle(name, bestSpeed, power, gauge, seat, tilt);
+			VehicleCreationCheck check = CheckCreateVehicle(name, bestSpeed, power, gauge, seat, tilt);
 
-			if (!can) { throw new InvalidOperationException("車両を開発可能な技術が揃っていません"); }
+			if (!check.CanCreateVehicle) { throw new VehicleDevelopmentRejectedException(check); }
 
 			SpendMoney(CalcDevelopVehicleCost(bestSpeed, power, gauge, seat, tilt));
 

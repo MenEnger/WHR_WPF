@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Input;
 using whr_wpf.Model;
 using whr_wpf.Util;
+using whr_wpf.View;
 
 namespace whr_wpf.ViewModel.Vehicle
 {
@@ -104,11 +105,11 @@ namespace whr_wpf.ViewModel.Vehicle
 			{
 				if (Vehicle is null) { return ""; }
 
-				var (canCompositionMake, msg) = CompositionFactory.CheckMakeComposition(Name, VehicleNums);
+				var check = CompositionFactory.CheckMakeComposition(Name, VehicleNums);
 
-				if (canCompositionMake) { return ""; }
+				if (check.CanCompositionMake) { return ""; }
 
-				return msg;
+				return CreationValidationFormatter.Format(check);
 			}
 		}
 
@@ -129,9 +130,7 @@ namespace whr_wpf.ViewModel.Vehicle
 
 		private bool CanCreateComposition()
 		{
-			(bool canCompositionMake, _) = CompositionFactory.CheckMakeComposition(Name, VehicleNums);
-
-			return canCompositionMake;
+			return CompositionFactory.CheckMakeComposition(Name, VehicleNums).CanCompositionMake;
 		}
 
 		public ICommand QuantUp { get; set; }
