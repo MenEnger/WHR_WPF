@@ -19,9 +19,13 @@ namespace whr_wpf.Model
 	/// </summary>
 	public class CompositionNotAppliedException : InvalidOperationException
 	{
-		public CompositionNotAppliedException(string message) : base(message)
+		public CompositionNotAppliedException(CompositionCompatibilityFailure failure)
+			: base("Composition is not compatible with the line.")
 		{
+			Failure = failure;
 		}
+
+		public CompositionCompatibilityFailure Failure { get; }
 	}
 
 	/// <summary>

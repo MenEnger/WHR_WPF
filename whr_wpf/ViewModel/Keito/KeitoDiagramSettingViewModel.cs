@@ -7,6 +7,7 @@ using System.Windows.Input;
 using whr_wpf.Model;
 using whr_wpf.Util;
 using whr_wpf.View.Line;
+using whr_wpf.View;
 
 namespace whr_wpf.ViewModel
 {
@@ -34,7 +35,7 @@ namespace whr_wpf.ViewModel
 				}
 				catch (CompositionNotAppliedException e)
 				{
-					ErrorMsg = e.Message;
+					ErrorMsg = CompositionCompatibilityFormatter.Format(e.Failure);
 				}
 				catch (ArgumentNullException)
 				{
