@@ -1,0 +1,45 @@
+# 建造拒否と残る内部診断の分類
+
+2026-10-07。Issue #26の残作業を確認する。
+
+## 仕様検討
+
+Line.Construct冒頭のCanConstruct falseは、速度・軌道・電化・軌間・レーン数の設定に対する拒否である。UIはCanExecuteで同じ判定を使うが、UI外の操作窓口も扱うため、入力された建造設定を伴う想定内の拒否として構造化する。現行のbool判定は維持し、細かな拒否理由の再実装はしない。
+
+CanConstructの全条件・成功時の支払と状態・計算回数を維持する。負レーン数や未知enumにも新しい検査を加えず、現行の拒否データへ入力をそのまま保存する。建造拒否を不正な引数の内部診断へ分類して英語化する案は、将来の画面なし操作でも案内が必要なため採用しない。
+
+その他のModel/Utilの日本語例外は、算出式不在・未定義値・不整合・引数範囲・シナリオ解析の内部診断である。一般InvalidOperationExceptionとArgumentExceptionを機械的に想定内拒否へ移さない。CannotContinueExceptionはGameInfo.ApplyModeSettingのモード適用時の不整合診断で、ModeSelectPage.NavigateGameのSelectedMode設定から現在は未捕捉で伝播する。MainMenuPageの読み込み診断保存には未接続で、保存・表示境界は別途判断する。内部診断でも一般VMのMessage表示に到達し得るため、分類と表示経路は区別する。
+
+## 影響確認
+
+生成はLine.Constructの1箇所、呼出はConstructWindowViewModelとテスト。建設画面の独自catchは資金不足だけを扱い、建造拒否は現在表示されず伝播する。この捕捉範囲は維持する。一般VMのInvalidOperationException表示経路では専用catchを加えて旧文を維持する。これは現在の建設画面の独自実行経路を捕捉するものではない。
+
+操作シグネチャと基底InvalidOperationException catch互換を維持し、具体例外型・日本語Message依存の互換は終了する。CanConstructのbool APIは維持。成功と資金不足は既存試験を再利用する。判定falseがgameInfo nullより先という優先順位も維持する。
+
+## 検証計画
+
+拒否する設定の代表値、拒否時の路線/資金/通知不変、null gameInfoとの優先順を変更前に記録する。移行後は入力設定と対象名の保存、後のモデル変更からの不変性、旧文のformatterを確認する。既存建造成功・資金不足を再利用し、CanConstruct全組合せを再検査しない。実ダイアログ未操作。
+
+仕様・影響レビュー（Astra）：建造拒否の分類と限定範囲は妥当。モード適用不整合の診断保存が未接続である点を修正し、独自画面の未捕捉と共通VM経路を区別した。判定対象外の待避線を収集せず、許可後の費用計算回数・状態・通知順を維持する。
+
+修正確認（Astra）：指摘は解消済み、設計へ進行可。
+
+## 設計
+
+Model/LineConstructionFailure.csにsealed record LineConstructionFailure(string LineName, int RequestedSpeed, RailTypeEnum RequestedType, bool? RequestedElectrification, RailGaugeEnum? RequestedGauge, int RequestedLaneCount)とLineConstructionRejectedException : InvalidOperationExceptionを置く。コンストラクタはrecord、Failureは取得専用、内部Messageは英語とする。拒否は設定不適合1種類なので理由enumや可否APIを追加しない。
+
+Constructの既存CanConstruct false箇所で入力引数と自身のNameだけを保存する。待避線は判定対象外なので含めず、新しい検査・費用計算・モデル参照を追加しない。bool APIと全成功処理は維持する。
+
+View/LineConstructionFailureFormatterは既存固定文を返す。ViewModelBaseの一般InvalidOperationExceptionより前に専用catchを追加する。建設画面の独自catchはMoneyだけのまま、既存の拒否伝播を維持する。新しい表示経路を作るために独自画面を共通VMへ移さない。
+
+新規現状固定5件を専用型とrecord全体の期待へ移行し、モデル名/設備の後変更から不変の代表1件とformatter1件を追加する。既存OperationCurrentBehaviorTestsの初期拒否期待型だけ変更し、成功・資金不足を再利用する。新しく理由を細分化する検査や全組合せ試験は不要。
+
+設計レビュー（Astra）：承認、実装開始可、修正必須指摘なし。単一拒否の入力データと表示を分離し、bool API・成功処理・独自catchを維持する境界は妥当。限定した型/formatterと既存試験の再利用は可読性・保守性・過剰さの観点でも適正。
+
+## 実装と検証
+
+建造拒否1箇所を構造化し、共通VMへformatterを接続した。独自建設画面のcatch・成功処理・支払条件は変更していない。変更前5件成功、移行後は拒否データ/状態/優先/不変性6件と表示1件。既存の成功・資金不足を含め全495件成功、失敗・スキップ0（2026-10-07）。実ダイアログ未操作。採用判断はADR 0018。
+
+残る週次途中失敗の通知返却契約は別判断。内部診断も一般VMで表示され得るが、すべてを利用者向け拒否へ置換せず、後の共通操作窓口で診断境界を検討する。
+
+仕上げレビュー（Astra）：承認、修正必須指摘なし。拒否の範囲・入力保存・状態/通知不変・既存試験の再利用、診断分類訂正を確認。責務分離・可読性・保守性・過剰さも適正。全495件成功は親の実行結果で確認した。
