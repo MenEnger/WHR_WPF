@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using whr_wpf.Model;
+using whr_wpf.View;
 
 
 namespace whr_wpf.ViewModel.Component

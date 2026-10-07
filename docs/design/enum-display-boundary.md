@@ -1,0 +1,51 @@
+# enum表示名の境界分離
+
+2026-10-08。Issue #27の第三段階。
+
+## 仕様検討
+
+ゲームenumの数値と識別名は維持し、日本語のDisplay.NameとToNameを表示側へ移す。全既存表示名を維持し、定義済みで表示属性のないenumはToStringへ戻す。未知の数値とnullの旧例外もこの責務移動では補正しない。表示変更にゲームの計算やシナリオの保存値が依存しないようにする。
+
+座席のComfortLevelAttribute、GetAttribute、ToComfortLevel、ToPassengerNumBonusは計算側に残す。計算属性と日本語のコードコメントを表示文字列と一律に扱わない。Line.Captionとその内部診断への利用は次段階とし、このPRへ含めない。
+
+## 影響確認
+
+GameEnums.csの公開EnumExtentions.ToNameはDisplay属性をreflectionで読み、属性なしはToString、未定義値はGetMemberの要素参照でIndexOutOfRangeException、nullはNullReferenceExceptionとなる。GetAttributeは公開の汎用属性読取で座席計算にも使われるため削除しない。
+
+ToNameの製品呼出はすべてVM/表示部品にあり、Model/Utilからの呼出とXAMLの直接属性参照は見つからない。画面の選択肢生成、車両・編成詳細、路線情報、ダイヤ設定、投資額・ゲーム情報の表示を通る。外部の定義済みenumもDisplayAttributeがあれば名称を取得できる公開APIなので、この汎用fallbackを移動先でも維持する。
+
+移動は公開ToNameのnamespace/所属型の変更となり、既存利用側は表示側のnamespaceを参照する必要がある。Modelに表示側を呼ぶ互換wrapperは残さない。GetAttributeと計算拡張の所属を変更せず、ComfortLevelの値を維持する。既存の公開表示名は画面で現在未使用のものも含め保持し、今回用途を削減しない。
+
+## 検証計画
+
+移動前に全既存Display名を独立した期待文字列で固定する。表示属性のないenum・別のenumで数値が同じ場合・未知値・nullと、外部enumのDisplay fallbackを代表ケースで確認する。移動後は同じ期待値を表示層へ接続する。製品全ToName呼出の移行とModel/Utilから表示への依存なしを静的検索し、既存の車両/編成/投資/路線の表示・計算・実バインド試験を含め全試験を実行する。全表示名を各呼出先で重複検証しない。
+
+## 仕様・影響レビュー
+
+Astraの指摘により、公開enumからDisplayAttributeを削除することもToNameの移動とは別の互換性変更として記録する。外部利用側がreflectionやGetAttribute<DisplayAttribute>()で名称を読む場合、今後は属性を取得できず表示側ToNameへ移行が必要。製品にその直接利用は見つからない。
+
+外部enumのfallbackは旧実装と同じDisplayAttribute.Nameを返す。属性があってNameがnullならnullで、ToStringによる補完やGetNameによるリソース解決は追加しない。この補足条件を反映し、仕様・影響レビューの指摘を解消した。
+
+## 設計
+
+View/EnumDisplayNames.csに公開static EnumDisplayNamesクラスとToName(this Enum value)拡張を設ける。ゲームenumの既存名称は型と値を対象にしたswitchで一箇所に定義する。既存Display.Nameを全て移し、値・識別名・計算属性は触らない。enum型の異なる同数値を別々に扱う。
+
+switchに一致しない値はModel側に残すGetAttribute<DisplayAttribute>()を使う従来のfallbackを呼び、属性なしはToString、属性ありはNameをそのまま返す。これにより定義済み表示なし、外部enum、未定義値/nullの既存契約を保つ。汎用fallbackは公開APIの既存機能を保つためであり、登録機構や新しい拡張点を追加するものではない。
+
+Model/GameEnums.csからToNameとDisplay属性、不要になるDataAnnotationsのusingを削除する。計算用拡張の所属と実装を維持し、クラスのsummaryだけ実際の責務へ合わせる。全10ファイル26行28呼出のVM/部品へwhr_wpf.View参照を追加し、呼出構文は維持する。Modelから表示側へのwrapperを残さない。
+
+基準テストは全表示名の固定対応表とfallback例を使用し、移動後はViewのnamespaceだけを接続し直す。Modelの表示属性がなく計算属性が残ることを静的差分でも確認する。既存全試験を実行し、既存画面と計算の回帰を再利用する。辞書サービスや注入interface、表示側のenum複製は作らない。
+
+## 設計レビュー
+
+仕様・影響の指摘解消後、Astraが正式設計を承認した。型と値によるswitch、既存属性fallback、公開APIの互換性記録、計算属性を残す境界に修正必須の指摘なし。外部Name=nullを含む移動前基準11件成功の確認後、実装した。
+
+## 実装・検証結果
+
+69表示名をView.EnumDisplayNamesへ移し、ModelのDisplay属性とToNameを削除した。全10ファイルの利用側を確認し、既にView参照のある9ファイルは構文を変更せず、TaihiViewComponentだけusingを追加した。計算属性・GetAttribute・数値と識別名は維持した。
+
+移動前の基準11件は全て成功。移動後は同じ期待値と既存試験を含め全526件成功・失敗0・skip0（隔離出力artifacts/enum-display-tests、UseSharedCompilation=false）。69表示名、属性なし6型、異なるenumの同数値、外部DisplayとName=null、未知値/nullの旧例外を確認した。Model/UtilのToName利用とDisplay属性がないこと、計算用属性を差分で維持することも確認した。判断はADR 0022。
+
+## 仕上げレビュー
+
+Astraが機能・設計、差分と網羅性、可読性・保守性・過剰さと文書を承認した。BOM維持作業で先頭BOMを二重にした軽微な指摘を修正し、単一EF-BB-BFの後にusingが続くことを確認した。動作変更はなく、全526件成功の結果を使用する。#27は路線Captionが残るためRefsとする。
