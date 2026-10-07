@@ -40,3 +40,7 @@ namespaceは同じでも公開型のassembly identityは変わる。外部binary
 ## 解析単独の試験構成
 
 [シナリオ試験の配置](../design/scenario-test-separation.md)でnet9.0のwhr_scenarioTestsを追加し、Core/Scenarioだけを参照する既存19試験を実行する。既存Corefixtureとシナリオ生成fixtureを単一ソースで共有する。共有のScenarioFilesは解析試験側の独立internal型とし、WPFからソースリンクする。製品の解析順序とUI資源寿命を変えず、解析単独の依存境界を確認するためにこの試験プロジェクトを採用する。共有試験ライブラリや解析/表示の混在試験分割は本段階に追加しない。
+
+## 解析診断と表示案内の試験境界
+
+[混在診断試験の分離](../design/scenario-diagnostic-test-split.md)では解析65件をScenarioTests、表示11件をWPFTestsへ分ける。解析の元class名を維持し、表示はScenarioReadFailureFormatterTestsへ改名して責務を追いやすくする。同じ公開試験classを別assemblyに併存させる案は名前から配置を判断しにくいため採用しない。旧→新classの対応を表示11件だけへ限定して検証し、入力/期待値/helperと製品契約を維持する。新fixtureと新プロジェクトは不要。
