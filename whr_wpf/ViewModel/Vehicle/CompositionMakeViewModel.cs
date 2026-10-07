@@ -181,7 +181,7 @@ namespace whr_wpf.ViewModel.Vehicle
 
 			void Make()
 			{
-				vm.gameInfo.compositions.Add(CompositionFactory.CreateComposition(vm.Name, vm.VehicleNums));
+				vm.gameInfo.CreateComposition(vm.Name, vm.VehicleNums);
 			}
 
 		}
