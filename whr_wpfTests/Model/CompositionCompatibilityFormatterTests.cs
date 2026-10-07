@@ -32,7 +32,7 @@ namespace whr_wpf.Model.Tests
             var stock = Stock(game);
             string typeName = throughService ? "KeitoDiagramSettingViewModel" : "LineDiagramSettingViewModel";
             object target = throughService ? through : line;
-            var type = typeof(GameInfo).Assembly.GetType($"whr_wpf.ViewModel.{typeName}")!;
+            var type = typeof(whr_wpf.ViewModel.ViewModelBase).Assembly.GetType($"whr_wpf.ViewModel.{typeName}")!;
             // 内部VMを公開せず、画面が使う公開プロパティとコマンドの接続を検査する。
             var vm = Activator.CreateInstance(type, game, target, null)!;
             string Message() => (string)type.GetProperty("ErrorMsg")!.GetValue(vm)!;
