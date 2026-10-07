@@ -8,7 +8,7 @@ namespace whr_wpf.Model.Tests
         public static IEnumerable<object[]> CurrentMessages()
         {
             for (int i = 0; i < ExpectedMessages.Length; i++)
-                yield return [WeeklyNotificationBehaviorTests.ExpectedEvents[i], ExpectedMessages[i]];
+                yield return [WeeklyEventFixture.ExpectedEvents[i], ExpectedMessages[i]];
             yield return [new EngineDevelopedEvent(PowerEnum.Electricity, EngineDevelopmentKind.Available, 0, 60),
                 "電気モーターが完成しました\n電車が作成できるようになります"];
             yield return [new EngineDevelopedEvent(PowerEnum.Diesel, EngineDevelopmentKind.Available, 0, 40),
@@ -29,7 +29,7 @@ namespace whr_wpf.Model.Tests
         {
             Assert.AreEqual("", WeeklyEventFormatter.FormatMany([]));
             var events = new List<GameEvent>();
-            var game = WeeklyNotificationBehaviorTests.SimultaneousEvents();
+            var game = WeeklyEventFixture.SimultaneousEvents();
             for (int i = 0; i < 4; i++) events.AddRange(game.NextWeek());
             Assert.AreEqual(string.Join("\n===\n", events.Select(WeeklyEventFormatter.Format)),
                 WeeklyEventFormatter.FormatMany(events));

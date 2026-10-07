@@ -32,3 +32,7 @@ namespaceは同じでも公開型のassembly identityは変わる。外部binary
 ## 第二段階の試験配置
 
 [本体試験の追加移管](../design/core-test-separation.md)では、独立した10ファイル135件とCurrentBehaviorFixtureを本体試験へ移す。fixtureは本体のみを利用するため本体試験側を正本とし、WPF試験から単一ソースをリンクする。第一段階の逆向きソースリンクを解消し、複製や共有試験ライブラリを増やさない。製品・試験の期待値とassembly間ProjectReferenceは変更しない。イベント期待値を共有する試験、混在試験とシナリオ単独検証は後続に残る。
+
+## 週次通知試験の共有データ
+
+[週次通知試験の分離](../design/weekly-notification-test-separation.md)では、表示試験が通知試験クラスから利用していたイベント期待値と状態生成処理をCoreTestsのWeeklyEventFixtureへ置く。WPFは単一ソースをリンクし、通知試験本体はCoreへ移す。表示文の期待値はWPFへ残す。試験クラス同士のassembly参照や同じデータの複製を避け、既存のイベントと表示の対応順・途中失敗契約を維持する。新しい共有ライブラリやimmutable APIは今回必要ないため追加しない。
