@@ -68,7 +68,7 @@ namespace whr_wpf.Model.Tests
             Assert.AreEqual(("試験車両", 60, PowerEnum.Steam, RailTypeEnum.Iron, 1226),
                 (car.Name, car.bestSpeed, car.power, car.type, car.money));
             Assert.AreEqual(987740L, game.Money);
-            Assert.ThrowsException<InvalidOperationException>(() => game.DevelopVehicle("速すぎる", 65, PowerEnum.Steam, CarGaugeEnum.Narrow, SeatEnum.Semi, CarTiltEnum.None));
+            Assert.ThrowsException<VehicleDevelopmentRejectedException>(() => game.DevelopVehicle("速すぎる", 65, PowerEnum.Steam, CarGaugeEnum.Narrow, SeatEnum.Semi, CarTiltEnum.None));
             game.Money = 0;
             Assert.ThrowsException<MoneyShortException>(() => game.DevelopVehicle("買えない", 60, PowerEnum.Steam, CarGaugeEnum.Narrow, SeatEnum.Semi, CarTiltEnum.None));
             Assert.AreEqual(1, game.vehicles.Count);

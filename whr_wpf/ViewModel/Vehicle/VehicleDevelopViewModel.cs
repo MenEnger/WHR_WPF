@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Input;
 using whr_wpf.Model;
 using whr_wpf.Util;
+using whr_wpf.View;
 
 namespace whr_wpf.ViewModel.Vehicle
 {
@@ -161,8 +162,8 @@ namespace whr_wpf.ViewModel.Vehicle
 		{
 			get
 			{
-				(bool canCreate, string msg) = CheckCreateVehicle();
-				if (!canCreate) { return msg; }
+				var check = CheckCreateVehicle();
+				if (!check.CanCreateVehicle) { return CreationValidationFormatter.Format(check); }
 
 				return $"車両価格　{LogicUtil.AppendMoneyUnit(CalcVehiclePrice())}";
 			}
@@ -176,7 +177,7 @@ namespace whr_wpf.ViewModel.Vehicle
 		/// 車両を開発できるかチェック
 		/// </summary>
 		/// <returns></returns>
-		private (bool CanCreateVehicle, string msg) CheckCreateVehicle() =>
+		private VehicleCreationCheck CheckCreateVehicle() =>
 			gameInfo.CheckCreateVehicle(Name, BestSpeed, Power, Gauge, GetSeatWithDoubleDecker(), CarTilt);
 
 		/// <summary>
@@ -231,8 +232,7 @@ namespace whr_wpf.ViewModel.Vehicle
 			public KetteiCommand(VehicleDevelopViewModel viewModel) => vm = viewModel;
 			public override bool CanExecute(object parameter)
 			{
-				(bool res, _) = vm.CheckCreateVehicle();
-				return res;
+				return vm.CheckCreateVehicle().CanCreateVehicle;
 			}
 
 			public override void Execute(object parameter)

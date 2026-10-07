@@ -1,0 +1,47 @@
+# 車両・編成作成の判定理由の構造化
+
+2026-10-07。Issue #26の第二段階。
+
+## 仕様検討
+
+CheckCreateVehicleとCheckMakeCompositionは表示文ではなく理由コードと発生時点の値を返す。成功は理由なしで表す。車両の動力・軌間・座席・傾斜装置、要求速度と上限、蒸気使用期限を必要な理由に保存する。編成の混在は比較対象の種類の値を保存し、最低速度不足は計算速度と最低値40を保持する。後のモデル変更で判定結果は変わらない。
+
+現行文章はUIで生成する。車両の検査時の個別理由と、開発実行時の汎用拒否文は区別して維持する。編成の実行拒否は検査と同じ案内を維持する。作成の想定内拒否は構造化理由を持つInvalidOperationException派生型で通知する。
+
+判定順・条件・費用・状態変更順を維持する。負の速度、未定義enum、編成で非正数量を除外する現状は今回補正しない。編成適合、在庫割当、資金不足、引数誤り・内部例外、週次の失敗や途中通知は対象外。入力規則の追加は別判断とする。
+
+## 影響確認
+
+製品の検査呼出先はGameInfo.DevelopVehicle、CompositionFactory.CreateCompositionとVehicleDevelopViewModel、CompositionMakeViewModel。実行呼出もこの2画面。ViewModelBaseはInvalidOperationException.Messageを直接表示するため、新しい拒否型を先に捕捉してUIで案内を生成する。その他の例外のcatchは維持する。
+
+公開チェックAPIのtuple戻り値を構造化結果へ変更するため、外部利用者の分解代入と文字列参照は移行が必要。文章を残す互換wrapperは追加しない。作成拒否の具体例外型とMessageは変わるがInvalidOperationExceptionでの捕捉は維持する。文字列や具体型に依存する外部利用者はUI formatterまたは理由へ移行する。
+
+検査は状態を変更しない。開発の拒否は支払い前、編成の拒否はインスタンス作成前。null列挙、重複キー、列挙失敗は理由へ丸めず既存例外を維持する。編成作成の検査後の再列挙も変更しない。
+
+## 検証計画
+
+製品変更前に全理由、速度境界、同時不正の判定優先、正数量の選別、FreeGauge混在、計算速度40の境界、成功と拒否の状態、資金不足と内部例外を記録する。移動後は理由と値の検査へ移し、元の文章はformatterの検査へ分ける。VMの表示とCanExecuteへの接続も確認する。実ダイアログの自動操作はIssue #37へ残す。
+
+仕様・影響レビュー（Astra、同日）：短絡評価を維持し、名前不備なら入力を列挙しない。理由収集による先行列挙・全検査を行わない。編成混在の対象は、その段階のenum値の不変集合とし順序は契約しない。成功時の旧空文字/nullはチェックAPIの契約終了に伴い理由なしへ移すが、UIの表示は維持する。例外Message・厳密型比較の互換性は終了する。実行は再判定し実行時の理由を保持する。検査後に技術や車両を変更した場合、保存済み理由と再判定の差も検証する。指摘を反映し設計へ進む。
+
+## 設計
+
+ModelにVehicleCreationReasonとCompositionCreationReasonのenum、sealed recordのVehicleCreationCheckとCompositionCreationCheckを置く。Reason.Noneが成功でCanCreateVehicle/CanCompositionMakeが導出される。
+
+VehicleCreationCheckは名前不備、動力未開発、速度超過、蒸気期限、軌間・座席・傾斜の技術不足を区別する。入力のPower/Gauge/Seat/TiltとRequestedSpeed、該当するSpeedLimit、Year/SteamEndYearを値で保存する。不要な上限は0。理由選定の順は既存分岐のまま。
+
+CompositionCreationCheckは名前・車両なし・軌間/軌道/動力/傾斜混在・最低速度を区別する。不一致段階の値だけImmutableArrayに保存し、他の集合は空とする。速度判定到達時はActualSpeedとMinimumSpeed=40を保存する。Carの参照は保持しない。既存の正数量辞書確保と短絡評価を維持する。
+
+VehicleDevelopmentRejectedExceptionとCompositionCreationRejectedExceptionはInvalidOperationExceptionを継承し、対応するCheckを保持する。Messageは英語の内部診断のみとし、表示には使わない。DevelopVehicleとCreateCompositionは返された結果で拒否型を投げる。資金不足・内部例外は変換しない。
+
+View/CreationValidationFormatterは2種類のチェックから現行日本語を生成する。成功時は車両が空文字、編成がnullを返し旧表現の差を表示側で維持する。実行例外の変換では車両は元の汎用文、編成はチェックの文章とする。未知理由は黙って成功扱いにせずArgumentOutOfRangeExceptionとする。
+
+両VMは表示時のみformatterを使用し、CanExecuteは結果の可否を読む。ViewModelBaseでは2拒否型を一般InvalidOperationExceptionより先にcatchする。確認・閉じる・他例外の処理は変更しない。
+
+正式設計レビュー（Astra、同日）：実装開始可。不使用のImmutableArrayはEmptyとする。上限0から理由を推測せずReasonを使う。拒否例外は取得専用Checkを保持し、VMの空選択・成功・拒否とCanExecuteも検査する。
+
+## 検証結果
+
+製品変更前の現状テスト27件成功。構造化後の判定・状態・不変性・再判定・内部異常のテスト36件と、文章・VM接続28件を追加し、全385件成功（失敗・スキップ0）。VMが内部型なのでテストでは反射で公開プロパティとCanExecuteを確認し、製品APIの可視性を拡大していない。nullCarの例外型の誤期待を、既存辞書確保の実際のArgumentNullExceptionへ訂正した。
+
+実ダイアログは未操作。専用catchの順序・汎用InvalidOperationException分岐・画面を閉じる位置は差分で確認した。UIのE2EはIssue #37。対象外の操作拒否・編成適合・週次途中失敗が残るためIssue #26と#28はRefsで維持する。
