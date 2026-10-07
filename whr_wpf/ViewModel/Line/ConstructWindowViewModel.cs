@@ -209,12 +209,16 @@ namespace whr_wpf.ViewModel
 			public string Caption { get; set; }
 			public int LaneSu { get; set; }
 
+			public override bool Equals(object obj) => obj is LaneNumViewModel other && Equals(other);
+
+			public override int GetHashCode() => LaneSu.GetHashCode();
+
 			public bool Equals([AllowNull] LaneNumViewModel other)
 			{
 				return other switch
 				{
 					null => false,
-					_ => Caption == other.Caption && LaneSu == other.LaneSu
+					_ => LaneSu == other.LaneSu
 				};
 			}
 		}
@@ -229,13 +233,16 @@ namespace whr_wpf.ViewModel
 			public RailGaugeEnum? RailGauge { get; set; }
 			public bool IsElectrified { get; set; }
 
+			public override bool Equals(object obj) => obj is RailTypeViewModel other && Equals(other);
+
+			public override int GetHashCode() => HashCode.Combine(RailType, RailGauge, IsElectrified);
+
 			public bool Equals([AllowNull] RailTypeViewModel other)
 			{
 				return other switch
 				{
 					null => false,
-					_ => Caption == other.Caption
-					&& RailType == other.RailType
+					_ => RailType == other.RailType
 					&& RailGauge == other.RailGauge
 					&& IsElectrified == other.IsElectrified
 				};
