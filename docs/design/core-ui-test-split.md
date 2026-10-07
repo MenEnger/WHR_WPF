@@ -1,0 +1,47 @@
+# 本体・UI混在試験の分離
+
+2026-10-08。Issue #28、PR #54の後続。
+
+## 仕様検討
+
+OriginalStatePortTestsとSelectedBehaviorTestsのモデル状態試験をCoreTestsへ移し、VM・Visibility・表示案内の試験をWPFTestsへ残す。製品挙動・入力/期待値・assert・属性・ケースを維持し、画面の依存を本体試験へ残さない。
+
+## 影響確認
+
+OriginalStatePortのSaleScreenQuotesTheSameRoundedTotalAsTheModelはVMのreflectionと売却価格表示を検証するため、WPFのCompositionSaleViewModelTestsへ分ける。CoreとUIで使うSaleStockは既存CurrentBehaviorFixtureへ内容を保って移し、privateからinternalのテストhelperとして単一ソース共有する案を検討する。製品APIの可視性は変更しない。
+
+SelectedBehaviorのReconstructionUsesRetainedSettingsAndChargesConstructionCostとSuspensionUiShowsRetainedEquipmentAndReconstructionCostの2件はVMを使うためWPFのLineSuspensionViewModelTestsへ分ける。状態変更assertを含んでもVM経由の試験はUI側に置く。残りのモデル試験は元class名でCoreへ移す。
+
+UIの3ケースだけ旧→新classを対応付け、メソッド名・引数・TestCategoryを維持する。共有helperを複製せず、新しいfixtureプロジェクトや製品APIは追加しない。変更前対象36件は全成功。全533のcase名/引数、所属・重複/脱落を確認する。共通操作窓口と入力検証は後段へ残す。Refs #28/#23。
+
+全呼出調査：OriginalStatePortはCore23/UI1、SelectedBehaviorはCore10/UI2。SaleStockはCore3メソッド・UI1メソッドで利用し外部呼出なし。残る全20WPF試験ファイルに他のCore-only試験はなく、同一メソッドにformatter assertがあるものはWPFへ残す。移管後予定はCore290＋Scenario84＋WPF159＝533件。
+
+## 仕様・影響レビュー
+
+Astra承認。Core33/UI3の分類、VM再建試験をWPFへ残す判断、SaleStock共有、限定class対応と検証に修正必須指摘なし。
+
+## 設計
+
+OriginalStatePortTestsとSelectedBehaviorTestsをCoreTests/Modelへ物理移動する。Core33件のclass名・namespace・TestCategory・属性・本文を維持する。SelectedBehaviorのSystem.Windows/ViewModel usingを除く。
+
+SaleScreenQuotesTheSameRoundedTotalAsTheModelをWPFTests/View/CompositionSaleViewModelTestsへ、ReconstructionUsesRetainedSettingsAndChargesConstructionCostとSuspensionUiShowsRetainedEquipmentAndReconstructionCostをWPFTests/View/LineSuspensionViewModelTestsへ属性/本文ごと移す。namespaceはwhr_wpf.Model.Tests。前者TestCategoryはAdoptedOriginalState、後者はSelectedBehavior。売却のreflection基点はViewModelBase.Assemblyを維持する。後者のusingはSystem.Windows、whr_wpf.ViewModelとCurrentBehaviorFixture static usingを維持する。
+
+SaleStockの本文をCurrentBehaviorFixtureへ移し、private static→internal staticのテストhelperにする。既存static usingとCompile Linkで全4呼出を維持し、新fixture/リンク/プロジェクト参照は追加しない。入力・購入順・返値を変更しない。製品の可視性に影響なし。
+
+baseline36とPR #54全533のTRXで、UI3メソッドだけ明示のclass対応（OriginalStatePort→CompositionSaleViewModel、SelectedBehavior→LineSuspensionViewModel）後に完全クラス名＋case名/引数を比較する。全533成功、重複0、Core290/Scenario84/WPF159の所属、Core33/UI3の対応、TestCategoryの維持と本文一致を確認する。solution test -m:1、独立BaseOutputPath、UseSharedCompilation=falseで実行する。製品変更と追加テスト/配布再検証は不要。
+
+ADR 0024へ継続判断を追記する。この段階で現製品境界に沿う純粋試験の配置は整理済みとなるが、#28全体の共通操作窓口と入力検証の完了ではない。次は全操作の呼出/入力/見積/失敗契約を調査し、操作窓口を仕様・影響から設計する。
+
+## 設計レビュー
+
+Astra承認。分割先とカテゴリ、SaleStockの限定可視性変更、本文/属性/所属照合と純粋配置完了の範囲に修正必須指摘なし。
+
+## 実装・検証
+
+全solution test（-m:1、BaseOutputPath=artifacts/core-ui-split/、UseSharedCompilation=false）でCore290＋Scenario84＋WPF159＝533件成功、スキップ0。UI3件だけclass対応しPR #54全533の完全クラス名＋case名/引数と一致、重複0。baseline36とCore33/UI3の対応と所属も一致。
+
+UI属性/本文とCore本文は抽出以外を維持。TestCategoryはCore/UI両側に維持。SaleStockは本文を保って既存fixtureへ移し、既存fixtureへの差分はこのhelper挿入だけ。製品・設定・新fixture変更なし。証拠はartifacts/core-ui-split-baseline/baseline.trxとartifacts/core-ui-split-results/*.trx。NuGet脆弱性情報取得にNU1900警告。Linux実行未実施。
+
+## 仕上げレビュー
+
+Astraが差分・網羅性・可読性・保守性・過剰さを承認。UI3本文/属性とCore本文、SaleStock/カテゴリ維持、全533件TRXと限定class対応後の差分0・重複0を独立確認。修正必須指摘なし。
