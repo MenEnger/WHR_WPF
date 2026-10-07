@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using whr_wpf.Model;
+using whr_wpf.View;
 using whr_wpf.Util;
 using whr_wpf.View.Line;
 using whr_wpf.ViewModel.Component;
@@ -35,9 +36,9 @@ namespace whr_wpf.ViewModel
 				{
 					exec();
 				}
-				catch (MoneyShortException)
+				catch (MoneyShortException e)
 				{
-					MessageBox.Show("お金が足りません");
+					MessageBox.Show(GameFailureFormatter.Format(e.Failure));
 				}
 				taihisenChangeWindow.Close();
 			}

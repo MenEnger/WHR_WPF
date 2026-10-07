@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -121,7 +121,7 @@ namespace whr_wpf.ViewModel
 			}
 			catch (GameOverException e)
 			{
-				MessageBox.Show(e.Message, "ゲームオーバー", MessageBoxButton.OK, MessageBoxImage.Information);
+				MessageBox.Show(GameFailureFormatter.Format(e.Failure), "ゲームオーバー", MessageBoxButton.OK, MessageBoxImage.Information);
 				ApplicationUtil.ForceExit();
 			}
 		}
@@ -143,7 +143,7 @@ namespace whr_wpf.ViewModel
 			}
 			catch (GameOverException e)
 			{
-				MessageBox.Show(e.Message, "ゲームオーバー", MessageBoxButton.OK, MessageBoxImage.Information);
+				MessageBox.Show(GameFailureFormatter.Format(e.Failure), "ゲームオーバー", MessageBoxButton.OK, MessageBoxImage.Information);
 				ApplicationUtil.ForceExit();
 			}
 		}
