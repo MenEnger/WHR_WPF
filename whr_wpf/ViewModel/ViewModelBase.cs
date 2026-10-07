@@ -85,6 +85,10 @@ namespace whr_wpf.ViewModel
 				{
 					MessageBox.Show(CompositionCompatibilityFormatter.Format(e.Failure), "エラー", MessageBoxButton.OK, MessageBoxImage.Information);
 				}
+				catch (LineEquipmentRejectedException e)
+				{
+					MessageBox.Show(LineEquipmentFailureFormatter.Format(e.Failure), "エラー", MessageBoxButton.OK, MessageBoxImage.Information);
+				}
 				catch (InvalidOperationException e)
 				{
 					MessageBox.Show(e.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Information);
