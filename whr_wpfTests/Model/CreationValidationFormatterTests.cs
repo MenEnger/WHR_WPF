@@ -107,7 +107,7 @@ namespace whr_wpf.Model.Tests
 
         // テストのために製品の内部VMを公開せず、公開プロパティとコマンドの接続を確認する。
         private static object CreateViewModel(string name, GameInfo game)
-            => Activator.CreateInstance(typeof(GameInfo).Assembly.GetType($"whr_wpf.ViewModel.Vehicle.{name}")!, game, null)!;
+            => Activator.CreateInstance(typeof(whr_wpf.ViewModel.ViewModelBase).Assembly.GetType($"whr_wpf.ViewModel.Vehicle.{name}")!, game, null)!;
         private static void Set(object vm, string name, object value)
             => vm.GetType().GetProperty(name)!.SetValue(vm, value);
         private static T Get<T>(object vm, string name)

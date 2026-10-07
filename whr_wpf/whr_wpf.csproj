@@ -24,6 +24,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\whr_core\whr_core.csproj" />
+    <ProjectReference Include="..\whr_scenario\whr_scenario.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="MainMenuPage - コピー.xaml.cs">
       <SubType>Code</SubType>
       <DependentUpon>MainMenuPage - コピー.xaml</DependentUpon>

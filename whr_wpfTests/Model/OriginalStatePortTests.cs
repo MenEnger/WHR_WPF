@@ -188,7 +188,7 @@ namespace whr_wpf.Model.Tests
             var game = Game();
             IComposition stock = SaleStock(game, true);
             // 内部VMを生成して表示文字列だけ確認し、確認ダイアログは開かない。
-            var type = typeof(GameInfo).Assembly.GetType("whr_wpf.ViewModel.Vehicle.CompositionManageViewModel")!;
+            var type = typeof(whr_wpf.ViewModel.ViewModelBase).Assembly.GetType("whr_wpf.ViewModel.Vehicle.CompositionManageViewModel")!;
             var vm = Activator.CreateInstance(type, new object?[] { game, null })!;
             type.GetProperty("Composition")!.SetValue(vm, stock);
             type.GetProperty("Quantity")!.SetValue(vm, 2);

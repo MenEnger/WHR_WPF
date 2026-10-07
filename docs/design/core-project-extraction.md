@@ -1,0 +1,70 @@
+# ゲーム本体プロジェクト抽出：第一段階
+
+2026-10-08。Issue #28。表示境界 #27の完了後に進める。
+
+## 仕様検討
+
+同じリポジトリ・ソリューションにWPF非依存のnet9.0ゲーム本体を置き、WPFはその本体を参照する。人口・資金・技術・建設・運行・目標・構造化通知/拒否の現在の挙動を維持する。namespace、数式、費用、割当、期限、乱数と途中失敗契約は変えない。操作窓口と入力検証の追加は後続の段階で行い、抽出と挙動変更を混ぜない。
+
+本体はUI/表示/ファイル解析プロジェクトを参照しない。現在の旧形式解析を別のnet9.0シナリオプロジェクトへ配置し、本体の構造化モデルを組み立てる。形式やGameInfoを返す既存読込APIは維持する。画像の先行確保callback・CSV順序・エラー優先順・画像寿命・診断ログは変更しない。新しいシナリオDTO体系/保存形式は今回追加しない。
+
+第一PRでは本体・解析のプロジェクト境界と、主要な既存のモデル試験がWPFなしでビルド/実行できる証拠までとする。共通操作窓口・全試験の配置整理・入力検証・ハーネスは未完了としてIssueへ残す。#28をこのPRで閉じない。
+
+## 影響確認
+
+Model全17ファイルとLogicUtilはBCL依存で、Window/画像/表示への利用はない。LogicUtilにはCompositionFactoryと旧座席ID変換があり、モデル・VM・解析で使うため使用済み処理だけを同じ実装で維持する。公開namespace whr_wpf.Model/whr_wpf.Utilを維持して一般C#の型参照を変えない。
+
+ScenerioLoadUtilとScenarioReadException/ScenarioValidationExceptionは明示baseDirとBCLのTextFieldParser・UTF8/CP932で解析する。解析は本体へ逆依存されず、本体モデルを構築する側へ置く。PropertyChangedEventListenerはBCL依存でも利用はVM2箇所だけなのでWPFへ残す。ThemeInfo、jnrのコピー、map.png resource、AppContext.BaseDirectory起点、BitmapImage確保とログ保存はWPFへ残す。Model型を直接参照するXAMLのclr-namespace指定は見つからない。
+
+内部LogicUtilは既存のWPFの容量表示1箇所と解析の座席変換から使う。型を公開へ変更することや処理の複製を避け、限定したfriend assemblyで既存呼出を維持する案を設計時に決める。モデルの内部setterは製品UIから直接書かれておらず、試験はreflectionを使用する。試験のためのfriend追加は必要ない。
+
+UIの内部VM型をtypeof(GameInfo).Assembly.GetTypeで読む試験が3ファイルあり、移動後はUIの既知型のAssemblyを使う。モデルのprivate reflectionはtypeof(GameInfo)を基点にしており、移動後も同じprivateフィールドへアクセスできる。既存テストは内部setterを公開する理由にしない。
+
+公開型のnamespaceは維持してもassembly identityは変わる。外部のバイナリ/assembly-qualified名/reflection/Serializable型の既存シリアライズ利用には互換性変更となる。現在の保存/読込はUI案内のみで実serializerはなく、旧形式データはCSV/mod。今回外部binary互換forwarderやセーブ移行を新たに保証しない。
+
+## 検証計画と段階分け
+
+既存533件を変更前の基準とし、主要4ファイル(GameInfoTests、WeeklyCurrentBehaviorTests、AllocationCurrentBehaviorTests、OperationCurrentBehaviorTests)をWPF非依存の本体試験へ移す。静的候補は107ケースで実行件数は移動後に確認する。CurrentBehaviorFixtureはモデルだけを使い、必要なら単一ソースを両試験構成へリンクして重複と試験プロジェクト間参照を避ける。
+
+Formatter/VM/実WPF試験はWindows試験へ残す。純粋試験全件の移動にはWeeklyNotificationの共有期待値やScenarioBoundaryの共通ファイルfixture、3つの混在試験の整理があるため後続へ分ける。第一段階でも残るWindows試験を全て実行し、移動前後の合計533件と期待値を維持する。
+
+本体単独buildと本体試験net9.0の実行、本体のProjectReference/FrameworkReferenceにWPF・解析・表示がないこと、通常ソリューションbuild/testを確認する。Windows端末上の検証であり、Linuxで実行済みとは記録しない。解析の実資源変更とエラー順序の既存試験も再利用する。
+
+後続は純粋/解析試験の整理と解析単独利用の検証、操作窓口の仕様・影響・設計、入力検証の範囲判断、#29の再現可能なハーネスへ進む。ADR 0019の失敗週イベント未返却/状態・PropertyChanged保持は抽出で変えない。既知不具合候補は本段階へ混ぜない。
+
+## 仕様・影響レビュー
+
+Astraが仕様・影響を承認した。モデル/計算・旧形式解析・UI資源の依存方向、段階的試験と互換性記録に重大な漏れなし。設計でfriendの範囲、コンパイル条件、配布出力、試験の重複/脱落を確認するよう補足を受けた。
+
+## 設計
+
+- whr_core/whr_core.csproj：net9.0のclass library。Model17ファイルとUtil/LogicUtil.csを物理的に移す。namespaceと全処理を維持する。UI/解析へのProjectReferenceとUseWPFは設けない。
+- whr_scenario/whr_scenario.csproj：net9.0のclass library。本体へのProjectReferenceだけを持ち、ScenerioLoadUtil・ScenarioReadException・ScenarioValidationExceptionを移す。パスの基点・callback・確保順・例外優先順はそのまま。
+- whr_wpf：本体と解析をProjectReferenceに追加する。PropertyChangedEventListener、画面/VM/formatter、jnrコピー・画像resource・ログ・ThemeInfoは残す。
+- whr_coreTests：net9.0。既存と同じMSTest/TestSdk版・Nullable/ImplicitUsings/LangVersionを使い、本体だけを直接参照する。主要4試験を物理移動する。fixtureは既存CurrentBehaviorFixture.csをCompile Linkで単一ソースとして使用する。試験assemblyの参照は作らない。Windows試験は移動4ファイルを再コンパイルせず、残る試験だけを実行する。
+
+ソリューションへ3プロジェクトを追加する。本体・解析はWPFと同じSDK既定の言語・nullable無効・implicit usings無効・overflow検査無効を維持する。明示checked/uncheckedは編集しない。抽出対象に#if/#elifはないためWindows関連SDKシンボルの違いで分岐しない。Debug/Releaseの既定条件は維持する。
+
+本体にInternalsVisibleTo("世界鉄道網")とInternalsVisibleTo("whr_scenario")を設定し、internal LogicUtilの既存利用を維持する。friendは必要メソッドだけでなく全internalへアクセスを許すため、この2つのassembly名に限定し、テストへは付与しない。新しい公開計算APIへ広げず、後続の操作窓口で利用境界を再検討できるよう記録する。文字列のfriend宣言は本体からUI/解析への実assembly参照ではない。
+
+UI型を探す3試験はtypeof(whr_wpf.ViewModel.ViewModelBase).AssemblyなどUI型を基点にする。対象型やassertを変えず、モデルを基点とするprivate reflectionは維持する。assembly移動に伴うpublic型の互換性は前段の影響記録どおりで、型forwarderや新しい保存移行は追加しない。
+
+検証は移動4試験を旧構成で実行し、移動後の本体試験とテスト名/ケース数を照合する。残るWindows試験との合計533件、物理移動で再実行/脱落がないことを確認する。本体単独build・本体試験・ソリューション全test/build、WPF publish出力の世界鉄道網/whr_core/whr_scenario DLLと従来jnr資源を確認する。Core/Scenario/CoreTestsのframework/project参照を確認し、WindowsDesktopに依存しないことを証拠にする。Linuxの実行や手動UIプレイの実施は今回主張しない。
+
+## 設計レビュー
+
+Astraが設計を承認した。依存方向、限定したfriend、コンパイラ条件、試験とreflectionの移動、配布資源の検証に修正必須の指摘なし。実装へ進む。
+
+## 実装と検証結果
+
+- 製品21ファイルと試験4ファイルを物理移動。製品ソースは移動前後のSHA256一致。処理・namespaceの変更なし。
+- 本体単独build成功（警告0・エラー0）。ソリューションtestはMSBuild並列実行がこの環境で診断なしに失敗したため-m:1で実行し、Core107件・Windows426件、合計533件成功・スキップ0。NuGet脆弱性情報の取得にNU1900警告あり。試験実行は成功した。
+- baseline.trxとCoreの全107テスト名を照合し一致。Windows426とのテスト名重複0。
+- FrameworkReferenceは3新規プロジェクトともMicrosoft.NETCore.Appだけ。CoreのProjectReferenceなし、Scenario/CoreTestsはCoreだけ。
+- Release publish成功。世界鉄道網.dll、whr_core.dll、whr_scenario.dllの出力とjnr7ファイルのSHA256一致を確認。
+- 証拠：artifacts/core-extraction-baseline/baseline.trx、artifacts/core-extraction-results/*.trx、artifacts/core-extraction-publish/。成果物は追跡対象外。
+- Linux実行と手動UIプレイは未実施。新たなゲーム挙動の変更がないため、既存の成功・拒否・境界・途中状態とWPFバインド試験を再利用した。
+
+## 仕上げレビュー
+
+Astraが実装差分・試験網羅性・可読性・保守性・過剰さを承認した。移動25ファイルの内容一致、参照方向、限定friend、reflection変更、TRXと配布資源を独立確認し、修正必須の指摘なし。Issue #28は後続が残るためRefsとする。
