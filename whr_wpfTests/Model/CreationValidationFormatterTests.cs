@@ -117,4 +117,3 @@ namespace whr_wpf.Model.Tests
             => new(reason, power, 60, 40, CarGaugeEnum.Narrow, seat, tilt, 1880, 1970);
     }
 }
-

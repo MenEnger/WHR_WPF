@@ -355,5 +355,3 @@ namespace whr_wpf.Model.Tests
         }
     }
 }
-
-
