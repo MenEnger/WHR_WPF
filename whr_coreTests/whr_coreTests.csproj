@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\whr_wpfTests\Model\CurrentBehaviorFixture.cs" Link="Model\CurrentBehaviorFixture.cs" />
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
 
