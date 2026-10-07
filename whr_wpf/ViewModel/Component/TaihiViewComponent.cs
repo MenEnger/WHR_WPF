@@ -23,10 +23,14 @@ namespace whr_wpf.ViewModel.Component
 			return taihiList;
 		}
 
+		public override bool Equals(object obj) => obj is TaihiViewComponent other && Equals(other);
+
+		public override int GetHashCode() => Enum.GetHashCode();
+
 		public bool Equals([AllowNull] TaihiViewComponent other)
 		{
 			if (other is null) return false;
-			return Caption == other.Caption && Enum == other.Enum;
+			return Enum == other.Enum;
 		}
 	}
 
