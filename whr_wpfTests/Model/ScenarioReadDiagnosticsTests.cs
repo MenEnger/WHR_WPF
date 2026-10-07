@@ -2,7 +2,6 @@ using System.IO;
 using Microsoft.VisualBasic.FileIO;
 using whr_wpf.Util;
 using whr_wpf.View;
-using static whr_wpf.Model.Tests.ScenarioBoundaryTests;
 
 namespace whr_wpf.Model.Tests
 {

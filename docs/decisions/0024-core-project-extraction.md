@@ -36,3 +36,7 @@ namespaceは同じでも公開型のassembly identityは変わる。外部binary
 ## 週次通知試験の共有データ
 
 [週次通知試験の分離](../design/weekly-notification-test-separation.md)では、表示試験が通知試験クラスから利用していたイベント期待値と状態生成処理をCoreTestsのWeeklyEventFixtureへ置く。WPFは単一ソースをリンクし、通知試験本体はCoreへ移す。表示文の期待値はWPFへ残す。試験クラス同士のassembly参照や同じデータの複製を避け、既存のイベントと表示の対応順・途中失敗契約を維持する。新しい共有ライブラリやimmutable APIは今回必要ないため追加しない。
+
+## 解析単独の試験構成
+
+[シナリオ試験の配置](../design/scenario-test-separation.md)でnet9.0のwhr_scenarioTestsを追加し、Core/Scenarioだけを参照する既存19試験を実行する。既存Corefixtureとシナリオ生成fixtureを単一ソースで共有する。共有のScenarioFilesは解析試験側の独立internal型とし、WPFからソースリンクする。製品の解析順序とUI資源寿命を変えず、解析単独の依存境界を確認するためにこの試験プロジェクトを採用する。共有試験ライブラリや解析/表示の混在試験分割は本段階に追加しない。

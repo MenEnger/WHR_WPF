@@ -4,7 +4,6 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using whr_wpf.Util;
 using whr_wpf.View;
-using static whr_wpf.Model.Tests.ScenarioBoundaryTests;
 
 namespace whr_wpf.Model.Tests
 {

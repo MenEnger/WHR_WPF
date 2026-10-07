@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0-windows</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -13,13 +13,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\whr_wpf\whr_wpf.csproj" />
+    <ProjectReference Include="..\whr_core\whr_core.csproj" />
+    <ProjectReference Include="..\whr_scenario\whr_scenario.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\whr_coreTests\Model\CurrentBehaviorFixture.cs" Link="Model\CurrentBehaviorFixture.cs" />
-    <Compile Include="..\whr_coreTests\Model\WeeklyEventFixture.cs" Link="Model\WeeklyEventFixture.cs" />
-    <Compile Include="..\whr_scenarioTests\Model\ScenarioFiles.cs" Link="Model\ScenarioFiles.cs" />
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
 
