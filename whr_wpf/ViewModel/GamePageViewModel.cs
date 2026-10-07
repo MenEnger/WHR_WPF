@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using whr_wpf.Model;
 using whr_wpf.Util;
+using whr_wpf.View;
 using whr_wpf.View.Info;
 using whr_wpf.View.Technology;
 using whr_wpf.View.Vehicle;
@@ -110,12 +111,12 @@ namespace whr_wpf.ViewModel
 
 		private void DoNextWeek()
 		{
-			List<string> msgs = GameInfo.NextWeek();
+			List<GameEvent> events = GameInfo.NextWeek();
 			try
 			{
-				if (msgs.Count > 0)
+				if (events.Count > 0)
 				{
-					MessageBox.Show(string.Join("\n===\n", msgs));
+					MessageBox.Show(WeeklyEventFormatter.FormatMany(events));
 				}
 			}
 			catch (GameOverException e)
@@ -127,17 +128,17 @@ namespace whr_wpf.ViewModel
 
 		private void DoNextMonth()
 		{
-			List<string> msgs = new List<string>();
+			List<GameEvent> events = new List<GameEvent>();
 			try
 			{
 				for (int i = 0; i < 4; i++)
 				{
-					msgs.AddRange(GameInfo.NextWeek());
+					events.AddRange(GameInfo.NextWeek());
 					InvokeAllNotify();
 				}
-				if (msgs.Count > 0)
+				if (events.Count > 0)
 				{
-					MessageBox.Show(string.Join("\n===\n", msgs));
+					MessageBox.Show(WeeklyEventFormatter.FormatMany(events));
 				}
 			}
 			catch (GameOverException e)

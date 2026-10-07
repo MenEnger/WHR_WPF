@@ -379,15 +379,16 @@ namespace whr_wpf.Model
 		}
 
 		/// <summary>
-		/// 動力の開発判定を順に実行し、完成メッセージを追加する。
+		/// 動力の開発判定を順に実行し、完成イベントを追加する。
 		/// </summary>
-		private void CompleteWeeklyEngineDevelopment(List<string> resultMsgList)
+		private void CompleteWeeklyEngineDevelopment(List<GameEvent> events)
 		{
 			//蒸気
 			if (AccumulatedInvest.steam > Math.Pow(genkaiJoki - 30, 3) / 5 * TechCost / 4)
 			{
+				var previousLevel = genkaiJoki;
 				genkaiJoki += 5;
-				resultMsgList.Add($"蒸気機関の改良が完了しました\n蒸気機関車の開発可能速度が{genkaiJoki}km/hになります。");
+				events.Add(new EngineDevelopedEvent(PowerEnum.Steam, EngineDevelopmentKind.SpeedImproved, previousLevel, genkaiJoki));
 				if (genkaiJoki == 150) { weeklyInvestment.steam = InvestmentAmountEnum.Nothing; }
 			}
 
@@ -396,20 +397,23 @@ namespace whr_wpf.Model
 			{
 				if (AccumulatedInvest.electricMotor > (3000 * TechCost) && genkaiDenki == 0)
 				{
+					var previousLevel = genkaiDenki;
 					genkaiDenki = 60;
-					resultMsgList.Add("電気モーターが完成しました\n電車が作成できるようになります");
+					events.Add(new EngineDevelopedEvent(PowerEnum.Electricity, EngineDevelopmentKind.Available, previousLevel, genkaiDenki));
 				}
 				else if (0 < genkaiDenki && genkaiDenki < 360)
 				{
+					var previousLevel = genkaiDenki;
 					genkaiDenki += 5;
-					resultMsgList.Add($"電気モーターが改良されました\n電車の開発可能速度が{genkaiDenki}km/hになります");
+					events.Add(new EngineDevelopedEvent(PowerEnum.Electricity, EngineDevelopmentKind.SpeedImproved, previousLevel, genkaiDenki));
 				}
 				if (genkaiDenki == 360) { weeklyInvestment.electricMotor = InvestmentAmountEnum.Nothing; }
 			}
 			if (genkaiDenki >= 360 && AccumulatedInvest.electricMotor > (50000 * genkaiDenki + 30377125) / 10 * TechCost / 2)
 			{
+				var previousLevel = genkaiDenki;
 				genkaiDenki += 10;
-				resultMsgList.Add("電気モーターが改良されました\n電車の作成コストが下がります");
+				events.Add(new EngineDevelopedEvent(PowerEnum.Electricity, EngineDevelopmentKind.CostReduced, previousLevel, genkaiDenki));
 			}
 			if (genkaiDenki == 990) { weeklyInvestment.electricMotor = InvestmentAmountEnum.Nothing; }
 
@@ -418,33 +422,38 @@ namespace whr_wpf.Model
 			{
 				if (AccumulatedInvest.diesel > (3000 * TechCost) && genkaiKidosha == 0)
 				{
+					var previousLevel = genkaiKidosha;
 					genkaiKidosha = 40;
-					resultMsgList.Add("ディーゼル機関が完成しました\nディーゼルカーが作成できるようになります");
+					events.Add(new EngineDevelopedEvent(PowerEnum.Diesel, EngineDevelopmentKind.Available, previousLevel, genkaiKidosha));
 				}
 				else if (0 < genkaiKidosha)
 				{
+					var previousLevel = genkaiKidosha;
 					genkaiKidosha += 5;
-					resultMsgList.Add($"ディーゼル機関が改良されました\nディーゼルカーの開発可能速度が{genkaiKidosha}km/hになります");
+					events.Add(new EngineDevelopedEvent(PowerEnum.Diesel, EngineDevelopmentKind.SpeedImproved, previousLevel, genkaiKidosha));
 				}
 				if (genkaiKidosha == 360) { weeklyInvestment.diesel = InvestmentAmountEnum.Nothing; }
 			}
 			if (genkaiKidosha >= 360 && AccumulatedInvest.diesel > (100000 * genkaiKidosha + 82638000) / 20 * TechCost)
 			{
+				var previousLevel = genkaiKidosha;
 				genkaiKidosha += 10;
-				resultMsgList.Add("ディーゼル機関が改良されました\nディーゼルカーの作成コストが下がります");
+				events.Add(new EngineDevelopedEvent(PowerEnum.Diesel, EngineDevelopmentKind.CostReduced, previousLevel, genkaiKidosha));
 			}
 			if (genkaiKidosha == 990) { weeklyInvestment.diesel = InvestmentAmountEnum.Nothing; }
 
 			//リニア
 			if (AccumulatedInvest.linearMotor > (375000 * TechCost) && genkaiLinear == 0)
 			{
+				var previousLevel = genkaiLinear;
 				genkaiLinear = 300;
-				resultMsgList.Add("リニアが完成しました\nリニアカーが作成できるようになります");
+				events.Add(new EngineDevelopedEvent(PowerEnum.LinearMotor, EngineDevelopmentKind.Available, previousLevel, genkaiLinear));
 			}
 			else if (0 < genkaiLinear && AccumulatedInvest.linearMotor > Math.Pow(genkaiLinear - 100, 3) / 20 * TechCost)
 			{
+				var previousLevel = genkaiLinear;
 				genkaiLinear += 10;
-				resultMsgList.Add($"リニアが改良されました\nリニアの開発可能速度が{genkaiLinear}km/hになります");
+				events.Add(new EngineDevelopedEvent(PowerEnum.LinearMotor, EngineDevelopmentKind.SpeedImproved, previousLevel, genkaiLinear));
 			}
 			if (genkaiLinear == 990) { weeklyInvestment.linearMotor = InvestmentAmountLinearEnum.Nothing; }
 		}
@@ -452,58 +461,58 @@ namespace whr_wpf.Model
 		/// <summary>
 		/// 新企画技術の開発判定を実行する。
 		/// </summary>
-		private void CompleteWeeklySpecialTechnologyDevelopment(List<string> resultMsgList)
+		private void CompleteWeeklySpecialTechnologyDevelopment(List<GameEvent> events)
 		{
 			//新企画
 			if (AccumulatedInvest.newPlan >= 1000 * TechCost && !isDevelopedBlockingSignal)
 			{
-				resultMsgList.Add("閉塞信号が完成しました\n運行可能数が増加します");
+				events.Add(new SpecialTechnologyDevelopedEvent(SpecialTechnology.BlockingSignal, genkaikyoyo, genkaikyoyo + 5));
 				genkaikyoyo += 5;
 				isDevelopedBlockingSignal = true;
 			}
 			if (AccumulatedInvest.newPlan >= 5000 * TechCost && !isDevelopedConvertibleCross)
 			{
-				resultMsgList.Add("転換クロスシートが完成しました\n通勤列車にも使えるクロスシートです");
+				events.Add(new SpecialTechnologyDevelopedEvent(SpecialTechnology.ConvertibleCross, genkaikyoyo, genkaikyoyo));
 				isDevelopedConvertibleCross = true;
 			}
 			if (AccumulatedInvest.newPlan >= 10000 * TechCost && !isDevelopedAutoGate)
 			{
-				resultMsgList.Add("自動改札機が完成しました\n客一人当たりのコストが下がります");
+				events.Add(new SpecialTechnologyDevelopedEvent(SpecialTechnology.AutoGate, genkaikyoyo, genkaikyoyo));
 				isDevelopedAutoGate = true;
 			}
 			if (AccumulatedInvest.newPlan >= 20000 * TechCost && !isDevelopedCarTiltPendulum)
 			{
-				resultMsgList.Add("振子式車体傾斜装置が完成しました\n対応車では、路線最高速度を20%上越えることができます");
+				events.Add(new SpecialTechnologyDevelopedEvent(SpecialTechnology.CarTiltPendulum, genkaikyoyo, genkaikyoyo));
 				isDevelopedCarTiltPendulum = true;
 			}
 			if (AccumulatedInvest.newPlan >= 30000 * TechCost && !isDevelopedRichCross)
 			{
-				resultMsgList.Add("豪華クロスシートが完成しました\n最高の乗り心地を保障する座席です");
+				events.Add(new SpecialTechnologyDevelopedEvent(SpecialTechnology.RichCross, genkaikyoyo, genkaikyoyo));
 				isDevelopedRichCross = true;
 			}
 			if (AccumulatedInvest.newPlan >= 50000 * TechCost && !isDevelopedRetructableLong)
 			{
-				resultMsgList.Add("収納式ロングシートが完成しました\n普通のロングシートよりも定員数が多くなります");
+				events.Add(new SpecialTechnologyDevelopedEvent(SpecialTechnology.RetructableLong, genkaikyoyo, genkaikyoyo));
 				isDevelopedRetructableLong = true;
 			}
 			if (AccumulatedInvest.newPlan >= 200000 * TechCost && !isDevelopedDualSeat)
 			{
-				resultMsgList.Add("デュアルシートが完成しました\n乗り心地と定員数を両立させた座席です");
+				events.Add(new SpecialTechnologyDevelopedEvent(SpecialTechnology.DualSeat, genkaikyoyo, genkaikyoyo));
 				isDevelopedDualSeat = true;
 			}
 			if (AccumulatedInvest.newPlan >= 300000 * TechCost && !isDevelopedMachineTilt)
 			{
-				resultMsgList.Add("機械式車体傾斜装置が完成しました\n①簡易タイプでは、振子式と同性能で価格が安くなります。\n②高性能タイプは、路線最高速度を33%越えることができます。");
+				events.Add(new SpecialTechnologyDevelopedEvent(SpecialTechnology.MachineTilt, genkaikyoyo, genkaikyoyo));
 				isDevelopedMachineTilt = true;
 			}
 			if (AccumulatedInvest.newPlan >= 500000 * TechCost && !isDevelopedFreeGauge)
 			{
-				resultMsgList.Add("フリーゲージトレインが完成しました\nフリーゲージトレインは、狭軌・標準軌関係なく走ることができます");
+				events.Add(new SpecialTechnologyDevelopedEvent(SpecialTechnology.FreeGauge, genkaikyoyo, genkaikyoyo));
 				isDevelopedFreeGauge = true;
 			}
 			if (AccumulatedInvest.newPlan >= 800000 * TechCost && !isDevelopedDynamicSignal)
 			{
-				resultMsgList.Add("移動閉塞信号が完成しました。\n運行可能数が増加します");
+				events.Add(new SpecialTechnologyDevelopedEvent(SpecialTechnology.DynamicSignal, genkaikyoyo, genkaikyoyo + 5));
 				isDevelopedDynamicSignal = true;
 				genkaikyoyo += 5;
 				weeklyInvestment.newPlan = InvestmentAmountEnum.Nothing;
@@ -513,7 +522,7 @@ namespace whr_wpf.Model
 		/// <summary>
 		/// 週・月・年を進め、年越し時に年次処理を実行する。
 		/// </summary>
-		private void AdvanceWeeklyCalendar(List<string> resultMsgList)
+		private void AdvanceWeeklyCalendar(List<GameEvent> events)
 		{
 			//一週間プラス
 			Week++;
@@ -525,7 +534,7 @@ namespace whr_wpf.Model
 			{
 				//年次処理
 				Year++; Month = 1;
-				resultMsgList.AddRange(NextYear());
+				events.AddRange(NextYear());
 
 			}
 		}
@@ -545,13 +554,13 @@ namespace whr_wpf.Model
 		/// <summary>
 		/// 週次処理後に目標を判定し、達成時はフリーモードへ移行する。
 		/// </summary>
-		private void CheckWeeklyGoals(List<string> resultMsgList)
+		private void CheckWeeklyGoals(List<GameEvent> events)
 		{
 			//目標達成状況確認
 			bool goalStatus = CheckAchievement();
 			if (goalStatus)
 			{
-				resultMsgList.Add("おめでとうございます！\n目標を達成しました。フリーモードに移行しました。");
+				events.Add(new GoalsAchievedEvent(MYear, BasicYear + 420));
 				//目標リセット
 				SelectedMode.goalLineMake = null;
 				SelectedMode.goalTechDevelop = new Dictionary<PowerEnum, int>();

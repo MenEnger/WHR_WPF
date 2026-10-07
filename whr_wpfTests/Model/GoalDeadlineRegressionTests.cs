@@ -14,7 +14,7 @@ namespace whr_wpf.Model.Tests
             line.grade = LineGrade.MostImportant;
             // 回収した1880年モードと同じ敷設・蒸気100・期限1920の条件。
             var messages = game.NextWeek();
-            Assert.AreEqual(1, messages.Count(message => message.Contains("目標を達成")));
+            Assert.AreEqual(1, messages.Count(message => message is GoalsAchievedEvent));
             Assert.IsNull(game.SelectedMode.goalLineMake);
             Assert.AreEqual(0, game.SelectedMode.goalTechDevelop.Count);
             Assert.AreEqual((1920, 2300), (game.SelectedMode.MYear, game.MYear));
@@ -23,8 +23,8 @@ namespace whr_wpf.Model.Tests
             YearEnd(game);
             messages = game.NextWeek();
             Assert.AreEqual((1921, 1, 1), (game.Year, game.Month, game.Week));
-            Assert.IsFalse(messages.Any(message => message.Contains("目標を達成")));
-            Assert.IsFalse(game.NextWeek().Any(message => message.Contains("目標を達成")));
+            Assert.IsFalse(messages.Any(message => message is GoalsAchievedEvent));
+            Assert.IsFalse(game.NextWeek().Any(message => message is GoalsAchievedEvent));
         }
 
         [TestMethod]
@@ -67,7 +67,7 @@ namespace whr_wpf.Model.Tests
             game.Year = 1920;
             game.Month = 12;
             game.Week = 3;
-            Assert.IsTrue(game.NextWeek().Any(message => message.Contains("目標を達成")));
+            Assert.IsTrue(game.NextWeek().Any(message => message is GoalsAchievedEvent));
             Assert.AreEqual((1920, 12, 4, 2300), (game.Year, game.Month, game.Week, game.MYear));
         }
 

@@ -155,10 +155,10 @@ namespace whr_wpf.Model
 		/// 次週へ
 		/// </summary>
 		/// <remarks>解析難易度が高かった処理</remarks>
-		/// <returns>処理結果メッセージのリスト</returns>
-		public List<string> NextWeek()
+		/// <returns>発生時点の値を保持するイベントのリスト</returns>
+		public List<GameEvent> NextWeek()
 		{
-			var resultMsgList = new List<string>();
+			var events = new List<GameEvent>();
 
 			// 原作と同様に週次の路線状態を初期化し、各処理と通知の順序を維持する。
 			ResetWeeklyLineState();
@@ -171,23 +171,23 @@ namespace whr_wpf.Model
 			SettleWeeklyRailwayAccounts(kamotsuTanka);
 			ApplyWeeklySubsidy();
 			ChargeWeeklyTechnologyInvestments();
-			CompleteWeeklyEngineDevelopment(resultMsgList);
-			CompleteWeeklySpecialTechnologyDevelopment(resultMsgList);
-			AdvanceWeeklyCalendar(resultMsgList);
+			CompleteWeeklyEngineDevelopment(events);
+			CompleteWeeklySpecialTechnologyDevelopment(events);
+			AdvanceWeeklyCalendar(events);
 			AdvanceWeeklyEconomy();
-			CheckWeeklyGoals(resultMsgList);
+			CheckWeeklyGoals(events);
 
-			return resultMsgList;
+			return events;
 		}
 
 		/// <summary>
 		/// 年次処理
 		/// </summary>
-		private List<string> NextYear()
+		private List<GameEvent> NextYear()
 		{
-			List<string> resultMsgList = new List<string>();
+			List<GameEvent> events = new List<GameEvent>();
 
-			if (Year == SteamYear) { resultMsgList.Add("今年から、蒸気機関車の設定が不可能になります。\n（現在設定中のものは引き続き使用可能です）"); }
+			if (Year == SteamYear) { events.Add(new SteamAvailabilityEndedEvent(Year)); }
 
 			UpdatePopulation();
 
@@ -198,19 +198,20 @@ namespace whr_wpf.Model
 				if (warMode != null)
 				{
 					modss = warMode;
-					resultMsgList.Add("今年より戦時体制に突入します。\n貨物取扱量が変化し、貨物輸送を削減することができなくなります。");
+					events.Add(new WarStartedEvent(warMode.StartYear, warMode.EndYear, warMode.kamotsuIndex));
 				}
 			}
 			else
 			{
 				if (modss.EndYear == Year)
 				{
+					var endedWar = new WarEndedEvent(modss.StartYear, modss.EndYear, modss.kamotsuIndex);
 					modss = null;
-					resultMsgList.Add("戦時体制は終了しました");
+					events.Add(endedWar);
 				}
 			}
 
-			return resultMsgList;
+			return events;
 		}
 
 		/// <summary>
