@@ -44,3 +44,7 @@ namespaceは同じでも公開型のassembly identityは変わる。外部binary
 ## 解析診断と表示案内の試験境界
 
 [混在診断試験の分離](../design/scenario-diagnostic-test-split.md)では解析65件をScenarioTests、表示11件をWPFTestsへ分ける。解析の元class名を維持し、表示はScenarioReadFailureFormatterTestsへ改名して責務を追いやすくする。同じ公開試験classを別assemblyに併存させる案は名前から配置を判断しにくいため採用しない。旧→新classの対応を表示11件だけへ限定して検証し、入力/期待値/helperと製品契約を維持する。新fixtureと新プロジェクトは不要。
+
+## 本体とVMの混在試験
+
+[Core/UI試験の分割](../design/core-ui-test-split.md)では本体33件をCoreへ移し、VM経由の操作/表示3件をWPFのCompositionSaleViewModelTestsとLineSuspensionViewModelTestsへ残す。共有SaleStockは既存CurrentBehaviorFixtureへ本文を保って移し、新しい共有構成を作らない。カテゴリと期待値を維持し、class対応はUI3件のみ。現製品境界に沿う純粋試験の配置は全WPF試験へ照合するが、共通操作窓口/入力検証の完了とは区別する。

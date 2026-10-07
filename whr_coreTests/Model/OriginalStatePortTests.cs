@@ -183,23 +183,6 @@ namespace whr_wpf.Model.Tests
         }
 
         [TestMethod]
-        public void SaleScreenQuotesTheSameRoundedTotalAsTheModel()
-        {
-            var game = Game();
-            IComposition stock = SaleStock(game, true);
-            // 内部VMを生成して表示文字列だけ確認し、確認ダイアログは開かない。
-            var type = typeof(whr_wpf.ViewModel.ViewModelBase).Assembly.GetType("whr_wpf.ViewModel.Vehicle.CompositionManageViewModel")!;
-            var vm = Activator.CreateInstance(type, new object?[] { game, null })!;
-            type.GetProperty("Composition")!.SetValue(vm, stock);
-            type.GetProperty("Quantity")!.SetValue(vm, 2);
-            var quote = (string)type.GetProperty("PriceInfo")!.GetValue(vm)!;
-            StringAssert.Contains(quote, "合計売却価格　30万円");
-            long money = game.Money;
-            stock.Sale(game, 2);
-            Assert.AreEqual(3L, game.Money - money);
-        }
-
-        [TestMethod]
         public void ResetReleasesAllocatedUnitsOnlyOnce()
         {
             var game = Game();
@@ -235,13 +218,5 @@ namespace whr_wpf.Model.Tests
             Assert.AreEqual((true, true), (first.IsElectrified, second.IsElectrified));
         }
 
-        private static IComposition SaleStock(GameInfo game, bool defaultStock)
-        {
-            IComposition stock = defaultStock
-                ? new DefautltComposition { Price = 19 }
-                : new Composition { Vehicles = new Dictionary<Car, int> { [new Car { money = 19 }] = 1 } };
-            stock.Purchase(game, 3);
-            return stock;
-        }
     }
 }

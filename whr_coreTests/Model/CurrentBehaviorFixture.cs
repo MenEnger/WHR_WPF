@@ -45,6 +45,15 @@ namespace whr_wpf.Model.Tests
             return stock;
         }
 
+        internal static IComposition SaleStock(GameInfo game, bool defaultStock)
+        {
+            IComposition stock = defaultStock
+                ? new DefautltComposition { Price = 19 }
+                : new Composition { Vehicles = new Dictionary<Car, int> { [new Car { money = 19 }] = 1 } };
+            stock.Purchase(game, 3);
+            return stock;
+        }
+
         internal static Line Line(GameInfo game, bool exists = true)
         {
             var line = new Line
