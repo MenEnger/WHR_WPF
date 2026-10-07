@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using whr_wpf.Util;
 
 namespace whr_wpf.Model
 {
@@ -324,6 +325,17 @@ namespace whr_wpf.Model
 			}
 
 			return target;
+		}
+
+		/// <summary>
+		/// 編成を作成し、ゲームへ登録する。
+		/// </summary>
+		public Composition CreateComposition(string name, IEnumerable<KeyValuePair<Car, int>> vehicleNumbers)
+		{
+			var destination = compositions;
+			Composition result = CompositionFactory.CreateComposition(name, vehicleNumbers);
+			destination.Add(result);
+			return result;
 		}
 
 		/// <summary>

@@ -51,3 +51,8 @@
 ## 2026-10-08：休止路線の線数復元候補
 
 - ConstructWindowViewModelは保存線数が1/2/4以外の場合に新しいLaneNumViewModelを作るが、LaneSuListへ追加しない。その値はItemsSourceに存在せず、再開画面で選択を復元できない可能性がある。コード確認のみ、通常UIやシナリオからの到達性・実画面の再現は未確認。#27の比較方式の変更とは別の選択肢構成の問題として扱い、今回は修正しない。
+
+## 2026-10-08：投資入力と蒸気投資のバインド候補
+
+- 蒸気投資ComboBox：TechnologyDevelopWindow.xaml:37のIsEnabledはCanSteamDevelopへバインドするが、TechnologyDevelopViewModelはCanSteamInvestを公開している。VisibilityはCanSteamInvestなので投資不可時には隠れる。コードで名称不一致を確認、実画面のバインド診断は未確認。累計投資表示の#24とは別の接続不整合候補。共通窓口の調査へ混ぜて修正しない。
+- 未定義の投資額：weeklyInvestmentへ(int.MinValue)を直接設定すると、ChargeWeeklyTechnologyInvestments→AddMoneyでMoneyが変更された後、Math.Abs(increment)がOverflowExceptionとなり得て累計加算に届かない。コード確認のみ、実行再現・通常UI到達は未確認。UIは定義済みenumだけを選択させる。#28の本体入力検査で扱う候補で、途中失敗の巻戻しを今回自動採用しない。
