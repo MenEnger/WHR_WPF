@@ -255,11 +255,19 @@ namespace whr_wpf.Model
 			{
 				throw new ArgumentNullException(nameof(newComposition));
 			}
-			if (!IsExist) { throw new InvalidOperationException("未建設または休止中の区間には系統を設定できません"); }
+			if (!IsExist)
+			{
+				throw new ServiceSettingRejectedException(new(ServiceSettingTarget.Through,
+					ServiceSettingRejectionReason.Unavailable, Name, runningPerDay));
+			}
 
 			//先に編成が設定できるかチェック　そうしないと編成確保時に不整合が起きる
 			(bool isAcceptableFreq, ImmutableDictionary<Line, DiagramType> lineDiagramPairs) = JudgeDiagramForRunningPerDay(runningPerDay, gameInfo);
-			if (!isAcceptableFreq) { throw new InvalidOperationException("この路線には編成が設定できません"); }
+			if (!isAcceptableFreq)
+			{
+				throw new ServiceSettingRejectedException(new(ServiceSettingTarget.Through,
+					ServiceSettingRejectionReason.FrequencyExceeded, Name, runningPerDay));
+			}
 
 			ValidateCompositionAcceptable(newComposition, gameInfo);
 
@@ -268,11 +276,19 @@ namespace whr_wpf.Model
 
 			int newUseCompositionNum = newUseCompositionNum = CalcUseCompositionNum(newComposition, runningPerDay, lineDiagramPairs);
 
-			if (newComposition.HeldUnits < CalcMissingCompositions(newComposition, runningPerDay, lineDiagramPairs))
+			int available = newComposition.HeldUnits;
+			int calculatedMissing = CalcMissingCompositions(newComposition, runningPerDay, lineDiagramPairs);
+			if (available < calculatedMissing)
 			{
 				//例外発生時は復元
 				//route.ForEach(line => line.diagram = originalDiagram[line]);
-				throw new InvalidOperationException("編成が足りません");
+				throw new ServiceSettingRejectedException(new(ServiceSettingTarget.Through,
+					ServiceSettingRejectionReason.StockUnavailable, Name, runningPerDay)
+				{
+					RequiredUnits = newUseCompositionNum,
+					AvailableUnits = available,
+					CalculatedMissingUnits = calculatedMissing,
+				});
 			}
 
 			ReleaseComposition();

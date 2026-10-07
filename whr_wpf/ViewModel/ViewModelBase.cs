@@ -93,6 +93,10 @@ namespace whr_wpf.ViewModel
 				{
 					MessageBox.Show(StockShortageFormatter.Format(e.Failure), "エラー", MessageBoxButton.OK, MessageBoxImage.Information);
 				}
+				catch (ServiceSettingRejectedException e)
+				{
+					MessageBox.Show(ServiceSettingFailureFormatter.Format(e.Failure), "エラー", MessageBoxButton.OK, MessageBoxImage.Information);
+				}
 				catch (InvalidOperationException e)
 				{
 					MessageBox.Show(e.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Information);

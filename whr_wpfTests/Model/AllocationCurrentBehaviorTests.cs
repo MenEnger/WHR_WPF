@@ -35,7 +35,7 @@ namespace whr_wpf.Model.Tests
             var oldStock = Stock(game);
             line.SettingComposition(oldStock, 60, DiagramType.LimittedExpressPrior, game);
             var newStock = Stock(game, 0);
-            Assert.ThrowsException<InvalidOperationException>(() => line.SettingComposition(newStock, 60, DiagramType.Regular, game));
+            Assert.ThrowsException<ServiceSettingRejectedException>(() => line.SettingComposition(newStock, 60, DiagramType.Regular, game));
             newStock.Power = PowerEnum.Electricity;
             Assert.ThrowsException<CompositionNotAppliedException>(() => line.SettingComposition(newStock, 60, DiagramType.Regular, game));
             Assert.AreSame(oldStock, line.useComposition);

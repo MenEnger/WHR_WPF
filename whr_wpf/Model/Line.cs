@@ -951,7 +951,11 @@ namespace whr_wpf.Model
 			}
 
 			//先に編成が設定できるかチェック　そうしないと編成確保時に不整合が起きる
-			if (!CanCompositionSetting()) { throw new InvalidOperationException("この路線には編成が設定できません"); }
+			if (!CanCompositionSetting())
+			{
+				throw new ServiceSettingRejectedException(new(ServiceSettingTarget.Direct,
+					ServiceSettingRejectionReason.Unavailable, Name, runningPerDay));
+			}
 			ValidateCompositionAcceptable(newComposition, gameInfo);
 
 			int newUseCompositionNum;
@@ -961,9 +965,17 @@ namespace whr_wpf.Model
 				newUseCompositionNum = CalcUseCompositionNum(newComposition, runningPerDay, newDiagramType);
 			}
 
-			if (newComposition.HeldUnits < CalcMissingCompositions(newComposition, runningPerDay, newDiagramType))
+			int available = newComposition.HeldUnits;
+			int calculatedMissing = CalcMissingCompositions(newComposition, runningPerDay, newDiagramType);
+			if (available < calculatedMissing)
 			{
-				throw new InvalidOperationException("編成が足りません");
+				throw new ServiceSettingRejectedException(new(ServiceSettingTarget.Direct,
+					ServiceSettingRejectionReason.StockUnavailable, Name, runningPerDay)
+				{
+					RequiredUnits = newUseCompositionNum,
+					AvailableUnits = available,
+					CalculatedMissingUnits = calculatedMissing,
+				});
 			}
 
 			//既存の編成を解放→新を確保して設定
