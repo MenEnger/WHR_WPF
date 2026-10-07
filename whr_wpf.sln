@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "whr_scenario", "whr_scenari
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "whr_coreTests", "whr_coreTests\whr_coreTests.csproj", "{933CCE28-40F1-438C-BCEA-080D1E095B1B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "whr_scenarioTests", "whr_scenarioTests\whr_scenarioTests.csproj", "{12F8403E-55DA-41F7-9DBA-B481191CEFED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{933CCE28-40F1-438C-BCEA-080D1E095B1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{933CCE28-40F1-438C-BCEA-080D1E095B1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{933CCE28-40F1-438C-BCEA-080D1E095B1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12F8403E-55DA-41F7-9DBA-B481191CEFED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12F8403E-55DA-41F7-9DBA-B481191CEFED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12F8403E-55DA-41F7-9DBA-B481191CEFED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12F8403E-55DA-41F7-9DBA-B481191CEFED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,6 +1,5 @@
 using System.IO;
 using whr_wpf.Util;
-using static whr_wpf.Model.Tests.ScenarioBoundaryTests;
 
 namespace whr_wpf.Model.Tests
 {
