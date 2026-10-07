@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <Compile Include="..\whr_coreTests\Model\CurrentBehaviorFixture.cs" Link="Model\CurrentBehaviorFixture.cs" />
+    <Compile Include="..\whr_coreTests\Model\WeeklyEventFixture.cs" Link="Model\WeeklyEventFixture.cs" />
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
 
