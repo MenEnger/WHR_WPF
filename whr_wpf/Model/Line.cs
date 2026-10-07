@@ -801,14 +801,57 @@ namespace whr_wpf.Model
 			switch (Type)
 			{
 				case RailTypeEnum.LinearMotor:
-					if (composition.Type != RailTypeEnum.LinearMotor) { throw new CompositionNotAppliedException("車両がリニアではありません"); }
+					RailTypeEnum compositionType = composition.Type;
+					if (compositionType != RailTypeEnum.LinearMotor)
+					{
+						throw new CompositionNotAppliedException(new(CompositionCompatibilityReason.RequiresLinearVehicle, Name)
+						{
+							LineType = RailTypeEnum.LinearMotor,
+							CompositionType = compositionType,
+						});
+					}
 					break;
 				case RailTypeEnum.Iron:
-					if (composition.Type == RailTypeEnum.LinearMotor) { throw new CompositionNotAppliedException("リニア軌道ではありません"); }
-					if (composition.Gauge == CarGaugeEnum.Narrow && gauge == RailGaugeEnum.Regular) { throw new CompositionNotAppliedException("路線幅が違います"); }
-					if (composition.Gauge == CarGaugeEnum.Regular && gauge == RailGaugeEnum.Narrow) { throw new CompositionNotAppliedException("路線幅が違います"); }
-					if (composition.IsElectrified && !(bool)IsElectrified) { throw new CompositionNotAppliedException("路線が非電化です"); }
-					if (composition.Power == PowerEnum.Steam && !gameInfo.IsSteamAvailable()) { throw new CompositionNotAppliedException("蒸気機関車は時代遅れで使えません"); }
+					if (composition.Type == RailTypeEnum.LinearMotor)
+					{
+						throw new CompositionNotAppliedException(new(CompositionCompatibilityReason.RequiresLinearTrack, Name)
+						{
+							LineType = RailTypeEnum.Iron,
+							CompositionType = RailTypeEnum.LinearMotor,
+						});
+					}
+					if (composition.Gauge == CarGaugeEnum.Narrow && gauge == RailGaugeEnum.Regular)
+					{
+						throw new CompositionNotAppliedException(new(CompositionCompatibilityReason.GaugeMismatch, Name)
+						{
+							LineGauge = RailGaugeEnum.Regular,
+							CompositionGauge = CarGaugeEnum.Narrow,
+						});
+					}
+					if (composition.Gauge == CarGaugeEnum.Regular && gauge == RailGaugeEnum.Narrow)
+					{
+						throw new CompositionNotAppliedException(new(CompositionCompatibilityReason.GaugeMismatch, Name)
+						{
+							LineGauge = RailGaugeEnum.Narrow,
+							CompositionGauge = CarGaugeEnum.Regular,
+						});
+					}
+					if (composition.IsElectrified && !(bool)IsElectrified)
+					{
+						throw new CompositionNotAppliedException(new(CompositionCompatibilityReason.RequiresElectrification, Name)
+						{
+							LineElectrified = false,
+							CompositionElectrified = true,
+						});
+					}
+					if (composition.Power == PowerEnum.Steam && !gameInfo.IsSteamAvailable())
+					{
+						throw new CompositionNotAppliedException(new(CompositionCompatibilityReason.SteamExpired, Name)
+						{
+							Year = gameInfo.Year,
+							SteamEndYear = gameInfo.SteamYear,
+						});
+					}
 					break;
 				default:
 					throw new InvalidOperationException("未定義の軌道タイプです。検査を追加してください");

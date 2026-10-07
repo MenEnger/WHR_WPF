@@ -1,0 +1,45 @@
+# 編成適合判定の理由を表示から分離する
+
+2026-10-07。Issue #26の第三段階。
+
+## 仕様検討
+
+Line.ValidateCompositionAcceptableと系統経由の拒否は、CompositionNotAppliedExceptionへ理由と発生時点の値を保存する。voidの検査APIと例外型は維持する。リニア車両要求、リニア軌道要求、軌間不一致、電化要求、蒸気使用期限を区別し、日本語文章はViewで生成する。
+
+判定順・条件・系統のルート検査順、実行時の再検査、割当前状態を維持する。null引数・未定義軌道の内部例外・電化nullableのキャスト例外を想定内拒否へ丸めない。割当不足、数量、週次失敗などは今回対象外。
+
+## 影響確認
+
+製品で検査を呼ぶのはLine.SettingComposition、KeitoDiagram.ValidateCompositionAcceptable/SettingComposition、路線/系統のダイヤ設定VMの選択と可否判定。表示はVM2箇所のErrorMsgと実行時ViewModelBaseのcatch。可否判定は型のみで捕捉している。
+
+例外のstringコンストラクタを構造化理由へ置換するため、外部で構築する呼出側は移行が必要。Messageは内部診断へ変わり、日本語文章に依存する外部利用者はUI formatterまたは理由へ移行する。既存のCompositionNotAppliedException/InvalidOperationExceptionによる捕捉とvoid検査のシグネチャは維持する。文字列互換wrapperは追加しない。
+
+既存配分の途中失敗問題はdocs/pending-decisions.mdで追跡済みであり、この表示境界分離で修正しない。条件・数式を変えず、想定内拒否の情報だけを移す。
+
+## 検証計画
+
+製品変更前に全理由、軌間両方向、電化・期限境界、FreeGauge、優先順、系統順、null/内部例外と拒否時の状態を固定する。移動後は理由と必要な比較値、保存済み結果の不変性、UI文章とVM接続を検査する。実ダイアログは未操作でIssue #37へ残す。
+
+仕様・影響レビュー（Astra、同日）：蒸気拒否時以外はgameInfoの年・期限を読まない。Lineの一律gameInfo null検査を追加しない。電化の短絡とnullableキャスト、リニア路線の軌道のみの検査を維持する。系統は引数null→route順で、空route成功と最初の拒否、null route/要素の内部例外を維持する。未知編成Type、FreeGauge、null軌間への新条件を追加しない。stringコンストラクタを使う外部派生例外のbase呼出も破壊的変更に含める。指摘を反映して設計へ進む。
+
+## 設計
+
+ModelにCompositionCompatibilityReason（RequiresLinearVehicle、RequiresLinearTrack、GaugeMismatch、RequiresElectrification、SteamExpired）とsealed record CompositionCompatibilityFailure(Reason, LineName)を置く。拒否だけを表すため成功用の理由は作らない。
+
+必要な段階だけinit値を保存する：軌道不一致はLineTypeとCompositionType、軌間不一致はLineGaugeとCompositionGauge、電化拒否はLineElectrified=falseとCompositionElectrified=true、蒸気期限はYearとSteamEndYear。これらはnullable値として不使用時はnull。路線名は識別補助でnullも許容、現行文章には追加しない。編成名は任意ICompositionの追加getter呼出となるので今回収集しない。Line/IComposition/GameInfo参照は保持しない。
+
+Lineの既存分岐内で理由を作る。リニア車両要求では既に読んだcomposition.Typeを局所変数に保存する。他は既存判定で確定した値を使い、compのgetterを再読込・先読みしない。電化のnullableキャストも既存条件のまま。蒸気期限拒否時だけ年・期限を取得する。系統の検査処理は変更しない。
+
+CompositionNotAppliedExceptionは同型のままFailure取得専用プロパティを持つコンストラクタへ置換、Messageは英語内部診断とする。View/CompositionCompatibilityFormatter.Format(Failure)は既存5文章を生成し未知理由はArgumentOutOfRangeExceptionとする。
+
+両VMは選択時catchでformatterを呼ぶ。型のみの可否検査catchと実行は変えない。ViewModelBaseは一般InvalidOperationExceptionより前でこの拒否型を捕捉しformatterを使う。他のcatch・確認・画面終了位置は維持する。汎用結果APIや系統用の型を増やさない。
+
+正式設計レビュー（Astra、同日）：実装開始可。既存switch/ifに拒否理由と必要値を直接保存し、成功型・汎用helper・型階層を増やさない方針は可読性・保守性の観点でも適正。追加getterを避け、リニアの比較値は局所変数を使用する。基準15件成功を確認後に実装を開始した。
+
+## 検証結果
+
+製品変更前の15件成功。移動後は適合・状態・不変性・再判定・短絡の20件、文章と2画面の接続8件を追加し、全413件成功（失敗・スキップ0）。理由の全体record比較で必要値と不要値nullを確認し、代表2ケースのgetter観測で不要な先読み・再読込を防ぐ。全getter全組合せの試験は追加しない。
+
+実ダイアログ未操作。formatterとVM表示・CanExecuteを自動検証し、専用catchと既存一般例外処理・終了位置は差分で確認した。残る操作拒否・週次途中失敗はIssue #26で継続するため、このPRでIssueはクローズしない。
+
+仕上げレビュー（Astra、同日）：修正必須指摘なし。責務分離を保ち、条件と保存値を同じ分岐へ置く形は可読性・保守性の観点でも適正。1record・1formatterと代表getter検査に限定し、汎用層を増やしていない。最終テスト担当の20件成功も確認した。
