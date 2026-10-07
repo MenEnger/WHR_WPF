@@ -31,3 +31,7 @@
 
 - 購入ボタンの未選択：CompositionManageViewModel.BuyCommand.CanExecuteは数量だけを確認するため、編成未選択で正数量なら有効になり得る。確認文作成時のComposition.Price参照でnull例外の可能性。コード確認、実画面未確認。今回の数量不足分離で変更しない。
 - 購入確認文の単位重複：CompositionManageViewModelもAppendMoneyUnitの後に「拾万円」を追加する。先に記録したVehicleDevelopViewModelと同型の表示問題。表示整形Issue #27の関連候補としてまとめて扱う。
+
+## 2026-10-07：系統の頻度判定ループ候補
+
+- KeitoDiagram.JudgeDiagramForRunningPerDayのwhile内switchはNone/未知diagramを扱わない。最大本数が要求へ届かず、その値がボトルネックとなる場合、状態が進まずループ終了しない可能性。コード上の候補、入力条件の到達性と実行再現は未確認。検証する場合は終了時間を統制し、通常のテスト実行を無期限に止めない。今回の拒否理由分離では変更しない。

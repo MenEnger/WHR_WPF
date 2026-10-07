@@ -56,8 +56,8 @@ namespace whr_wpf.Model.Tests
             var through = Through(game, first, second);
             second.ReduceOrRemoveLane(game);
             var diagrams = (first.diagram, second.diagram);
-            Assert.ThrowsException<InvalidOperationException>(() => through.SettingComposition(stock, 10, game));
-            Assert.ThrowsException<InvalidOperationException>(() => second.SettingComposition(stock, 10, DiagramType.Regular, game));
+            Assert.ThrowsException<ServiceSettingRejectedException>(() => through.SettingComposition(stock, 10, game));
+            Assert.ThrowsException<ServiceSettingRejectedException>(() => second.SettingComposition(stock, 10, DiagramType.Regular, game));
             Assert.AreEqual(diagrams, (first.diagram, second.diagram));
             Assert.AreEqual((10, 0, 0), (stock.HeldUnits, through.runningPerDay, through.useCompositionNum));
             Assert.IsNull(through.useComposition);
