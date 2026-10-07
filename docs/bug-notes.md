@@ -26,3 +26,8 @@
 
 - 待避線画面の拒否未捕捉：画面を開いた後に路線が休止または4線以上になった場合、TaihisenChangeViewModelの決定CanExecuteは選択有無のみを確認し、ChangeTaihiの拒否を捕捉しない。独自catchはMoneyShortExceptionのみ。コード確認済み、通常UIで画面をまたいで状態を変更できるかは未確認。今回catchは追加しない。
 - 速度向上の入力境界：CanSpeedUpは現在速度で上限を判定し、改良回数は==5だけを拒否する。任意の上限直前速度からの増速で上限超過、回数6以上で制限通過が可能な候補。コード確認済み、通常UI/シナリオからの到達性未確認。入力規則の判断へ分離し今回は補正しない。
+
+## 2026-10-07：編成管理画面の既存候補
+
+- 購入ボタンの未選択：CompositionManageViewModel.BuyCommand.CanExecuteは数量だけを確認するため、編成未選択で正数量なら有効になり得る。確認文作成時のComposition.Price参照でnull例外の可能性。コード確認、実画面未確認。今回の数量不足分離で変更しない。
+- 購入確認文の単位重複：CompositionManageViewModelもAppendMoneyUnitの後に「拾万円」を追加する。先に記録したVehicleDevelopViewModelと同型の表示問題。表示整形Issue #27の関連候補としてまとめて扱う。

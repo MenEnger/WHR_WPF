@@ -89,6 +89,10 @@ namespace whr_wpf.ViewModel
 				{
 					MessageBox.Show(LineEquipmentFailureFormatter.Format(e.Failure), "エラー", MessageBoxButton.OK, MessageBoxImage.Information);
 				}
+				catch (StockShortageException e)
+				{
+					MessageBox.Show(StockShortageFormatter.Format(e.Failure), "エラー", MessageBoxButton.OK, MessageBoxImage.Information);
+				}
 				catch (InvalidOperationException e)
 				{
 					MessageBox.Show(e.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Information);

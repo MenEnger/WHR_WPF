@@ -295,7 +295,11 @@ namespace whr_wpf.Model
 		public void Sale(GameInfo gameInfo, int quantity)
 		{
 			if (gameInfo is null) { throw new ArgumentNullException(nameof(gameInfo)); }
-			if (quantity > HeldUnits) { throw new InvalidOperationException("保有編成数が売却数に対して不足しています"); }
+			int availableQuantity = HeldUnits;
+			if (quantity > availableQuantity)
+			{
+				throw new StockShortageException(new(StockShortageOperation.Sale, quantity, availableQuantity));
+			}
 			long salePrice = CalcSalePrice(quantity);
 			Use(quantity);
 			gameInfo.Money += salePrice;
@@ -355,9 +359,10 @@ namespace whr_wpf.Model
 		{
 			if (quantity < 0) { throw new ArgumentException("数量は0以上で"); }
 
-			if (HeldUnits < quantity)
+			int availableQuantity = HeldUnits;
+			if (availableQuantity < quantity)
 			{
-				throw new InvalidOperationException($"編成数量が{quantity - HeldUnits}つ不足しています");
+				throw new StockShortageException(new(StockShortageOperation.Use, quantity, availableQuantity));
 			}
 			HeldUnits -= quantity;
 			return;
@@ -425,9 +430,10 @@ namespace whr_wpf.Model
 		{
 			if (quantity < 0) { throw new ArgumentException("数量は0以上で"); }
 
-			if (HeldUnits < quantity)
+			int availableQuantity = HeldUnits;
+			if (availableQuantity < quantity)
 			{
-				throw new InvalidOperationException($"編成数量が{quantity - HeldUnits}つ不足しています");
+				throw new StockShortageException(new(StockShortageOperation.Use, quantity, availableQuantity));
 			}
 			HeldUnits -= quantity;
 			return;
