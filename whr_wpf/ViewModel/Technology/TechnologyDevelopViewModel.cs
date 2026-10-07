@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows.Input;
 using whr_wpf.Model;
 using whr_wpf.Util;
+using whr_wpf.View;
 using whr_wpf.View.Technology;
 
 namespace whr_wpf.ViewModel.Technology
@@ -78,7 +79,7 @@ namespace whr_wpf.ViewModel.Technology
 		/// <summary>
 		/// 蒸気機関累計投資額
 		/// </summary>
-		public string SteamAccumuInvestment => LogicUtil.AppendMoneyUnit(gameInfo.AccumulatedInvest.steam);
+		public string SteamAccumuInvestment => MoneyDisplayFormatter.Format(gameInfo.AccumulatedInvest.steam);
 
 
 		/// <summary>
@@ -100,7 +101,7 @@ namespace whr_wpf.ViewModel.Technology
 		/// <summary>
 		/// 電気モーター累計投資額
 		/// </summary>
-		public string ElectricAccumuInvestment => LogicUtil.AppendMoneyUnit(gameInfo.AccumulatedInvest.electricMotor);
+		public string ElectricAccumuInvestment => MoneyDisplayFormatter.Format(gameInfo.AccumulatedInvest.electricMotor);
 
 
 		/// <summary>
@@ -122,7 +123,7 @@ namespace whr_wpf.ViewModel.Technology
 		/// <summary>
 		/// ディーゼル累計投資額
 		/// </summary>
-		public string DieselAccumuInvestment => LogicUtil.AppendMoneyUnit(gameInfo.AccumulatedInvest.diesel);
+		public string DieselAccumuInvestment => MoneyDisplayFormatter.Format(gameInfo.AccumulatedInvest.diesel);
 
 
 		/// <summary>
@@ -144,7 +145,7 @@ namespace whr_wpf.ViewModel.Technology
 		/// <summary>
 		/// リニアモーター累計投資額
 		/// </summary>
-		public string LinearAccumuInvestment => LogicUtil.AppendMoneyUnit(gameInfo.AccumulatedInvest.linearMotor);
+		public string LinearAccumuInvestment => MoneyDisplayFormatter.Format(gameInfo.AccumulatedInvest.linearMotor);
 
 
 		/// <summary>
@@ -166,7 +167,7 @@ namespace whr_wpf.ViewModel.Technology
 		/// <summary>
 		/// 新企画累計投資額
 		/// </summary>
-		public string NewPlanAccumuInvestment => LogicUtil.AppendMoneyUnit(gameInfo.AccumulatedInvest.newPlan);
+		public string NewPlanAccumuInvestment => MoneyDisplayFormatter.Format(gameInfo.AccumulatedInvest.newPlan);
 
 		/// <summary>
 		/// 閉じるコマンド

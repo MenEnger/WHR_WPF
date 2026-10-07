@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Windows;
@@ -144,7 +144,7 @@ namespace whr_wpf.ViewModel
 		{
 			get
 			{
-				return $"見積もり {LogicUtil.AppendMoneyUnit(CalcCost())}";
+				return $"見積もり {MoneyDisplayFormatter.Format(CalcCost())}";
 			}
 		}
 
@@ -314,7 +314,7 @@ namespace whr_wpf.ViewModel
 			override public void Execute(object parameter)
 			{
 				//確認
-				MessageBoxResult constructConfirm = MessageBox.Show($"{LogicUtil.AppendMoneyUnit(vm.CalcCost())}の資金が必要です。建造しますか？", "路線建造", MessageBoxButton.YesNo);
+				MessageBoxResult constructConfirm = MessageBox.Show($"{MoneyDisplayFormatter.Format(vm.CalcCost())}の資金が必要です。建造しますか？", "路線建造", MessageBoxButton.YesNo);
 				if (constructConfirm == MessageBoxResult.Yes)
 				{
 					try

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.Windows;
@@ -65,7 +65,7 @@ namespace whr_wpf.ViewModel
 				this.OnPropertyChanged(nameof(EstimatedCost));
 			}
 		}
-		public string EstimatedCost => taihisen == null ? "待避線を選択してください" : LogicUtil.AppendMoneyUnit(CalcCost());
+		public string EstimatedCost => taihisen == null ? "待避線を選択してください" : MoneyDisplayFormatter.Format(CalcCost());
 
 		private long CalcCost()
 		{

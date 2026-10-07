@@ -3,6 +3,7 @@ using System.Text;
 using System.Windows;
 using whr_wpf.Model;
 using whr_wpf.Util;
+using whr_wpf.View;
 
 namespace whr_wpf.ViewModel.Vehicle
 {
@@ -63,7 +64,7 @@ namespace whr_wpf.ViewModel.Vehicle
 						break;
 				}
 
-				builder.Append($"車両価格　{LogicUtil.AppendMoneyUnit(Vehicle.money)}\n");
+				builder.Append($"車両価格　{MoneyDisplayFormatter.Format(Vehicle.money)}\n");
 
 				return builder.ToString();
 

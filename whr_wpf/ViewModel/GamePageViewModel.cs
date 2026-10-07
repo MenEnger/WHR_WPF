@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -44,11 +44,11 @@ namespace whr_wpf.ViewModel
 		public VerticalAlignment InfoPosiY
 			=> GameInfo.InfoPosi == InfoPosiEnum.TopLeft || GameInfo.InfoPosi == InfoPosiEnum.TopRight ? VerticalAlignment.Top : VerticalAlignment.Bottom;
 		public string Date => $"{GameInfo.Year}年{GameInfo.Month}月{GameInfo.Week}週目";
-		public string Money => $"所持金   {LogicUtil.AppendMoneyUnit(GameInfo.Money)}";
+		public string Money => $"所持金   {MoneyDisplayFormatter.Format(GameInfo.Money)}";
 		public Brush MoneyColor => GameInfo.Money >= 0 ? Brushes.White : Brushes.Red;
-		public string Income => $"前週収入   {LogicUtil.AppendMoneyUnit(GameInfo.income)}";
-		public string Outlay => $"前週支出   {LogicUtil.AppendMoneyUnit(GameInfo.outlay)}";
-		public string Benefit => $"収支合計   {LogicUtil.AppendMoneyUnit(GameInfo.income - GameInfo.outlay)}";
+		public string Income => $"前週収入   {MoneyDisplayFormatter.Format(GameInfo.income)}";
+		public string Outlay => $"前週支出   {MoneyDisplayFormatter.Format(GameInfo.outlay)}";
+		public string Benefit => $"収支合計   {MoneyDisplayFormatter.Format(GameInfo.income - GameInfo.outlay)}";
 		public Brush BenefitColor => GameInfo.income - GameInfo.outlay >= 0 ? Brushes.White : Brushes.Red;
 
 

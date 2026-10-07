@@ -2,6 +2,7 @@
 using System.Windows.Input;
 using whr_wpf.Model;
 using whr_wpf.Util;
+using whr_wpf.View;
 using whr_wpf.View.Info;
 
 namespace whr_wpf.ViewModel.Info
@@ -62,7 +63,7 @@ namespace whr_wpf.ViewModel.Info
 					text.Append($"{gameInfo.SelectedMode.goalLineBestSpeed.Item1.Value.ToName()}を{gameInfo.SelectedMode.goalLineBestSpeed.Item2}km/h以上に\n");
 				}
 				if (gameInfo.SelectedMode.goalLineManage.HasValue) { text.Append($"{gameInfo.SelectedMode.goalLineManage.Value.ToName()}の収支を黒字に\n"); }
-				if (gameInfo.SelectedMode.goalMoney.HasValue) { text.Append($"所持金を{LogicUtil.AppendMoneyUnit(gameInfo.SelectedMode.goalMoney.Value)}以上に\n"); }
+				if (gameInfo.SelectedMode.goalMoney.HasValue) { text.Append($"所持金を{MoneyDisplayFormatter.Format(gameInfo.SelectedMode.goalMoney.Value)}以上に\n"); }
 				return text.ToString();
 			}
 		}
