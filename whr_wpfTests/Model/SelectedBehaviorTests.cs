@@ -38,7 +38,7 @@ namespace whr_wpf.Model.Tests
                 Assert.AreEqual((0, 0), (diagram.runningPerDay, diagram.useCompositionNum));
             }
             Assert.AreEqual(0, line.GenkaiHonsuuUnderCurrent(game.genkaikyoyo));
-            Assert.ThrowsException<InvalidOperationException>(() => line.ReduceOrRemoveLane(game));
+            Assert.ThrowsException<LineEquipmentRejectedException>(() => line.ReduceOrRemoveLane(game));
             Assert.AreEqual(10, stock.HeldUnits);
             game.NextWeek();
             Assert.AreEqual((0, 0, 0L, 0L), (line.passengersLastWeek, line.kamotsuNumLastWeek, line.incomeLastWeek, line.outlayLastWeek));

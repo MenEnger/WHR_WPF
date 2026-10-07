@@ -454,7 +454,16 @@ namespace whr_wpf.Model
 		/// <param name="gameInfo">ゲーム情報</param>
 		public void SpeedUp(GameInfo gameInfo)
 		{
-			if (!CanSpeedUp()) { throw new InvalidOperationException("この路線はスピードアップできません"); }
+			if (!CanSpeedUp())
+			{
+				throw new LineEquipmentRejectedException(new(LineEquipmentRejectionReason.SpeedUpUnavailable, Name, IsExist)
+				{
+					BestSpeed = bestSpeed,
+					ImprovementCount = bestSpeedUpKaisu,
+					Type = Type,
+					Gauge = gauge,
+				});
+			}
 
 			//お金チェックと消費
 			long cost = CalcSpeedUpCost(gameInfo);
@@ -484,7 +493,14 @@ namespace whr_wpf.Model
 		/// <param name="gameInfo"></param>
 		public void UnElectrify(GameInfo gameInfo)
 		{
-			if (!CanUnElectrify()) { throw new InvalidOperationException("この路線は非電化できません"); }
+			if (!CanUnElectrify())
+			{
+				throw new LineEquipmentRejectedException(new(LineEquipmentRejectionReason.UnElectrifyUnavailable, Name, IsExist)
+				{
+					Type = Type,
+					IsElectrified = IsElectrified,
+				});
+			}
 			IsElectrified = false;
 			DiagramReset();
 		}
@@ -525,7 +541,14 @@ namespace whr_wpf.Model
 		/// <param name="gameInfo"></param>
 		public void Electrify(GameInfo gameInfo)
 		{
-			if (!CanElectrify()) { throw new InvalidOperationException("この路線は電化できません"); }
+			if (!CanElectrify())
+			{
+				throw new LineEquipmentRejectedException(new(LineEquipmentRejectionReason.ElectrifyUnavailable, Name, IsExist)
+				{
+					Type = Type,
+					IsElectrified = IsElectrified,
+				});
+			}
 
 			long cost = CalcElectrifyCost(gameInfo);
 			SpendMoney(gameInfo, cost);
@@ -570,7 +593,14 @@ namespace whr_wpf.Model
 		/// <param name="gameInfo"></param>
 		public void NarrowGauge(GameInfo gameInfo)
 		{
-			if (!CanNarrowGauge()) { throw new InvalidOperationException("この路線は狭軌に変更できません"); }
+			if (!CanNarrowGauge())
+			{
+				throw new LineEquipmentRejectedException(new(LineEquipmentRejectionReason.NarrowGaugeUnavailable, Name, IsExist)
+				{
+					Type = Type,
+					Gauge = gauge,
+				});
+			}
 
 			long cost = CalcNarrowGaugeCost(gameInfo);
 			SpendMoney(gameInfo, cost);
@@ -615,7 +645,14 @@ namespace whr_wpf.Model
 		/// <param name="gameInfo"></param>
 		public void ExpanseGauge(GameInfo gameInfo)
 		{
-			if (!CanExpanseGauge()) { throw new InvalidOperationException("この路線は標準軌に変更できません"); }
+			if (!CanExpanseGauge())
+			{
+				throw new LineEquipmentRejectedException(new(LineEquipmentRejectionReason.ExpanseGaugeUnavailable, Name, IsExist)
+				{
+					Type = Type,
+					Gauge = gauge,
+				});
+			}
 
 			long cost = CalcExpanseGaugeCost(gameInfo);
 			SpendMoney(gameInfo, cost);
@@ -669,7 +706,10 @@ namespace whr_wpf.Model
 		/// <param name="gameInfo"></param>
 		public void AddLane(GameInfo gameInfo)
 		{
-			if (!CanAddLane()) { throw new InvalidOperationException("この路線は増設できません"); }
+			if (!CanAddLane())
+			{
+				throw new LineEquipmentRejectedException(new(LineEquipmentRejectionReason.AddLaneUnavailable, Name, IsExist));
+			}
 
 			long cost = CalcAddLaneCost(gameInfo);
 			SpendMoney(gameInfo, cost);
@@ -710,7 +750,10 @@ namespace whr_wpf.Model
 		/// <param name="gameInfo"></param>
 		public void ReduceOrRemoveLane(GameInfo gameInfo)
 		{
-			if (!CanReduceOrRemoveLane()) { throw new InvalidOperationException("この路線は削減できません"); }
+			if (!CanReduceOrRemoveLane())
+			{
+				throw new LineEquipmentRejectedException(new(LineEquipmentRejectionReason.ReduceUnavailable, Name, IsExist));
+			}
 
 			if (IsReduceOrRemoveLane())
 			{
@@ -774,7 +817,13 @@ namespace whr_wpf.Model
 		/// </summary>
 		public void ChangeTaihi(TaihisenEnum taihisen, GameInfo gameInfo)
 		{
-			if (!CanTaihiChange()) { throw new InvalidOperationException("この路線は待避線を設定できません"); }
+			if (!CanTaihiChange())
+			{
+				throw new LineEquipmentRejectedException(new(LineEquipmentRejectionReason.TaihiUnavailable, Name, IsExist)
+				{
+					LaneCount = LaneNum,
+				});
+			}
 
 			var cost = CalcTaihisenChangeCost(taihisen, gameInfo);
 			SpendMoney(gameInfo, cost);
