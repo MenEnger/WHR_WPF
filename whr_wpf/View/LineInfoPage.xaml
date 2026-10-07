@@ -33,7 +33,7 @@
                 <Label  Content="{Binding Shushi}" HorizontalContentAlignment="Left" HorizontalAlignment="Center" VerticalAlignment="Top" Width="250" Height="20" FontSize="16" Foreground="{Binding ShushiColor}" Padding="10,0,10,0"/>
                 <Label  Content="{Binding TotalShushi}" HorizontalContentAlignment="Left" HorizontalAlignment="Center" VerticalAlignment="Top" Width="250" Height="20" FontSize="16" Foreground="{Binding TotalShushiColor}" Padding="10,0,10,0"/>
             </StackPanel>
-            <ComboBox x:Name="LineList" Margin="0,30,0,0" FontSize="16" DisplayMemberPath="Caption" DropDownClosed="LineList_DropDownClosed" TabIndex="1" />
+            <ComboBox x:Name="LineList" Margin="0,30,0,0" FontSize="16" DisplayMemberPath="Caption" SelectedValuePath="Line" DropDownClosed="LineList_DropDownClosed" TabIndex="1" />
             <Button x:Name="CloseBtn" Content="閉じる" Command="{Binding Close}" Height="30"/>
             <Button x:Name="ConstructBtn" Content="{Binding ConstructionLabel}" Command="{Binding Construction}" Height="30" ToolTip="{Binding ConstructionDescription}"/>
             <Button x:Name="ReformBtn" Content="路線改造"  Command="{Binding Reform}" Height="30" Visibility="{Binding IsExist}" ToolTip="路線を改造します。速度、路線本数、軌間、電化非電化、待避線の変更ができます" />

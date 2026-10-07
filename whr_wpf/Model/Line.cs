@@ -171,11 +171,6 @@ namespace whr_wpf.Model
 		}
 		private int distance;
 
-		/// <summary>
-		/// 路線表示名
-		/// </summary>
-		public string Caption => $"{Name} {Start.Name}～{End.Name}";
-
 		protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
 		{
 			this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

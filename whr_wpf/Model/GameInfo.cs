@@ -189,7 +189,7 @@ namespace whr_wpf.Model
 					return;
 				}
 
-				throw new CannotContinueException($"シナリオダイヤ設定エラーです。路線'{line.Caption}'のスペックが路線と系統に設定された運行本数を捌けません。");
+				throw new CannotContinueException($"シナリオダイヤ設定エラーです。路線'{line.Name} {line.Start.Name}～{line.End.Name}'のスペックが路線と系統に設定された運行本数を捌けません。");
 			});
 			diagrams.ForEach(keito =>
 			{

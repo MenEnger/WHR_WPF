@@ -43,7 +43,8 @@ namespace whr_wpf.Model.Tests
             var stock = Stock(game);
             game.compositions.Clear();
             var mode = Mode(stock, 1000);
-            Assert.ThrowsException<CannotContinueException>(() => game.SelectedMode = mode);
+            var exception = Assert.ThrowsException<CannotContinueException>(() => game.SelectedMode = mode);
+            Assert.AreEqual("シナリオダイヤ設定エラーです。路線'試験線 A～B'のスペックが路線と系統に設定された運行本数を捌けません。", exception.Message);
             // エラー時にも選択モード・日時・資金・人口・運行設定は途中まで変更される。
             Assert.AreSame(mode, game.SelectedMode);
             Assert.AreEqual((1920, 1960, 200000L, 500), (game.Year, game.MYear, game.Money, game.Ap));

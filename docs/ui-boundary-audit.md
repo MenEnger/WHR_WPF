@@ -1,6 +1,8 @@
 # ロジックとUIの境界調査
 
-2026-10-08補足：以下は調査当時のAPI・行番号・提案であり、現在の進捗はIssue #26、通知/想定内拒否分離の最終範囲は[週次契約の設計](design/weekly-failure-contract.md)と[ADR 0019](decisions/0019-weekly-partial-failure-contract.md)を参照する。T11のうちGameInfo.ApplyModeSettingで発生するCannotContinueExceptionは、ModeSelectPage.NavigateGameのSelectedMode設定から未捕捉で伝播し、MainMenuPageの読み込み診断保存へ接続されない。読み込み段階の診断とは経路が異なる。
+2026-10-08補足：以下は調査当時のAPI・行番号・提案であり、全体の進捗は親Issue #23、通知分離の詳細はIssue #26、通知/想定内拒否分離の最終範囲は[週次契約の設計](design/weekly-failure-contract.md)と[ADR 0019](decisions/0019-weekly-partial-failure-contract.md)を参照する。T11のうちGameInfo.ApplyModeSettingで発生するCannotContinueExceptionは、ModeSelectPage.NavigateGameのSelectedMode設定から未捕捉で伝播し、MainMenuPageの読み込み診断保存へ接続されない。読み込み段階の診断とは経路が異なる。
+
+表示専用責務と選択肢の分離はIssue #27へ集約する。金額・enum表示名・選択肢同一性・路線Captionの到達点と検証は[表示境界の完了照合](design/line-caption-boundary.md)とADR 0020～0023を参照する。下記のT12～T14と選択肢の比較記述は起票時点の調査である。
 
 2026-10-06。対象は `codex/original-state-logic-audit` の作業ツリー。調査記録であり、分離の実装や仕様変更は行っていない。ローカルの待避線修正案も含む。
 
