@@ -8,6 +8,20 @@ namespace whr_wpf.Model
 {
 	public partial class GameInfo : INotifyPropertyChanged
 	{
+		/// <summary>蒸気機関の週次投資額を設定する。</summary>
+		public void SetSteamInvestment(InvestmentAmountEnum amount) => weeklyInvestment.steam = amount;
+
+		/// <summary>電気モーターの週次投資額を設定する。</summary>
+		public void SetElectricInvestment(InvestmentAmountEnum amount) => weeklyInvestment.electricMotor = amount;
+
+		/// <summary>ディーゼルの週次投資額を設定する。</summary>
+		public void SetDieselInvestment(InvestmentAmountEnum amount) => weeklyInvestment.diesel = amount;
+
+		/// <summary>リニアモーターの週次投資額を設定する。</summary>
+		public void SetLinearInvestment(InvestmentAmountLinearEnum amount) => weeklyInvestment.linearMotor = amount;
+
+		/// <summary>新企画の週次投資額を設定する。</summary>
+		public void SetNewPlanInvestment(InvestmentAmountEnum amount) => weeklyInvestment.newPlan = amount;
 
 		/// <summary>
 		/// 蒸気機関への投資が可能か

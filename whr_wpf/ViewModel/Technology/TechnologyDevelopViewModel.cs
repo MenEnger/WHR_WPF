@@ -67,7 +67,7 @@ namespace whr_wpf.ViewModel.Technology
 		{
 			get => gameInfo.weeklyInvestment.steam; set
 			{
-				gameInfo.weeklyInvestment.steam = value;
+				gameInfo.SetSteamInvestment(value);
 			}
 		}
 
@@ -89,7 +89,7 @@ namespace whr_wpf.ViewModel.Technology
 		{
 			get => gameInfo.weeklyInvestment.electricMotor; set
 			{
-				gameInfo.weeklyInvestment.electricMotor = value;
+				gameInfo.SetElectricInvestment(value);
 			}
 		}
 
@@ -111,7 +111,7 @@ namespace whr_wpf.ViewModel.Technology
 		{
 			get => gameInfo.weeklyInvestment.diesel; set
 			{
-				gameInfo.weeklyInvestment.diesel = value;
+				gameInfo.SetDieselInvestment(value);
 			}
 		}
 
@@ -133,7 +133,7 @@ namespace whr_wpf.ViewModel.Technology
 		{
 			get => gameInfo.weeklyInvestment.linearMotor; set
 			{
-				gameInfo.weeklyInvestment.linearMotor = value;
+				gameInfo.SetLinearInvestment(value);
 			}
 		}
 
@@ -155,7 +155,7 @@ namespace whr_wpf.ViewModel.Technology
 		{
 			get => gameInfo.weeklyInvestment.newPlan; set
 			{
-				gameInfo.weeklyInvestment.newPlan = value;
+				gameInfo.SetNewPlanInvestment(value);
 			}
 		}
 
