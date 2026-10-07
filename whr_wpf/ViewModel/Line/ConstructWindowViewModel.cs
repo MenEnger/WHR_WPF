@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Input;
 using System.Linq;
 using whr_wpf.Model;
+using whr_wpf.View;
 using whr_wpf.Util;
 using whr_wpf.ViewModel.Component;
 
@@ -320,9 +321,9 @@ namespace whr_wpf.ViewModel
 					{
 						vm.Construct();
 					}
-					catch (MoneyShortException)
+					catch (MoneyShortException e)
 					{
-						MessageBox.Show("お金が足りません");
+						MessageBox.Show(GameFailureFormatter.Format(e.Failure));
 					}
 					vm.Window.Close();
 				}

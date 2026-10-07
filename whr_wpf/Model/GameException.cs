@@ -6,12 +6,16 @@ namespace whr_wpf.Model
 	/// <summary>
 	/// 資金不足
 	/// </summary>
-	/// <param name="message"></param>
 	public class MoneyShortException : InvalidOperationException
 	{
-		public MoneyShortException(string message) : base(message)
+		/// <param name="failure">判定時点の資金不足の情報。</param>
+		public MoneyShortException(MoneyShortageFailure failure)
+			: base("Available money is insufficient.")
 		{
+			Failure = failure;
 		}
+
+		public MoneyShortageFailure Failure { get; }
 	}
 
 	/// <summary>
@@ -41,7 +45,13 @@ namespace whr_wpf.Model
 	/// </summary>
 	public class GameOverException : Exception
 	{
-		public GameOverException(string message) : base(message) { }
+		public GameOverException(GameOverFailure failure)
+			: base("The game deadline was exceeded.")
+		{
+			Failure = failure;
+		}
+
+		public GameOverFailure Failure { get; }
 	}
 
 }

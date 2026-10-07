@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Reflection;
 using System.Windows;
@@ -69,9 +69,9 @@ namespace whr_wpf.ViewModel
 				{
 					execDelegete();
 				}
-				catch (MoneyShortException)
+				catch (MoneyShortException e)
 				{
-					MessageBox.Show("お金が足りません");
+					MessageBox.Show(GameFailureFormatter.Format(e.Failure));
 				}
 				catch (VehicleDevelopmentRejectedException e)
 				{
@@ -103,7 +103,7 @@ namespace whr_wpf.ViewModel
 				}
 				catch (GameOverException e)
 				{
-					MessageBox.Show(e.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Information);
+					MessageBox.Show(GameFailureFormatter.Format(e.Failure), "エラー", MessageBoxButton.OK, MessageBoxImage.Information);
 				}
 			}
 		}

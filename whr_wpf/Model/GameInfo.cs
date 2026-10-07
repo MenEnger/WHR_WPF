@@ -495,7 +495,8 @@ namespace whr_wpf.Model
 		/// <param name="amount">消費資金</param>
 		public void SpendMoney(long amount)
 		{
-			if (Money < amount) { throw new MoneyShortException("お金が足りません"); }
+			long available = Money;
+			if (available < amount) { throw new MoneyShortException(new(amount, available)); }
 			Money -= amount;
 		}
 
