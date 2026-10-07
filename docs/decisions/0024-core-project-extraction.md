@@ -29,3 +29,6 @@ namespaceは同じでも公開型のassembly identityは変わる。外部binary
 移動前後の107件のテスト名とケース数、残る426件と合わせた533件、本体単独ビルド、FrameworkReference/ProjectReference、WPF配布出力のDLLとjnr資源を確認する。Windows上での確認をLinux上の実行済み証拠としては扱わない。
 
 仕様・影響レビューと設計レビューを別々にAstraが承認した。詳細は[抽出設計](../design/core-project-extraction.md)。Issue #28の共通操作窓口と全体の完了条件はまだ残る。
+## 第二段階の試験配置
+
+[本体試験の追加移管](../design/core-test-separation.md)では、独立した10ファイル135件とCurrentBehaviorFixtureを本体試験へ移す。fixtureは本体のみを利用するため本体試験側を正本とし、WPF試験から単一ソースをリンクする。第一段階の逆向きソースリンクを解消し、複製や共有試験ライブラリを増やさない。製品・試験の期待値とassembly間ProjectReferenceは変更しない。イベント期待値を共有する試験、混在試験とシナリオ単独検証は後続に残る。
