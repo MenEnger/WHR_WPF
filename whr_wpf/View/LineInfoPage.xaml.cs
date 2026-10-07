@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Navigation;
 using whr_wpf.Model;
 using whr_wpf.ViewModel;
+using whr_wpf.ViewModel.Component;
 
 namespace whr_wpf
 {
@@ -20,13 +22,13 @@ namespace whr_wpf
 			this.gameInfo = gameInfo;
 			var vm = new LineInfoViewModel(line, this, gameInfo);
 			this.DataContext = vm;
-			LineList.ItemsSource = gameInfo.lines;
-			LineList.SelectedItem = line;
+			LineList.ItemsSource = gameInfo.lines.Select(item => new LineSelectionItem(item)).ToList();
+			LineList.SelectedValue = line;
 		}
 
 		private void LineList_DropDownClosed(object sender, EventArgs e)
 		{
-			if (LineList.SelectedItem is Line line)
+			if (LineList.SelectedValue is Line line)
 			{
 				var page = new LineInfoPage(line, gameInfo);
 				NavigationService.Navigate(page);
