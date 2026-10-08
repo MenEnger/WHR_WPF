@@ -53,7 +53,7 @@ namespace whr_wpf.Model.Tests
             {
                 case PowerEnum.Steam: game.genkaiJoki = before; game.AccumulatedInvest.steam = investment; break;
                 case PowerEnum.Electricity: game.genkaiDenki = before; game.AccumulatedInvest.electricMotor = investment; break;
-                case PowerEnum.Diesel: game.genkaiKidosha = before; game.AccumulatedInvest.diesel = investment; break;
+                case PowerEnum.Diesel: game.genkaiDenki = 80; game.genkaiKidosha = before; game.AccumulatedInvest.diesel = investment; break;
                 case PowerEnum.LinearMotor: game.genkaiLinear = before; game.AccumulatedInvest.linearMotor = investment; break;
             }
             var notification = game.NextWeek().OfType<EngineDevelopedEvent>().First();
@@ -81,6 +81,7 @@ namespace whr_wpf.Model.Tests
         public void DieselAboveTheSpeedThresholdStillRunsSpeedThenCostBranches()
         {
             var game = Game();
+            game.genkaiDenki = 80;
             game.genkaiKidosha = 370;
             game.AccumulatedInvest.diesel = 1000000000;
             CollectionAssert.AreEqual(new GameEvent[]

@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
+using System.Windows.Threading;
 using whr_wpf.Model;
 using whr_wpf.Util;
 using whr_wpf.View;
@@ -33,8 +34,19 @@ namespace whr_wpf.ViewModel.Technology
 			switch (e.PropertyName)
 			{
 				case nameof(GameInfo.AccumulatedInvest):
+				case nameof(GameInfo.weeklyInvestment):
 					InvokeAllNotify();
 					break;
+			}
+		}
+
+		private void SetInvestment(Action setting)
+		{
+			try { setting(); }
+			catch (TechnologyInvestmentRejectedException)
+			{
+				// bindingの書込後に、保持された額と既存の投資不可表示へ戻す。
+				window.Dispatcher.BeginInvoke(DispatcherPriority.DataBind, new Action(InvokeAllNotify));
 			}
 		}
 
@@ -67,7 +79,7 @@ namespace whr_wpf.ViewModel.Technology
 		{
 			get => gameInfo.weeklyInvestment.steam; set
 			{
-				gameInfo.SetSteamInvestment(value);
+				SetInvestment(() => gameInfo.SetSteamInvestment(value));
 			}
 		}
 
@@ -89,7 +101,7 @@ namespace whr_wpf.ViewModel.Technology
 		{
 			get => gameInfo.weeklyInvestment.electricMotor; set
 			{
-				gameInfo.SetElectricInvestment(value);
+				SetInvestment(() => gameInfo.SetElectricInvestment(value));
 			}
 		}
 
@@ -111,7 +123,7 @@ namespace whr_wpf.ViewModel.Technology
 		{
 			get => gameInfo.weeklyInvestment.diesel; set
 			{
-				gameInfo.SetDieselInvestment(value);
+				SetInvestment(() => gameInfo.SetDieselInvestment(value));
 			}
 		}
 
@@ -133,7 +145,7 @@ namespace whr_wpf.ViewModel.Technology
 		{
 			get => gameInfo.weeklyInvestment.linearMotor; set
 			{
-				gameInfo.SetLinearInvestment(value);
+				SetInvestment(() => gameInfo.SetLinearInvestment(value));
 			}
 		}
 
@@ -155,7 +167,7 @@ namespace whr_wpf.ViewModel.Technology
 		{
 			get => gameInfo.weeklyInvestment.newPlan; set
 			{
-				gameInfo.SetNewPlanInvestment(value);
+				SetInvestment(() => gameInfo.SetNewPlanInvestment(value));
 			}
 		}
 

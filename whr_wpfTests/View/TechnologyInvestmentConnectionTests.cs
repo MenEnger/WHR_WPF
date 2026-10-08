@@ -1,4 +1,6 @@
 using System.Runtime.ExceptionServices;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Threading;
 using whr_wpf.Model;
 using whr_wpf.View.Technology;
@@ -11,29 +13,32 @@ namespace whr_wpf.View.Tests
     public class TechnologyInvestmentConnectionTests
     {
         [TestMethod]
-        public void ActualWindowViewModelConnectsAllFiveInvestmentSettersAndGetters()
+        public void ActualWindowSelectionsConnectAllFiveSettersWithoutDuplicateNotifications()
         {
             OnStaThread(() =>
             {
                 var game = Game();
+                game.genkaiJoki = 100;
+                game.genkaiDenki = game.genkaiKidosha = 200;
+                game.genkaiLinear = 300;
                 var window = new TechnologyDevelopWindow(game);
                 try
                 {
-                    window.Dispatcher.Invoke(() => { }, DispatcherPriority.DataBind);
-                    var vm = window.DataContext;
-                    var settings = new (string Property, object Value)[]
+                    PumpBindings(window);
+                    var combos = InvestmentCombos(window);
+                    object[] settings = [InvestmentAmountEnum.MN2000, InvestmentAmountEnum.MN5000,
+                        InvestmentAmountEnum.OK1, InvestmentAmountLinearEnum.OK10, InvestmentAmountEnum.OK5];
+                    int notifications = 0;
+                    game.PropertyChanged += (_, args) =>
                     {
-                        ("SteamInvest", InvestmentAmountEnum.MN2000),
-                        ("ElectricInvest", InvestmentAmountEnum.MN5000),
-                        ("DieselInvest", InvestmentAmountEnum.OK1),
-                        ("LinearInvest", InvestmentAmountLinearEnum.OK10),
-                        ("NewPlanInvest", InvestmentAmountEnum.OK5),
+                        if (args.PropertyName == nameof(GameInfo.weeklyInvestment)) notifications++;
                     };
-                    foreach (var setting in settings)
+                    for (int i = 0; i < combos.Length; i++)
                     {
-                        var property = vm.GetType().GetProperty(setting.Property)!;
-                        property.SetValue(vm, setting.Value);
-                        Assert.AreEqual(setting.Value, property.GetValue(vm));
+                        combos[i].SelectedValue = settings[i];
+                        PumpBindings(window);
+                        Assert.AreEqual(settings[i], combos[i].SelectedValue);
+                        Assert.AreEqual(i + 1, notifications);
                     }
                     Assert.AreEqual((InvestmentAmountEnum.MN2000, InvestmentAmountEnum.MN5000, InvestmentAmountEnum.OK1,
                             InvestmentAmountLinearEnum.OK10, InvestmentAmountEnum.OK5),
@@ -44,6 +49,73 @@ namespace whr_wpf.View.Tests
                 finally { window.Close(); }
             });
         }
+
+        [TestMethod]
+        public void RejectedSelectionReturnsToRetainedAmountAndShowsUnavailableState()
+        {
+            OnStaThread(() =>
+            {
+                var game = Game();
+                game.genkaiDenki = 80;
+                game.SetDieselInvestment(InvestmentAmountEnum.MN2000);
+                var window = new TechnologyDevelopWindow(game);
+                try
+                {
+                    PumpBindings(window);
+                    var diesel = InvestmentCombos(window)[2];
+                    Assert.AreEqual(Visibility.Visible, diesel.Visibility);
+                    // 前提が変わっても古い表示から操作された場合、本体で拒否する。
+                    game.genkaiDenki = 79;
+                    int notifications = 0;
+                    game.PropertyChanged += (_, _) => notifications++;
+                    diesel.SelectedValue = InvestmentAmountEnum.OK1;
+                    PumpBindings(window);
+                    Assert.AreEqual(InvestmentAmountEnum.MN2000, game.weeklyInvestment.diesel);
+                    Assert.AreEqual(InvestmentAmountEnum.MN2000, diesel.SelectedValue);
+                    Assert.AreEqual(Visibility.Collapsed, diesel.Visibility);
+                    var grid = (Grid)diesel.Parent;
+                    var label = grid.Children.OfType<Label>().Single(item => Grid.GetRow(item) == 3 && Grid.GetColumn(item) == 1);
+                    Assert.AreEqual("(投資不可)", label.Content);
+                    Assert.AreEqual(Visibility.Visible, label.Visibility);
+                    Assert.AreEqual(0, notifications);
+                }
+                finally { window.Close(); }
+            });
+        }
+
+        [TestMethod]
+        public void YearEndStopUpdatesTheActualSelectionAndAvailability()
+        {
+            OnStaThread(() =>
+            {
+                var game = Game();
+                game.SteamYear = 1881;
+                game.SetSteamInvestment(InvestmentAmountEnum.MN2000);
+                YearEnd(game);
+                var window = new TechnologyDevelopWindow(game);
+                try
+                {
+                    PumpBindings(window);
+                    var steam = InvestmentCombos(window)[0];
+                    Assert.AreEqual(InvestmentAmountEnum.MN2000, steam.SelectedValue);
+                    game.NextWeek();
+                    PumpBindings(window);
+                    Assert.AreEqual(InvestmentAmountEnum.Nothing, steam.SelectedValue);
+                    Assert.AreEqual(Visibility.Collapsed, steam.Visibility);
+                    Assert.AreEqual(InvestmentAmountEnum.Nothing, game.weeklyInvestment.steam);
+                }
+                finally { window.Close(); }
+            });
+        }
+
+        private static ComboBox[] InvestmentCombos(TechnologyDevelopWindow window)
+        {
+            var panel = (StackPanel)((Grid)window.Content).Children[0];
+            return ((Grid)panel.Children[1]).Children.OfType<ComboBox>().OrderBy(Grid.GetRow).ToArray();
+        }
+
+        private static void PumpBindings(TechnologyDevelopWindow window)
+            => window.Dispatcher.Invoke(() => { }, DispatcherPriority.ApplicationIdle);
 
         private static void OnStaThread(Action action)
         {

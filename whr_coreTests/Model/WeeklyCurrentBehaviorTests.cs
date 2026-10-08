@@ -27,6 +27,9 @@ namespace whr_wpf.Model.Tests
         public void WeeklyTotalsReplacePreviousWeekAndAllInvestmentsAccumulate()
         {
             var game = Game();
+            // 全部門が投資可能な状態で、既存の支払・累計の計算を検査する。
+            game.genkaiJoki = 100;
+            game.genkaiDenki = game.genkaiKidosha = 200;
             game.income = 999;
             game.outlay = 888;
             game.weeklyInvestment = new InvestmentAmount
@@ -112,7 +115,7 @@ namespace whr_wpf.Model.Tests
             {
                 case "steam": game.genkaiJoki = speed; game.AccumulatedInvest.steam = accumulated; break;
                 case "electric": game.genkaiDenki = speed; game.AccumulatedInvest.electricMotor = accumulated; break;
-                case "diesel": game.genkaiKidosha = speed; game.AccumulatedInvest.diesel = accumulated; break;
+                case "diesel": game.genkaiDenki = 80; game.genkaiKidosha = speed; game.AccumulatedInvest.diesel = accumulated; break;
                 case "linear": game.genkaiLinear = speed; game.AccumulatedInvest.linearMotor = accumulated; break;
             }
             var messages = game.NextWeek();
