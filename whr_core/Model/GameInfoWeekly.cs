@@ -349,6 +349,17 @@ namespace whr_wpf.Model
 			}
 		}
 
+		/// <summary>不可部門の今後の投資を停止し、既存の開発停止を含む額の変更を通知する。</summary>
+		private void StopUnavailableTechnologyInvestments(InvestmentAmount before)
+		{
+			if (!CanSteamDevelop()) { weeklyInvestment.steam = InvestmentAmountEnum.Nothing; }
+			if (!CanElectricMotorDevelop()) { weeklyInvestment.electricMotor = InvestmentAmountEnum.Nothing; }
+			if (!CanDieselDevelop()) { weeklyInvestment.diesel = InvestmentAmountEnum.Nothing; }
+			if (!CanLinearMotorDevelop()) { weeklyInvestment.linearMotor = InvestmentAmountLinearEnum.Nothing; }
+			if (!CanNewPlanDevelop()) { weeklyInvestment.newPlan = InvestmentAmountEnum.Nothing; }
+			NotifyInvestmentChanged(before);
+		}
+
 		/// <summary>
 		/// 技術投資を支払い、累計投資額と変更通知を更新する。
 		/// </summary>
@@ -418,7 +429,8 @@ namespace whr_wpf.Model
 			if (genkaiDenki == 990) { weeklyInvestment.electricMotor = InvestmentAmountEnum.Nothing; }
 
 			//ディーゼル
-			if (AccumulatedInvest.diesel > Math.Pow(genkaiKidosha + 30, 3) / 10 * TechCost)
+			// 通常開発の前提。高度改良の累計判定には電気技術を追加しない。
+			if (genkaiDenki >= 80 && AccumulatedInvest.diesel > Math.Pow(genkaiKidosha + 30, 3) / 10 * TechCost)
 			{
 				if (AccumulatedInvest.diesel > (3000 * TechCost) && genkaiKidosha == 0)
 				{
@@ -534,6 +546,8 @@ namespace whr_wpf.Model
 			{
 				//年次処理
 				Year++; Month = 1;
+				// 年次処理が途中で失敗しても、期限に達した部門の停止は残る。
+				StopUnavailableTechnologyInvestments(weeklyInvestment);
 				events.AddRange(NextYear());
 
 			}

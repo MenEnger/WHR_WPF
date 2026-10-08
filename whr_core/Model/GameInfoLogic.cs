@@ -9,19 +9,63 @@ namespace whr_wpf.Model
 	public partial class GameInfo : INotifyPropertyChanged
 	{
 		/// <summary>蒸気機関の週次投資額を設定する。</summary>
-		public void SetSteamInvestment(InvestmentAmountEnum amount) => weeklyInvestment.steam = amount;
+		public void SetSteamInvestment(InvestmentAmountEnum amount)
+		{
+			ValidateInvestmentSetting(TechnologyInvestmentDepartment.Steam, (int)amount, CanSteamDevelop());
+			var before = weeklyInvestment;
+			weeklyInvestment.steam = amount;
+			NotifyInvestmentChanged(before);
+		}
 
 		/// <summary>電気モーターの週次投資額を設定する。</summary>
-		public void SetElectricInvestment(InvestmentAmountEnum amount) => weeklyInvestment.electricMotor = amount;
+		public void SetElectricInvestment(InvestmentAmountEnum amount)
+		{
+			ValidateInvestmentSetting(TechnologyInvestmentDepartment.Electric, (int)amount, CanElectricMotorDevelop());
+			var before = weeklyInvestment;
+			weeklyInvestment.electricMotor = amount;
+			NotifyInvestmentChanged(before);
+		}
 
 		/// <summary>ディーゼルの週次投資額を設定する。</summary>
-		public void SetDieselInvestment(InvestmentAmountEnum amount) => weeklyInvestment.diesel = amount;
+		public void SetDieselInvestment(InvestmentAmountEnum amount)
+		{
+			ValidateInvestmentSetting(TechnologyInvestmentDepartment.Diesel, (int)amount, CanDieselDevelop());
+			var before = weeklyInvestment;
+			weeklyInvestment.diesel = amount;
+			NotifyInvestmentChanged(before);
+		}
 
 		/// <summary>リニアモーターの週次投資額を設定する。</summary>
-		public void SetLinearInvestment(InvestmentAmountLinearEnum amount) => weeklyInvestment.linearMotor = amount;
+		public void SetLinearInvestment(InvestmentAmountLinearEnum amount)
+		{
+			ValidateInvestmentSetting(TechnologyInvestmentDepartment.Linear, (int)amount, CanLinearMotorDevelop());
+			var before = weeklyInvestment;
+			weeklyInvestment.linearMotor = amount;
+			NotifyInvestmentChanged(before);
+		}
 
 		/// <summary>新企画の週次投資額を設定する。</summary>
-		public void SetNewPlanInvestment(InvestmentAmountEnum amount) => weeklyInvestment.newPlan = amount;
+		public void SetNewPlanInvestment(InvestmentAmountEnum amount)
+		{
+			ValidateInvestmentSetting(TechnologyInvestmentDepartment.NewPlan, (int)amount, CanNewPlanDevelop());
+			var before = weeklyInvestment;
+			weeklyInvestment.newPlan = amount;
+			NotifyInvestmentChanged(before);
+		}
+
+		private static void ValidateInvestmentSetting(TechnologyInvestmentDepartment department, int amount, bool canInvest)
+		{
+			// 不可部門でも、呼出元から投資を止めることは許可する。
+			if (amount != 0 && !canInvest)
+			{
+				throw new TechnologyInvestmentRejectedException(new TechnologyInvestmentFailure(department, amount));
+			}
+		}
+
+		private void NotifyInvestmentChanged(InvestmentAmount before)
+		{
+			if (!before.Equals(weeklyInvestment)) { OnPropertyChanged(nameof(weeklyInvestment)); }
+		}
 
 		/// <summary>
 		/// 蒸気機関への投資が可能か
@@ -188,9 +232,12 @@ namespace whr_wpf.Model
 			AdjustWeeklyTransportCapacity();
 			SettleWeeklyRailwayAccounts(kamotsuTanka);
 			ApplyWeeklySubsidy();
+			StopUnavailableTechnologyInvestments(weeklyInvestment);
 			ChargeWeeklyTechnologyInvestments();
+			var investmentBeforeDevelopment = weeklyInvestment;
 			CompleteWeeklyEngineDevelopment(events);
 			CompleteWeeklySpecialTechnologyDevelopment(events);
+			StopUnavailableTechnologyInvestments(investmentBeforeDevelopment);
 			AdvanceWeeklyCalendar(events);
 			AdvanceWeeklyEconomy();
 			CheckWeeklyGoals(events);

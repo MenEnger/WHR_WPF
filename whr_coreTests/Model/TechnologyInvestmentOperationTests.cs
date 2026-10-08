@@ -12,9 +12,12 @@ namespace whr_wpf.Model.Tests
         [DataRow(2)]
         [DataRow(3)]
         [DataRow(4)]
-        public void SettingChangesOnlyItsDepartmentAndKeepsCurrentInputAcceptance(int department)
+        public void AvailableSettingChangesOnlyItsDepartmentAndKeepsUndefinedAmountAcceptance(int department)
         {
             var game = Game();
+            game.genkaiJoki = 100;
+            game.genkaiDenki = game.genkaiKidosha = 200;
+            game.genkaiLinear = 300;
             game.weeklyInvestment.steam = InvestmentAmountEnum.MN2000;
             game.weeklyInvestment.electricMotor = InvestmentAmountEnum.MN5000;
             game.weeklyInvestment.diesel = InvestmentAmountEnum.OK1;
@@ -24,8 +27,8 @@ namespace whr_wpf.Model.Tests
             long money = game.Money;
             var accumulated = game.AccumulatedInvest;
             var technologies = (game.genkaiJoki, game.genkaiDenki, game.genkaiKidosha, game.genkaiLinear, DevelopedMask(game));
-            int notifications = 0;
-            game.PropertyChanged += (_, _) => notifications++;
+            var notifications = new List<(string? Name, int Amount)>();
+            game.PropertyChanged += (_, args) => notifications.Add((args.PropertyName, Amounts(game)[department]));
 
             // 0・未定義値の受理は新ルールではなく、今回変更しない現状を記録する。
             int valid = department == 3 ? (int)InvestmentAmountLinearEnum.OK25 : (int)InvestmentAmountEnum.OK10;
@@ -37,21 +40,13 @@ namespace whr_wpf.Model.Tests
             }
             Assert.AreEqual(technologies, (game.genkaiJoki, game.genkaiDenki, game.genkaiKidosha, game.genkaiLinear, DevelopedMask(game)));
 
-            game.genkaiJoki = 150;
-            game.genkaiDenki = game.genkaiKidosha = game.genkaiLinear = 990;
-            game.isDevelopedBlockingSignal = game.isDevelopedConvertibleCross = game.isDevelopedAutoGate = true;
-            game.isDevelopedCarTiltPendulum = game.isDevelopedRichCross = game.isDevelopedRetructableLong = true;
-            game.isDevelopedDualSeat = game.isDevelopedMachineTilt = game.isDevelopedFreeGauge = game.isDevelopedDynamicSignal = true;
-            Assert.IsFalse(new[] { game.CanSteamDevelop(), game.CanElectricMotorDevelop(), game.CanDieselDevelop(), game.CanLinearMotorDevelop(), game.CanNewPlanDevelop() }[department]);
-            technologies = (game.genkaiJoki, game.genkaiDenki, game.genkaiKidosha, game.genkaiLinear, DevelopedMask(game));
-            Set(game, department, valid);
-            expected[department] = valid;
-
+            // 同値設定では、新しい投資変更通知を重複させない。
+            Set(game, department, -123);
             CollectionAssert.AreEqual(expected, Amounts(game));
-            Assert.AreEqual(technologies, (game.genkaiJoki, game.genkaiDenki, game.genkaiKidosha, game.genkaiLinear, DevelopedMask(game)));
             Assert.AreEqual(money, game.Money);
             Assert.AreEqual(accumulated, game.AccumulatedInvest);
-            Assert.AreEqual(0, notifications);
+            CollectionAssert.AreEqual(new[] { (nameof(GameInfo.weeklyInvestment), valid),
+                (nameof(GameInfo.weeklyInvestment), 0), (nameof(GameInfo.weeklyInvestment), -123) }, notifications);
         }
 
         private static int[] Amounts(GameInfo game) =>
