@@ -15,7 +15,7 @@ namespace whr_wpf.View.Tests
         public void VehicleInvalidExecuteDoesNotCalculateAnEstimateOrOpenConfirmation()
         {
             var game = Game();
-            // 未定義動力を蒸気へ訂正した際も、負速度を費用計算より先に拒否する。
+            // 負速度と未定義動力を同時に指定し、負速度の拒否が先になることを確認する。
             game.genkaiJoki = 0;
             var vm = Create("VehicleDevelopViewModel", game);
             Set(vm, "BestSpeed", -1);
