@@ -13,6 +13,11 @@ namespace whr_wpf.Model
 		FreeGaugeUnavailable,
 		SeatUnavailable,
 		TiltUnavailable,
+		NegativeSpeed,
+		UndefinedPower,
+		UndefinedGauge,
+		UndefinedSeat,
+		UndefinedTilt,
 	}
 
 	public enum CompositionCreationReason
@@ -25,6 +30,15 @@ namespace whr_wpf.Model
 		PowerMismatch,
 		TiltMismatch,
 		SpeedTooLow,
+		NegativeQuantity,
+		QuantityExceeded,
+		NegativeVehicleSpeed,
+		UndefinedGauge,
+		UndefinedTrackType,
+		UndefinedPower,
+		UndefinedSeat,
+		UndefinedTilt,
+		UnregisteredVehicle,
 	}
 
 	/// <summary>車両開発の判定理由と判定時点の値。</summary>
@@ -44,6 +58,10 @@ namespace whr_wpf.Model
 		public ImmutableArray<CarTiltEnum> Tilts { get; init; } = ImmutableArray<CarTiltEnum>.Empty;
 		public int? ActualSpeed { get; init; }
 		public int? MinimumSpeed { get; init; }
+		public string CarName { get; init; }
+		public int? RequestedQuantity { get; init; }
+		public int? QuantityLimit { get; init; }
+		public int? InvalidValue { get; init; }
 		public bool CanCompositionMake => Reason == CompositionCreationReason.None;
 	}
 

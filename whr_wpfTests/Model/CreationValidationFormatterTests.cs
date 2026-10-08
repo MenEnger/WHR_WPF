@@ -40,6 +40,36 @@ namespace whr_wpf.Model.Tests
         public void CompositionMessagesKeepExistingText(CompositionCreationReason reason, string? expected)
             => Assert.AreEqual(expected, CreationValidationFormatter.Format(new CompositionCreationCheck(reason)));
 
+        [DataTestMethod]
+        [DataRow(VehicleCreationReason.NegativeSpeed, "速度は0以上で指定してください")]
+        [DataRow(VehicleCreationReason.UndefinedPower, "動力の指定が不正です")]
+        [DataRow(VehicleCreationReason.UndefinedGauge, "軌間の指定が不正です")]
+        [DataRow(VehicleCreationReason.UndefinedSeat, "座席の指定が不正です")]
+        [DataRow(VehicleCreationReason.UndefinedTilt, "車体傾斜装置の指定が不正です")]
+        public void VehicleInputRejectionUsesTheSameMessageAtCheckAndExecution(VehicleCreationReason reason, string message)
+        {
+            var check = Vehicle(reason);
+            Assert.AreEqual(message, CreationValidationFormatter.Format(check));
+            Assert.AreEqual(message, CreationValidationFormatter.Format(new VehicleDevelopmentRejectedException(check)));
+        }
+
+        [DataTestMethod]
+        [DataRow(CompositionCreationReason.NegativeQuantity, "両数は0以上で指定してください")]
+        [DataRow(CompositionCreationReason.QuantityExceeded, "1車種の両数は16両以下で指定してください")]
+        [DataRow(CompositionCreationReason.NegativeVehicleSpeed, "負の速度の車両は使用できません")]
+        [DataRow(CompositionCreationReason.UndefinedGauge, "車両の軌間の指定が不正です")]
+        [DataRow(CompositionCreationReason.UndefinedTrackType, "車両の軌道タイプの指定が不正です")]
+        [DataRow(CompositionCreationReason.UndefinedPower, "車両の動力の指定が不正です")]
+        [DataRow(CompositionCreationReason.UndefinedSeat, "車両の座席の指定が不正です")]
+        [DataRow(CompositionCreationReason.UndefinedTilt, "車両の車体傾斜装置の指定が不正です")]
+        [DataRow(CompositionCreationReason.UnregisteredVehicle, "ゲームに登録されていない車両は使用できません")]
+        public void CompositionInputRejectionHasAnActionableMessage(CompositionCreationReason reason, string message)
+        {
+            var check = new CompositionCreationCheck(reason) { QuantityLimit = 16 };
+            Assert.AreEqual(message, CreationValidationFormatter.Format(check));
+            Assert.AreEqual(message, CreationValidationFormatter.Format(new CompositionCreationRejectedException(check)));
+        }
+
         [TestMethod]
         public void ExecutionMessagesKeepDetailedAndGenericDistinction()
         {
@@ -89,7 +119,7 @@ namespace whr_wpf.Model.Tests
         public void CompositionViewModelKeepsEmptySelectionAndValidationConnection()
         {
             var game = Game();
-            var car = new Car { bestSpeed = 40, power = PowerEnum.Steam, gauge = CarGaugeEnum.Narrow, type = RailTypeEnum.Iron };
+            var car = new Car { bestSpeed = 40, power = PowerEnum.Steam, gauge = CarGaugeEnum.Narrow, type = RailTypeEnum.Iron, seat = SeatEnum.Semi };
             game.vehicles.Add(car);
             var vm = CreateViewModel("CompositionMakeViewModel", game);
             Set(vm, "Name", "試験");

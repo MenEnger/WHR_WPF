@@ -56,3 +56,7 @@
 
 - 蒸気投資ComboBox：TechnologyDevelopWindow.xaml:37のIsEnabledはCanSteamDevelopへバインドするが、TechnologyDevelopViewModelはCanSteamInvestを公開している。VisibilityはCanSteamInvestなので投資不可時には隠れる。コードで名称不一致を確認、実画面のバインド診断は未確認。累計投資表示の#24とは別の接続不整合候補。共通窓口の調査へ混ぜて修正しない。
 - 未定義の投資額：weeklyInvestmentへ(int.MinValue)を直接設定すると、ChargeWeeklyTechnologyInvestments→AddMoneyでMoneyが変更された後、Math.Abs(increment)がOverflowExceptionとなり得て累計加算に届かない。コード確認のみ、実行再現・通常UI到達は未確認。UIは定義済みenumだけを選択させる。#28の本体入力検査で扱う候補で、途中失敗の巻戻しを今回自動採用しない。
+
+## 2026-10-08：車両・編成作成の入力拒否の採用
+
+上記の負速度・負数量・未定義enumについて、ユーザーが本体で契約違反を拒否する方針を回答した。未登録Car・1車種16両超と合わせてADR 0028へ採用判断を記録した。実装案のCore試験で拒否・不変性・境界を検証したが、ユーザー判断により既存方式で進め、Command方式の検討はIssue #60へ分離した。まだmasterへ適用済みではない。蒸気技術0/要求速度0の除算や算術overflowなど他の候補は今回修正しない。
