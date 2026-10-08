@@ -10,8 +10,9 @@ namespace whr_wpf.Model.Tests
         {
             var game = Game();
             var stock = Stock(game, 3);
-            var car = new Car { bestSpeed = 60, power = PowerEnum.Steam, gauge = CarGaugeEnum.Narrow, type = RailTypeEnum.Iron, money = 100 };
+            var car = new Car { bestSpeed = 60, power = PowerEnum.Steam, gauge = CarGaugeEnum.Narrow, type = RailTypeEnum.Iron, seat = SeatEnum.Semi, money = 100 };
             var omitted = new Car { bestSpeed = 10, power = PowerEnum.Diesel, type = RailTypeEnum.LinearMotor };
+            game.vehicles.Add(car);
             long money = game.Money;
 
             var result = game.CreateComposition("登録編成", new Dictionary<Car, int> { [car] = 2, [omitted] = 0 });
@@ -68,7 +69,8 @@ namespace whr_wpf.Model.Tests
             var game = Game();
             var original = game.compositions;
             var replacement = new List<IComposition>();
-            var car = new Car { bestSpeed = 60, power = PowerEnum.Steam, gauge = CarGaugeEnum.Narrow, type = RailTypeEnum.Iron };
+            var car = new Car { bestSpeed = 60, power = PowerEnum.Steam, gauge = CarGaugeEnum.Narrow, type = RailTypeEnum.Iron, seat = SeatEnum.Semi };
+            game.vehicles.Add(car);
             IEnumerable<KeyValuePair<Car, int>> Input()
             {
                 // 公開fieldが入力列挙中に置換されても、旧VM式の登録先評価順を保つ。

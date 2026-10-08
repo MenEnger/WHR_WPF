@@ -237,6 +237,11 @@ namespace whr_wpf.ViewModel.Vehicle
 
 			public override void Execute(object parameter)
 			{
+				if (!vm.CheckCreateVehicle().CanCreateVehicle)
+				{
+					vm.OnPropertyChanged(nameof(Msg));
+					return;
+				}
 				string text = $"この車両を開発するには{MoneyDisplayFormatter.Format(vm.CalcDevelopVehiclePrice())}拾万円かかります。よろしいですか？";
 				ExecuteDelegete exec = new ExecuteDelegete(vm.ExecuteDevelop);
 				vm.ExecuteWithMoney(text, exec);

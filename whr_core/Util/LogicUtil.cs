@@ -268,15 +268,51 @@ namespace whr_wpf.Util
 	/// </summary>
 	public class CompositionFactory
 	{
+		public const int MaximumVehiclesPerType = 16;
+
 		public static CompositionCreationCheck CheckMakeComposition(string name, IEnumerable<KeyValuePair<Car, int>> VehicleNums)
+			=> CheckMakeComposition(name, VehicleNums, out _);
+
+		internal static CompositionCreationCheck CheckMakeComposition(string name, IEnumerable<KeyValuePair<Car, int>> vehicleNumbers,
+			out ImmutableDictionary<Car, int> kvDict)
 		{
+			kvDict = ImmutableDictionary<Car, int>.Empty;
 			if (string.IsNullOrWhiteSpace(name)) { return new(CompositionCreationReason.MissingName); }
 
-			ImmutableDictionary<Car, int> kvDict = VehicleNums
-				.Where(kvPair => kvPair.Value > 0)
-				.ToImmutableDictionary(kvPair => kvPair.Key, kvPair => kvPair.Value);
-
+			// 元入力は一度だけ読み、検査と生成で同じ構成を使う。
+			var rows = vehicleNumbers.ToArray();
+			foreach (var row in rows)
+			{
+				if (row.Value < 0)
+				{ return new(CompositionCreationReason.NegativeQuantity) { CarName = row.Key?.Name, RequestedQuantity = row.Value }; }
+			}
+			foreach (var row in rows)
+			{
+				if (row.Value > MaximumVehiclesPerType)
+				{ return new(CompositionCreationReason.QuantityExceeded) { CarName = row.Key?.Name, RequestedQuantity = row.Value, QuantityLimit = MaximumVehiclesPerType }; }
+			}
+			kvDict = rows.Where(row => row.Value > 0).ToImmutableDictionary(row => row.Key, row => row.Value);
 			if (kvDict.IsEmpty) { return new(CompositionCreationReason.NoVehicles); }
+
+			var cars = kvDict.Keys;
+			var invalid = cars.FirstOrDefault(car => car.bestSpeed < 0);
+			if (invalid != null)
+			{ return new(CompositionCreationReason.NegativeVehicleSpeed) { CarName = invalid.Name, ActualSpeed = invalid.bestSpeed }; }
+			invalid = cars.FirstOrDefault(car => !Enum.IsDefined(car.gauge));
+			if (invalid != null)
+			{ return new(CompositionCreationReason.UndefinedGauge) { CarName = invalid.Name, InvalidValue = (int)invalid.gauge }; }
+			invalid = cars.FirstOrDefault(car => !Enum.IsDefined(car.type));
+			if (invalid != null)
+			{ return new(CompositionCreationReason.UndefinedTrackType) { CarName = invalid.Name, InvalidValue = (int)invalid.type }; }
+			invalid = cars.FirstOrDefault(car => !Enum.IsDefined(car.power));
+			if (invalid != null)
+			{ return new(CompositionCreationReason.UndefinedPower) { CarName = invalid.Name, InvalidValue = (int)invalid.power }; }
+			invalid = cars.FirstOrDefault(car => !Enum.IsDefined(car.seat));
+			if (invalid != null)
+			{ return new(CompositionCreationReason.UndefinedSeat) { CarName = invalid.Name, InvalidValue = (int)invalid.seat }; }
+			invalid = cars.FirstOrDefault(car => !Enum.IsDefined(car.carTilt));
+			if (invalid != null)
+			{ return new(CompositionCreationReason.UndefinedTilt) { CarName = invalid.Name, InvalidValue = (int)invalid.carTilt }; }
 
 			var gauges = kvDict.Select(v => v.Key.gauge).Distinct();
 			if (gauges.Contains(CarGaugeEnum.Narrow) && gauges.Contains(CarGaugeEnum.Regular))
@@ -325,14 +361,16 @@ namespace whr_wpf.Util
 		/// <returns></returns>
 		public static Composition CreateComposition(string name, IEnumerable<KeyValuePair<Car, int>> VehicleNums)
 		{
-			CompositionCreationCheck check = CheckMakeComposition(name, VehicleNums);
-
+			var check = CheckMakeComposition(name, VehicleNums, out var selected);
 			if (!check.CanCompositionMake) { throw new CompositionCreationRejectedException(check); }
+			return CreateValidatedComposition(name, selected);
+		}
 
+		/// <summary>同じ選択辞書の検査成功後だけ呼ぶ。元入力は再列挙しない。</summary>
+		internal static Composition CreateValidatedComposition(string name, ImmutableDictionary<Car, int> selected)
+		{
 			Composition result = new Composition();
-			result.Vehicles = VehicleNums
-				.Where(kvPair => kvPair.Value > 0)
-				.ToDictionary(kvPair => kvPair.Key, kvPair => kvPair.Value);
+			result.Vehicles = selected.ToDictionary(row => row.Key, row => row.Value);
 			result.BestSpeed = CalcCompositionBestSpeed(result.Vehicles);
 
 			var gauges = result.Vehicles.Select(v => v.Key.gauge).Where(g => g != CarGaugeEnum.FreeGauge).Distinct();

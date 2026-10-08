@@ -13,7 +13,7 @@ namespace whr_wpf.View.Tests
         public void ConfirmationCallbackRegistersTheViewModelInputThroughTheGameOperation()
         {
             var game = Game();
-            var car = new Car { bestSpeed = 60, power = PowerEnum.Steam, gauge = CarGaugeEnum.Narrow, type = RailTypeEnum.Iron };
+            var car = new Car { bestSpeed = 60, power = PowerEnum.Steam, gauge = CarGaugeEnum.Narrow, type = RailTypeEnum.Iron, seat = SeatEnum.Semi };
             game.vehicles.Add(car);
             long money = game.Money;
             var type = typeof(ViewModelBase).Assembly.GetType("whr_wpf.ViewModel.Vehicle.CompositionMakeViewModel")!;

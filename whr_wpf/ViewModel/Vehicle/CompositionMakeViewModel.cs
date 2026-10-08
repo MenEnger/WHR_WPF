@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -73,7 +74,8 @@ namespace whr_wpf.ViewModel.Vehicle
 					builder.Append("フリーゲージトレイン\n");
 				}
 
-				builder.Append($"動力　{Vehicle.power.ToName()}\n");
+				string powerName = Enum.IsDefined(Vehicle.power) ? Vehicle.power.ToName() : $"{(int)Vehicle.power}（未定義）";
+				builder.Append($"動力　{powerName}\n");
 
 				switch (Vehicle.carTilt)
 				{
@@ -90,6 +92,13 @@ namespace whr_wpf.ViewModel.Vehicle
 
 				builder.Append("\n");
 
+				// 名前入力前にも説明を表示する。実際の作成は実名で別途検査する。
+				var check = gameInfo.CheckCreateComposition("見積", VehicleNums);
+				if (!check.CanCompositionMake && check.Reason != CompositionCreationReason.NoVehicles)
+				{
+					builder.Append(CreationValidationFormatter.Format(check));
+					return builder.ToString();
+				}
 				builder.Append($"最高速度　{CompositionFactory.CalcCompositionBestSpeed(VehicleNums)}km/h\n");
 
 				int price = VehicleNums.Sum(vehicle => vehicle.Key.money * vehicle.Value);
@@ -105,7 +114,7 @@ namespace whr_wpf.ViewModel.Vehicle
 			{
 				if (Vehicle is null) { return ""; }
 
-				var check = CompositionFactory.CheckMakeComposition(Name, VehicleNums);
+				var check = gameInfo.CheckCreateComposition(Name, VehicleNums);
 
 				if (check.CanCompositionMake) { return ""; }
 
@@ -130,7 +139,7 @@ namespace whr_wpf.ViewModel.Vehicle
 
 		private bool CanCreateComposition()
 		{
-			return CompositionFactory.CheckMakeComposition(Name, VehicleNums).CanCompositionMake;
+			return gameInfo.CheckCreateComposition(Name, VehicleNums).CanCompositionMake;
 		}
 
 		public ICommand QuantUp { get; set; }
@@ -146,7 +155,7 @@ namespace whr_wpf.ViewModel.Vehicle
 			private const int increments = 1;
 
 			public UpCommand(CompositionMakeViewModel viewModel) => vm = viewModel;
-			public override bool CanExecute(object parameter) => (vm.Quantity + increments) <= 16;
+			public override bool CanExecute(object parameter) => vm.Quantity < CompositionFactory.MaximumVehiclesPerType;
 			public override void Execute(object parameter) => vm.Quantity += increments;
 		}
 
@@ -159,7 +168,7 @@ namespace whr_wpf.ViewModel.Vehicle
 			private const int diff = 1;
 
 			public DownCommand(CompositionMakeViewModel viewModel) => vm = viewModel;
-			public override bool CanExecute(object parameter) => (vm.Quantity - diff) >= 0;
+			public override bool CanExecute(object parameter) => vm.Quantity > 0;
 			public override void Execute(object parameter) => vm.Quantity -= diff;
 		}
 
@@ -174,6 +183,11 @@ namespace whr_wpf.ViewModel.Vehicle
 
 			public override void Execute(object parameter)
 			{
+				if (!vm.CanCreateComposition())
+				{
+					vm.OnPropertyChanged(nameof(ErrorMsg));
+					return;
+				}
 				string text = $"編成を作成してよろしいですか？";
 				ExecuteDelegete exec = new ExecuteDelegete(Make);
 				vm.ExecuteWithMoney(text, exec);

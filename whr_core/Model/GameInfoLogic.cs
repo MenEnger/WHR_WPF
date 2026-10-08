@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Linq;
 using whr_wpf.Util;
@@ -117,6 +118,12 @@ namespace whr_wpf.Model
 				new(reason, Power, BestSpeed, speedLimit, Gauge, Seat, tilt, Year, SteamYear);
 
 			if (string.IsNullOrWhiteSpace(Name)) { return Result(VehicleCreationReason.MissingName); }
+
+			if (BestSpeed < 0) { return Result(VehicleCreationReason.NegativeSpeed); }
+			if (!Enum.IsDefined(Power)) { return Result(VehicleCreationReason.UndefinedPower); }
+			if (!Enum.IsDefined(Gauge)) { return Result(VehicleCreationReason.UndefinedGauge); }
+			if (!Enum.IsDefined(Seat)) { return Result(VehicleCreationReason.UndefinedSeat); }
+			if (!Enum.IsDefined(tilt)) { return Result(VehicleCreationReason.UndefinedTilt); }
 
 			if (Power == PowerEnum.LinearMotor)
 			{
@@ -394,9 +401,28 @@ namespace whr_wpf.Model
 		public Composition CreateComposition(string name, IEnumerable<KeyValuePair<Car, int>> vehicleNumbers)
 		{
 			var destination = compositions;
-			Composition result = CompositionFactory.CreateComposition(name, vehicleNumbers);
+			var check = PrepareComposition(name, vehicleNumbers, out var selected);
+			if (!check.CanCompositionMake) { throw new CompositionCreationRejectedException(check); }
+			Composition result = CompositionFactory.CreateValidatedComposition(name, selected);
 			destination.Add(result);
 			return result;
+		}
+
+		/// <summary>このゲームの車両で編成を作成できるか検査する。</summary>
+		public CompositionCreationCheck CheckCreateComposition(string name, IEnumerable<KeyValuePair<Car, int>> vehicleNumbers)
+			=> PrepareComposition(name, vehicleNumbers, out _);
+
+		private CompositionCreationCheck PrepareComposition(string name, IEnumerable<KeyValuePair<Car, int>> vehicleNumbers,
+			out ImmutableDictionary<Car, int> selected)
+		{
+			var check = CompositionFactory.CheckMakeComposition(name, vehicleNumbers, out selected);
+			if (!check.CanCompositionMake) { return check; }
+			foreach (var car in selected.Keys)
+			{
+				if (!vehicles.Any(registered => ReferenceEquals(registered, car)))
+				{ return new(CompositionCreationReason.UnregisteredVehicle) { CarName = car.Name }; }
+			}
+			return check;
 		}
 
 		/// <summary>

@@ -76,10 +76,10 @@ namespace whr_wpf.Model.Tests
         }
 
         [TestMethod]
-        public void VehicleCheckCurrentlyAllowsNegativeSpeedAndUndefinedEnums()
+        public void VehicleCheckRejectsNegativeSpeedAndUndefinedEnums()
         {
-            Assert.AreEqual(VehicleCreationReason.None, Check(Game(), speed: -1));
-            Assert.AreEqual(VehicleCreationReason.None, Check(Game(), speed: 999, power: (PowerEnum)999,
+            Assert.AreEqual(VehicleCreationReason.NegativeSpeed, Check(Game(), speed: -1));
+            Assert.AreEqual(VehicleCreationReason.UndefinedPower, Check(Game(), speed: 999, power: (PowerEnum)999,
                 gauge: (CarGaugeEnum)999, seat: (SeatEnum)999, tilt: (CarTiltEnum)999));
         }
 
@@ -128,7 +128,7 @@ namespace whr_wpf.Model.Tests
             second.carTilt = CarTiltEnum.Pendulum;
             var rows = Rows((first, 1), (second, 1));
             AssertCompositionError(" \t", rows, CompositionCreationReason.MissingName);
-            AssertCompositionError("編成", Rows((first, 0), (second, -1)), CompositionCreationReason.NoVehicles);
+            AssertCompositionError("編成", Rows((first, 0), (second, 0)), CompositionCreationReason.NoVehicles);
             AssertCompositionError("編成", rows, CompositionCreationReason.GaugeMismatch);
             second.gauge = first.gauge;
             AssertCompositionError("編成", rows, CompositionCreationReason.TrackTypeMismatch);
@@ -153,7 +153,7 @@ namespace whr_wpf.Model.Tests
             free.gauge = CarGaugeEnum.FreeGauge;
             var ignored = Vehicle();
             ignored.type = RailTypeEnum.LinearMotor;
-            var rows = Rows((ordinary, 2), (free, 1), (ignored, 0), (Vehicle(), -3));
+            var rows = Rows((ordinary, 2), (free, 1), (ignored, 0), (Vehicle(), 0));
             Assert.AreEqual(CompositionCreationReason.None, CompositionFactory.CheckMakeComposition("編成", rows).Reason);
             var composition = CompositionFactory.CreateComposition("編成", rows);
             Assert.AreEqual(("編成", gauge, RailTypeEnum.Iron, PowerEnum.Steam, CarTiltEnum.None, 40),
@@ -178,7 +178,7 @@ namespace whr_wpf.Model.Tests
         }
 
         [TestMethod]
-        public void CompositionCurrentlyAllowsUndefinedEnumsButPropagatesDuplicateKeyFailure()
+        public void CompositionRejectsUndefinedEnumsAndPropagatesDuplicateKeyFailure()
         {
             var car = Vehicle();
             car.gauge = (CarGaugeEnum)999;
@@ -186,8 +186,8 @@ namespace whr_wpf.Model.Tests
             car.power = (PowerEnum)999;
             car.carTilt = (CarTiltEnum)999;
             var rows = Rows((car, 1));
-            Assert.AreEqual(CompositionCreationReason.None, CompositionFactory.CheckMakeComposition("編成", rows).Reason);
-            Assert.AreEqual((CarGaugeEnum)999, CompositionFactory.CreateComposition("編成", rows).Gauge);
+            AssertCompositionError("編成", rows, CompositionCreationReason.UndefinedGauge);
+            car = Vehicle();
             var duplicates = Rows((car, 1), (car, 2));
             Assert.ThrowsException<ArgumentException>(() => CompositionFactory.CheckMakeComposition("編成", duplicates));
             Assert.ThrowsException<ArgumentException>(() => CompositionFactory.CreateComposition("編成", duplicates));
@@ -195,14 +195,13 @@ namespace whr_wpf.Model.Tests
         }
 
         [TestMethod]
-        public void CompositionCurrentlySquaresNegativeSpeedBeforeValidation()
+        public void CompositionRejectsNegativeVehicleSpeedBeforeSpeedCalculation()
         {
             var car = Vehicle();
             car.bestSpeed = -40;
             var rows = Rows((car, 1));
-            // 負速度も二乗される現状を固定し、今回の構造化変更と仕様修正を分離する。
-            Assert.AreEqual(CompositionCreationReason.None, CompositionFactory.CheckMakeComposition("編成", rows).Reason);
-            Assert.AreEqual(40, CompositionFactory.CreateComposition("編成", rows).BestSpeed);
+            // ADR 0028により、二乗計算へ進む前に負速度を拒否する。
+            AssertCompositionError("編成", rows, CompositionCreationReason.NegativeVehicleSpeed);
             Assert.AreEqual(-40, car.bestSpeed);
         }
 
